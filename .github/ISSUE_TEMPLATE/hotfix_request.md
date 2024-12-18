@@ -1,3 +1,13 @@
+---
+name: Bug
+about: File a bug/issue
+title: '[BUG] <title>'
+labels: Bug, Needs Triage
+assignees: ''
+
+---
+
+
 <!--
 注意: 発生したバグに関する既存のIssueがないか検索してください。
 -->

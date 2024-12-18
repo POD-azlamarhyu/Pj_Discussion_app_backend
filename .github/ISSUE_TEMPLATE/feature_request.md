@@ -1,3 +1,11 @@
+---
+name: Feature
+about: Pj file feature/issue
+title: '[Feature] <title>'  
+labels: Feature
+assignees: ''  
+---
+
 
 ## Github Issue Template
 
