@@ -1,0 +1,68 @@
+services:
+  db:
+    build: 
+      context: .
+      dockerfile: ./docker/postgres/Dockerfile
+      args:
+        - DB_PORT=${POSTGRE_PORT}
+    container_name: pj2024_psql
+    restart: always
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    env_file:
+      - .env
+    ports:
+      - '${POSTGRE_PORT}:${POSTGRE_PORT}'
+    environment:
+      - POSTGRES_DB=${POSTGRE_DB}
+      - POSTGRES_USER=${POSTGRE_ADMIN}
+      - POSTGRES_PASSWORD=${POSTGRE_PW}
+
+  pgadmin:
+    build: 
+      context: .
+      dockerfile: ./docker/pgadmin/Dockerfile
+      args:
+        - PG_PORT=${PG_PORT}
+    container_name: pj2024_pgadmin
+    ports:
+      - "${PG_PORT}:80"
+    volumes:
+      - pgadmindata:/var/lib/pgadmin
+    env_file:
+      - .env
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+      - PGADMIN_CONFIG_SERVER_MODE=False
+      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+    depends_on:
+      - db
+
+  java:
+    build:
+      context: .
+      dockerfile: ./docker/java/Dockerfile
+      args:
+        - API_PORT=${API_PORT}
+        - BUILD_WORKDIR=${BUILD_WORKDIR}
+        - DEPLOY_WORKDIR=${DEPLOY_WORKDIR}
+        - JAVA_CONTAINER_USER=${JAVA_CONTAINER_USER}
+        - APP_NAME=${APP_NAME}
+    container_name: pj2024_api
+    env_file:
+      - .env
+    tty: true
+    volumes:
+      - .:/${BUILD_WORKDIR}
+    ports:
+      - "${API_PORT}:${API_PORT}"
+      - "${DEBUG_PORT}:${DEBUG_PORT}"
+    depends_on:
+      - db
+    links:
+      - db
+
+volumes:
+  dbdata:
+  pgadmindata:
