@@ -24,12 +24,14 @@ jobs:
                     distribution: 'temurin'
                     java-version: '21'
                     cache: 'gradle'
-            -   name: permission gradlew
-                working-directory: ./DiscussionAppApplication
-                run: chmod +x gradlew
+            
+            -   name: Setup Gradle
+                uses: gradle/actions/setup-gradle@v4
+            
+            -   name: Make Gradle executable
+                run: chmod +x ./gradlew
             
             -   name: build and test application
-                working-directory: ./DiscussionAppApplication
                 run: ./gradlew build -x test
             
             -   name: save JAR
