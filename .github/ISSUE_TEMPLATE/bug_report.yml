@@ -1,41 +1,72 @@
----
-name: Bug
-about: File a bug/issue
-title: '[BUG] <title>'
-labels: Bug, Needs Triage
-assignees: ''
-
----
-
-
-<!--
-注意: 発生したバグに関する既存のIssueがないか検索してください。
--->
-
-### 現在の動作:
-<!-- 発生している問題について、簡潔に記述してください。 -->
-
-### 期待する動作:
-<!-- 期待していた動作について、簡潔に記述してください。 -->
-
-### 再現手順:
-<!--
-例: 問題を再現する手順:
-1. この環境で...
-1. この設定で...
-1. '...'を実行する
-1. エラーが発生する
--->
-
-### 環境:
-<!--
-例:
-- OS: Ubuntu 20.04
-- Node: 13.14.0
-- npm: 7.6.3
--->
-
-### その他:
-<!--
-関連リンクや参考資料など、問題の理解を助ける情報があれば記載してください。
--->
+name: ❗️バグ報告
+description: バグの報告をする
+title: ❗️[BUG] 
+body:
+  - type: markdown
+    attributes:
+      value: |
+        バグ報告ありがとうございます．以下の情報を記入してください．
+        **注意**：発生したバグに関する既存のIssueがないか検索してください．
+  - type: textarea
+    id: bug
+    attributes:
+      label: バグの説明
+      description: 発生している問題について，簡潔に記述してください．
+      placeholder: できる限り，具体的に記述してください．
+    validations:
+      required: true
+  - type: textarea
+    id: want
+    attributes:
+      label: 本来の動作
+      description: 本来期待していた動作について，簡潔に記述してください．
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 再現手順
+      description: バグを再現するための手順を記述してください
+      placeholder: |
+        Ex.): 問題を再現する手順:
+        1. この環境で...
+        2. この設定で...
+        3. '...'を実行する
+        4. エラーが発生する
+    validations:
+      required: true
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: 発生したブラウザ
+      description: 問題が発生したブラウザを選んでください．
+      multiple: true
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Internet Explore
+        - Brave
+        - Opera
+        - other
+  - type: textarea
+    id: env
+    attributes:
+      label: 開発環境
+      description: 問題が発生した開発環境を記述してください．
+      placeholder: |
+        - OS: Ubuntu 24.04
+        - Node: 22.10.0
+        - npm: 8.6.3
+  - type: textarea
+    id: additional
+    attributes:
+      label: その他の情報
+      description: バグに関連する追加の情報や参考になるスクリーンショットがあれば，こちらに貼り付けてください．
+      placeholder: |
+        - **対象環境**: この機能要望に関連する環境（OSやブラウザなど）や、影響があると考えられるコンポーネントがあれば記載してください。
+        - **優先度**: 必要に応じて、この要望の優先度（例: 高、中、低）を設定してください。
+        - **関連するIssueやPR**: 関連するIssueやPRがあれば、リンクを追加してください。
+    validations:
+      required: true
