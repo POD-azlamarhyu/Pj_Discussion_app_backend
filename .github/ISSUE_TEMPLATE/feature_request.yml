@@ -1,0 +1,68 @@
+name: ⚒ 新機能リクエスト
+description: 新機能をリクエストするテンプレ
+title: ⚒[Feature] 
+body:
+  - type: markdown
+    attributes:
+      value: 
+        新機能提案ありがとうございます．以下の情報を記入してください．
+  - type: textarea
+    id: problem
+    attributes:
+      label: 問題
+      description: この機能のリクエストに関する問題を説明してください．
+      placeholder: |
+        Ex.）〇〇がないために☓☓をする際に不便を感じる．
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: 提案する解決策
+      description: 解決策や実現する機能について具体的に説明してください．
+    validations:
+      required: true
+  - type: textarea
+    id: other_solution
+    attributes:
+      label: 他に検討した解決策
+      description: 他に検討した解決策や機能があれば，具体的に説明してください．
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: 
+        実装方針について，具体的なタスクを記入してください．
+  - type: textarea
+    id: task
+    attributes:
+      label: タスク
+      description: タスクについて，具体的に定義してください．これはIssueをクローズする最低限のタスクです．
+      placeholder: |
+        - [ ]: 
+        - [ ]: 
+        - [ ]: 
+    validations:
+      required: true
+  - type: textarea
+    id: none-task
+    attributes:
+      label: 追加タスク
+      description: 追加のタスクについて，具体的に定義してください．Issueのクローズ条件には関係ありません．
+      placeholder: |
+        - [ ]: 
+        - [ ]: 
+        - [ ]: 
+    validations:
+      required: false
+  - type: textarea
+    id: additional
+    attributes:
+      label: その他の情報
+      description: 機能要望に関連する追加の情報や参考になるスクリーンショットがあれば，こちらに貼り付けてください．
+      placeholder: |
+        - **対象環境**: この機能要望に関連する環境（OSやブラウザなど）や、影響があると考えられるコンポーネントがあれば記載してください。
+        - **優先度**: 必要に応じて、この要望の優先度（例: 高、中、低）を設定してください。
+        - **関連するIssueやPR**: 関連するIssueやPRがあれば、リンクを追加してください。
+    validations:
+      required: false
