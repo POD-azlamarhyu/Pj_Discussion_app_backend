@@ -16,6 +16,7 @@ public class WebSecurityConfig {
             (authorize) -> authorize.requestMatchers(
                 "/v3/api-docs/**",
                 "/swagger-ui/**",
+                "/swagger-ui/index.html",
                 "/swagger-ui.html"
             ).permitAll()
         );
