@@ -8,5 +8,4 @@ ARG BUILD_WORKDIR
 
 WORKDIR ${LOCALDEV_WORKDIR}
 RUN apt-get update && apt-get upgrade -y
-# COPY . ${LOCALDEV_WORKDIR}
 EXPOSE ${API_PORT}
