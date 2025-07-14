@@ -1,4 +1,4 @@
-package com.application.discussion.project.presentation.controller;
+package com.application.discussion.project.presentation.controllers;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
