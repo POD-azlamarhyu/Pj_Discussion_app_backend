@@ -1,4 +1,4 @@
-package com.application.discussion.project.presentation.controller;
+package com.application.discussion.project.presentation.controllers;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

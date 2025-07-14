@@ -1,4 +1,4 @@
-package com.application.discussion.project.presentation.controller;
+package com.application.discussion.project.presentation.controllers;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -6,11 +6,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "like",description = "Add like to discussion and comment")
+@Tag(name = "report",description = "API for report")
 @RestController
-@RequestMapping("/likes")
-public class LikeController {
+@RequestMapping("/reports")
+public class ReportController {
 
     @PostMapping
-    public void toggleLike(){}
+    public void addReport(){}
 }

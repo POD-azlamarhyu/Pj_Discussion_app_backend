@@ -1,4 +1,4 @@
-package com.application.discussion.project.presentation.controller;
+package com.application.discussion.project.presentation.controllers;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -6,11 +6,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "favorite",description = "Add favorite to discussion topics")
+@Tag(name = "like",description = "Add like to discussion and comment")
 @RestController
-@RequestMapping("/favorite")
-public class FavoriteController {
-    
+@RequestMapping("/likes")
+public class LikeController {
+
     @PostMapping
-    public void toggleFavorite(){}
+    public void toggleLike(){}
 }
