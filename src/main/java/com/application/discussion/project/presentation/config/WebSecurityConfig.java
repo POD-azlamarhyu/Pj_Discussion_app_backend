@@ -19,6 +19,7 @@ public class WebSecurityConfig {
                 "/swagger-ui/index.html",
                 "/swagger-ui.html"
             ).permitAll()
+            .anyRequest().permitAll()
         );
 
         return httpSecurity.build();
