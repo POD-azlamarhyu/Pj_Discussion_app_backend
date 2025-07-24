@@ -2,6 +2,8 @@ package com.application.discussion.project.infrastructure.seeds.topics;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -12,6 +14,8 @@ import com.application.discussion.project.infrastructure.repositories.topics.Jpa
 @Component
 @Profile("dev")
 public class MaintopicDataSeeder {
+
+    private static final Logger logger = LoggerFactory.getLogger(MaintopicDataSeeder.class);
 
     private final List<Maintopics> maintopicsSeedList = List.of(
         new Maintopics(null, "日本の政治体制の危うさについて", "日本の政治体制について議論する場所", null, null, false, false),
@@ -28,5 +32,6 @@ public class MaintopicDataSeeder {
         maintopicsSeedList.stream()
             .filter(maintopic -> !jpaMaintopicsRepository.existsByTitle(maintopic.getTitle()))
             .forEach(maintopic -> jpaMaintopicsRepository.save(maintopic));
+        logger.info("Maintopics seeded successfully.");
     }
 }
