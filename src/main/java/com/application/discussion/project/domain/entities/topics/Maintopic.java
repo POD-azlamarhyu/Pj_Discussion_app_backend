@@ -39,7 +39,7 @@ public class Maintopic {
         this.isDeleted = isDeleted;
         this.isClosed = isClosed;
 
-        logger.info("Maintopic created with ID: {}", this.maintopicId);
+        logger.info("Maintopic domain entity created with ID: {}", this.maintopicId);
     }
     public static Maintopic of(
         Long maintopicId, 
