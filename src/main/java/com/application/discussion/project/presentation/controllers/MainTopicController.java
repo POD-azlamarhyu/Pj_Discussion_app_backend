@@ -2,6 +2,8 @@ package com.application.discussion.project.presentation.controllers;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,6 +31,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class MainTopicController {
     @Autowired
     private MaintopicsListService maintopicsListService;
+
+    private static final Logger logger = LoggerFactory.getLogger(MainTopicController.class);
     
     @Operation(summary = "Create a new topic", description = "Registers a new discussion topic in the system")
     @ApiResponses(
@@ -72,6 +76,7 @@ public class MainTopicController {
     public ResponseEntity<List<MaintopicListResponse>> findMaintopicList(){
         // This method will be implemented to return a list of main topics
         // The implementation will typically call a service that fetches the data from the repository
+        logger.info("Retrieving list of main topics");
         return ResponseEntity.ok().body(maintopicsListService.service());
     }
 
