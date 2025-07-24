@@ -22,6 +22,7 @@ import com.application.discussion.project.application.dtos.topics.MaintopicListR
 import com.application.discussion.project.domain.entities.topics.Maintopic;
 import com.application.discussion.project.domain.repositories.MaintopicRepository;
 
+
 @ExtendWith(MockitoExtension.class)
 public class MaintopicsListServiceImplTests {
 
@@ -31,11 +32,35 @@ public class MaintopicsListServiceImplTests {
     @InjectMocks
     private MaintopicsListServiceImpl maintopicsListServiceImpl;
 
+
+    private Maintopic maintopic1;
+    private Maintopic maintopic2;
+
     @BeforeEach
     void setUp() {
         // This method can be used to set up any common test data or configurations
         // if needed in the future.
         MockitoAnnotations.openMocks(this);
+        maintopic1 = new Maintopic(
+            1L, 
+            "日本の政治体制の危うさについて", 
+            "日本の政治体制について議論する場所", 
+            LocalDateTime.of(2025, 12, 31, 10, 10, 10), 
+            LocalDateTime.of(2025, 12, 31, 10, 20, 10), 
+            false, false
+        );
+
+        maintopic2 = new Maintopic(
+            2L, 
+            "Sample Topic 2", 
+            "Description for Sample Topic 2", 
+            LocalDateTime.of(2025, 12, 31, 10, 10, 10), 
+            LocalDateTime.of(2025, 12, 31, 10, 20, 10), 
+            false, 
+            false
+        );
+
+        
     }
 
     @Test
@@ -44,23 +69,7 @@ public class MaintopicsListServiceImplTests {
         // The actual implementation will depend on the specific requirements and behavior
         // of the MaintopicsListServiceImpl class.
         // Assuming Maintopic is the entity returned by the repository
-        Maintopic maintopic1 = new Maintopic(1L, "日本の政治体制の危うさについて", 
-                "日本の政治体制について議論する場所", 
-                LocalDateTime.of(2025, 12, 31, 10, 10, 10), 
-                LocalDateTime.of(2025, 12, 31, 10, 20, 10), 
-                false, false);
-
-
-        Maintopic maintopic2 = new Maintopic(
-                2L, 
-                "Sample Topic 2", 
-                "Description for Sample Topic 2", 
-                LocalDateTime.of(2025, 12, 31, 10, 10, 10), 
-                LocalDateTime.of(2025, 12, 31, 10, 20, 10), 
-                false, 
-                false
-        );
-
+        
         when(maintopicRepository.findMaintopicList()).thenReturn(Arrays.asList(maintopic1, maintopic2));
 
         List<MaintopicListResponse> response = maintopicsListServiceImpl.service();
