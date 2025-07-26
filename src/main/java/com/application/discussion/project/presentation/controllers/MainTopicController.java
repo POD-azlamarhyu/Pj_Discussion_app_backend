@@ -5,6 +5,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -73,11 +76,13 @@ public class MainTopicController {
             )
     })
     @GetMapping
-    public ResponseEntity<List<MaintopicListResponse>> findMaintopicList(){
+    public ResponseEntity<List<MaintopicListResponse>> findMaintopicList() throws Exception {
         // This method will be implemented to return a list of main topics
         // The implementation will typically call a service that fetches the data from the repository
         logger.info("Retrieving list of main topics");
-        return ResponseEntity.ok().body(maintopicsListService.service());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(maintopicsListService.service());
     }
 
     @Operation(summary = "Retrieve topic information", description = "Fetches the information of a topic based on its ID")
