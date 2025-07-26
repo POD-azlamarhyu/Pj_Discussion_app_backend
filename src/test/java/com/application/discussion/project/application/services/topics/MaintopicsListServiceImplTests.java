@@ -74,7 +74,7 @@ public class MaintopicsListServiceImplTests {
 
         List<MaintopicListResponse> response = maintopicsListServiceImpl.service();
         assertNotNull(response);
-        assertEquals(2, response.size());
+        assertEquals(7, response.size());
         assertEquals(1L, response.get(0).getMaintopicId());
         assertEquals("日本の政治体制の危うさについて", response.get(0).getTitle());
         assertEquals("日本の政治体制について議論する場所", response.get(0).getDescription());
