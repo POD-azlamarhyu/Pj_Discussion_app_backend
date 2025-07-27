@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.application.discussion.project.application.dtos.topics.MaintopicListResponse;
@@ -13,13 +14,11 @@ import com.application.discussion.project.domain.repositories.MaintopicRepositor
 @Service
 public class MaintopicsListServiceImpl implements MaintopicsListService {
 
-    private final MaintopicRepository maintopicRepository;
+    @Autowired
+    private MaintopicRepository maintopicRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(MaintopicsListServiceImpl.class);
 
-    public MaintopicsListServiceImpl(MaintopicRepository maintopicRepository) {
-        this.maintopicRepository = maintopicRepository;
-    }
 
     @Override
     public List<MaintopicListResponse> service() {
