@@ -20,18 +20,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.application.discussion.project.application.dtos.topics.MaintopicListResponse;
 import com.application.discussion.project.domain.entities.topics.Maintopic;
-import com.application.discussion.project.domain.repositories.MaintopicRepository;
+import com.application.discussion.project.infrastructure.repositories.topics.MaintopicRepositoryImpl;
 
 
 @ExtendWith(MockitoExtension.class)
 public class MaintopicsListServiceImplTests {
 
     @Mock
-    private MaintopicRepository maintopicRepository;
+    private MaintopicRepositoryImpl maintopicRepository;
 
     @InjectMocks
     private MaintopicsListServiceImpl maintopicsListServiceImpl;
-
 
     private Maintopic maintopic1;
     private Maintopic maintopic2;
@@ -47,7 +46,8 @@ public class MaintopicsListServiceImplTests {
             "日本の政治体制について議論する場所", 
             LocalDateTime.of(2025, 12, 31, 10, 10, 10), 
             LocalDateTime.of(2025, 12, 31, 10, 20, 10), 
-            false, false
+            false, 
+            false
         );
 
         maintopic2 = new Maintopic(
@@ -69,12 +69,12 @@ public class MaintopicsListServiceImplTests {
         // The actual implementation will depend on the specific requirements and behavior
         // of the MaintopicsListServiceImpl class.
         // Assuming Maintopic is the entity returned by the repository
-        
-        when(maintopicRepository.findMaintopicList()).thenReturn(Arrays.asList(maintopic1, maintopic2));
+        List<Maintopic> mockList = Arrays.asList(maintopic1, maintopic2);
+        when(maintopicRepository.findMaintopicList()).thenReturn(mockList);
 
         List<MaintopicListResponse> response = maintopicsListServiceImpl.service();
         assertNotNull(response);
-        assertEquals(7, response.size());
+        assertEquals(2, response.size());
         assertEquals(1L, response.get(0).getMaintopicId());
         assertEquals("日本の政治体制の危うさについて", response.get(0).getTitle());
         assertEquals("日本の政治体制について議論する場所", response.get(0).getDescription());
