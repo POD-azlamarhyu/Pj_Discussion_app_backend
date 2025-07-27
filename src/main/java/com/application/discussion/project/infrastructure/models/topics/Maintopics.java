@@ -11,20 +11,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
 
 
 @Table(name = "maintopics")
 @Entity
 @Builder
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Maintopics {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,4 +43,84 @@ public class Maintopics {
 
     @Column(name = "is_closed", nullable = false, columnDefinition = "boolean default false")
     private Boolean isClosed;
+
+    // 引数なしコンストラクタ
+    public Maintopics() {
+    }
+
+    // 全フィールドを初期化するコンストラクタ
+    public Maintopics(
+        Long id, 
+        String title, 
+        String description, 
+        LocalDateTime createdAt, 
+        LocalDateTime updatedAt, 
+        Boolean isDeleted, 
+        Boolean isClosed
+    ) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.isDeleted = isDeleted;
+        this.isClosed = isClosed;
+    }
+
+    // GetterとSetter
+    public Long getId() {
+        return this.id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return this.createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Boolean getIsDeleted() {
+        return this.isDeleted;
+    }
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public Boolean getIsClosed() {
+        return this.isClosed;
+    }
+
+    public void setIsClosed(Boolean isClosed) {
+        this.isClosed = isClosed;
+    }
 }
