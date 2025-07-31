@@ -21,6 +21,24 @@ public class MaintopicRepositoryImpl implements MaintopicRepository {
     public MaintopicRepositoryImpl(JpaMaintopicsRepository jpaMaintopicsRepository) {
         this.jpaMaintopicsRepository = jpaMaintopicsRepository;
     }
+    @Override
+    public Maintopic findMaintopicById(Long maintopicId) {
+        logger.info("Finding maintopic by ID: {}", maintopicId);
+        return jpaMaintopicsRepository.findById(maintopicId)
+                .map(entity -> new Maintopic(
+                        entity.getId(),
+                        entity.getTitle(),
+                        entity.getDescription(),
+                        entity.getCreatedAt(),
+                        entity.getUpdatedAt(),
+                        entity.getIsDeleted(),
+                        entity.getIsClosed()
+                ))
+                .orElseThrow(() -> {
+                    logger.error("Maintopic with ID {} not found", maintopicId);
+                    return new RuntimeException("Topic not found");
+                });
+    }
 
     @Override
     public List<Maintopic> findMaintopicList() {
