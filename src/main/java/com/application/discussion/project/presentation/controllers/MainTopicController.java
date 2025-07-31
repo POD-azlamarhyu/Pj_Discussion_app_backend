@@ -12,12 +12,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.application.discussion.project.application.dtos.topics.MaintopicListResponse;
+import com.application.discussion.project.application.dtos.topics.MaintopicResponse;
+import com.application.discussion.project.application.services.topics.MaintopicDetailService;
 import com.application.discussion.project.application.services.topics.MaintopicsListService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,9 +35,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/maintopics")
 public class MainTopicController {
+
     @Autowired
     private MaintopicsListService maintopicsListService;
 
+    @Autowired
+    private MaintopicDetailService maintopicDetailService;
+    
     private static final Logger logger = LoggerFactory.getLogger(MainTopicController.class);
     
     @Operation(summary = "Create a new topic", description = "Registers a new discussion topic in the system")
@@ -77,21 +84,42 @@ public class MainTopicController {
     })
     @GetMapping
     public ResponseEntity<List<MaintopicListResponse>> findMaintopicList() throws Exception {
-        // This method will be implemented to return a list of main topics
-        // The implementation will typically call a service that fetches the data from the repository
         logger.info("Retrieving list of main topics");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(maintopicsListService.service());
+        return ResponseEntity.status(HttpStatus.OK)
+                .headers(headers)
+                .body(maintopicsListService.service());
     }
 
-    @Operation(summary = "Retrieve topic information", description = "Fetches the information of a topic based on its ID")
+    @Operation(summary = "find topic information", description = "Fetches the information of a topic based on its ID")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Topic information retrieved successfully"),
-        @ApiResponse(responseCode = "404", description = "Topic with the specified ID not found")
+        @ApiResponse(
+            responseCode = "200", 
+            description = "Topic information found successfully",
+            content = @Content(
+                schema = @Schema(implementation = MaintopicResponse.class),
+                mediaType = "application/json"
+            )
+        ),
+        @ApiResponse(
+            responseCode = "404", 
+            description = "Topic with the specified ID not found",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(type = "string", example = "Topic not found") 
+            )
+        )
     })
-    @GetMapping("/{id}")
-    public void retrieveMainTopic(){}
+    @GetMapping("/{maintopicId}")
+    public ResponseEntity<MaintopicResponse> findMaintopicById(@PathVariable Long maintopicId){
+        logger.info("Finding maintopic by ID: {}", maintopicId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return ResponseEntity.status(HttpStatus.OK)
+                .headers(headers)
+                .body(maintopicDetailService.service(maintopicId));
+    }
 
     @Operation(summary = "Delete topic information", description = "Delete the information of a topic based on its ID")
     @ApiResponses({
