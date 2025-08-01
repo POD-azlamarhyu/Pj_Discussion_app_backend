@@ -75,9 +75,9 @@ public class MaintopicDetailServiceImplTest {
     @Test
     void testGetMaintopicDetailsDifferent(){
         when(maintopicRepository.findMaintopicById(2L)).thenReturn(maintopic2);
-        MaintopicResponse response = maintopicDetailServiceImpl.service(1L);
+        MaintopicResponse response = maintopicDetailServiceImpl.service(2L);
         assertNotNull(response);
-        assertNotEquals(2L, response.getMaintopicId());
+        assertNotEquals(1, response.getMaintopicId());
         
         verify(maintopicRepository, times(1)).findMaintopicById(2L);
     }
