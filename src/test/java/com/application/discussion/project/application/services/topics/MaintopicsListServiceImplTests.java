@@ -2,6 +2,7 @@ package com.application.discussion.project.application.services.topics;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -87,6 +88,12 @@ public class MaintopicsListServiceImplTests {
         assertEquals(LocalDateTime.of(2025, 12, 31, 10, 10, 10), response.get(1).getCreatedAt());
         assertEquals(LocalDateTime.of(2025, 12, 31, 10, 20, 10), response.get(1).getUpdatedAt());
 
+        verify(maintopicRepository, times(1)).findMaintopicList();
+    }
+    @Test
+    void testGetMaintopicListEmpty() {
+        when(maintopicRepository.findMaintopicList()).thenThrow(new RuntimeException("No topics found"));
+        assertThrows(RuntimeException.class, () -> maintopicsListServiceImpl.service());
         verify(maintopicRepository, times(1)).findMaintopicList();
     }
 
