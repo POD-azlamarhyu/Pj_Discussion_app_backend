@@ -21,7 +21,8 @@ public class WebSecurityConfig {
                 "/swagger-ui/**",
                 "/swagger-ui/index.html",
                 "/swagger-ui.html",
-                "/maintopics/*"
+                "/maintopics/**",
+                "/maintopics"
             ).permitAll()
         );
 
