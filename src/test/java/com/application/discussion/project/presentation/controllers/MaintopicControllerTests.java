@@ -114,7 +114,7 @@ public class MaintopicControllerTests {
         );
         when(maintopicDetailService.service(3L)).thenReturn(response3);
 
-        mockMvc.perform(get("/maintopics/1"))
+        mockMvc.perform(get("/maintopics/3"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -132,7 +132,9 @@ public class MaintopicControllerTests {
         
         mockMvc.perform(get("/maintopics/999"))
                 .andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").doesNotExist());
         verify(maintopicDetailService, times(1)).service(999L);
     }
 }
