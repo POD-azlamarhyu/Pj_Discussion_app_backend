@@ -27,6 +27,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import com.application.discussion.project.application.dtos.topics.MaintopicListResponse;
+import com.application.discussion.project.application.dtos.topics.MaintopicResponse;
+import com.application.discussion.project.application.services.topics.MaintopicDetailServiceImpl;
 import com.application.discussion.project.application.services.topics.MaintopicsListServiceImpl;
 
 
@@ -41,13 +43,16 @@ public class MaintopicControllerTests {
     // Example test method (to be implemented):
     private MaintopicListResponse response1;
     private MaintopicListResponse response2;
+    private MaintopicResponse response3;
     
-
     @Autowired
     private MockMvc mockMvc;
     
     @MockitoBean
     private MaintopicsListServiceImpl maintopicsListService;
+
+    @MockitoBean
+    private MaintopicDetailServiceImpl maintopicDetailService;
 
     @BeforeEach
     void setUp(){
@@ -93,5 +98,41 @@ public class MaintopicControllerTests {
                 .andExpect(jsonPath("$[1].maintopicId").value(2L));
 
         verify(maintopicsListService, times(1)).service();
+    }
+
+    @DisplayName("MaintopicControllerのメイントピック詳細取得テスト")
+    @Test
+    void testFindMaintopicDetail() throws Exception {
+        response3 = new MaintopicResponse(
+            3L, 
+            "Unko", 
+            "Unko", 
+            LocalDateTime.of(2025, 12, 31, 10, 10, 10), 
+            LocalDateTime.of(2025, 12, 31, 10, 20, 10), 
+            false, 
+            false
+        );
+        when(maintopicDetailService.service(3L)).thenReturn(response3);
+
+        mockMvc.perform(get("/maintopics/1"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.maintopicId").value(3L))
+                .andExpect(jsonPath("$.title").value("Unko"))
+                .andExpect(jsonPath("$.description").value("Unko"));
+        
+        verify(maintopicDetailService, times(1)).service(1L);
+    }
+
+    @DisplayName("MaintopicControllerのメイントピック詳細取得テスト - 存在しないID")
+    @Test
+    void testFindMaintopicDetailNotFound() throws Exception{
+        when(maintopicDetailService.service(999L)).thenReturn(null);
+        
+        mockMvc.perform(get("/maintopics/999"))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+        verify(maintopicDetailService, times(1)).service(999L);
     }
 }
