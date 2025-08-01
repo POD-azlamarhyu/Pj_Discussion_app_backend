@@ -122,7 +122,7 @@ public class MaintopicControllerTests {
                 .andExpect(jsonPath("$.title").value("Unko"))
                 .andExpect(jsonPath("$.description").value("Unko"));
         
-        verify(maintopicDetailService, times(1)).service(1L);
+        verify(maintopicDetailService, times(1)).service(3L);
     }
 
     @DisplayName("MaintopicControllerのメイントピック詳細取得テスト - 存在しないID")
