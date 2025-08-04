@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.application.discussion.project.domain.entities.topics.Maintopic;
 import com.application.discussion.project.application.dtos.topics.MaintopicResponse;
+import com.application.discussion.project.infrastructure.exceptions.ResourceNotFoundException;
 import com.application.discussion.project.infrastructure.repositories.topics.MaintopicRepositoryImpl;
 
 @ExtendWith(MockitoExtension.class)
@@ -84,8 +85,8 @@ public class MaintopicDetailServiceImplTest {
 
     @Test
     void testGetMaintopicDetailsNotFound() {
-        when(maintopicRepository.findMaintopicById(999L)).thenThrow(new RuntimeException("Topic not found"));
-        assertThrows(RuntimeException.class, () -> maintopicDetailServiceImpl.service(999L));
+        when(maintopicRepository.findMaintopicById(999L)).thenThrow(new ResourceNotFoundException("メイントピックは存在しません", "Not_Found"));
+        assertThrows(ResourceNotFoundException.class, () -> maintopicDetailServiceImpl.service(999L));
         verify(maintopicRepository, times(1)).findMaintopicById(999L);
     }
 }
