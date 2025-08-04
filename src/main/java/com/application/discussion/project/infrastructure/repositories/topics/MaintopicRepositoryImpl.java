@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.application.discussion.project.domain.entities.topics.Maintopic;
 import com.application.discussion.project.domain.repositories.MaintopicRepository;
+import com.application.discussion.project.infrastructure.exceptions.ResourceNotFoundException;
 import com.application.discussion.project.infrastructure.models.topics.Maintopics;
 
 @Repository
@@ -36,7 +37,7 @@ public class MaintopicRepositoryImpl implements MaintopicRepository {
                 ))
                 .orElseThrow(() -> {
                     logger.error("Maintopic with ID {} not found", maintopicId);
-                    return new RuntimeException("Topic not found");
+                    return new ResourceNotFoundException("メイントピックは存在しません", "Not_Found");
                 });
     }
 
