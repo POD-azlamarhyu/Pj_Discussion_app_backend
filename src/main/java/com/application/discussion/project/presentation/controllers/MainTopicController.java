@@ -22,6 +22,7 @@ import com.application.discussion.project.application.dtos.topics.MaintopicListR
 import com.application.discussion.project.application.dtos.topics.MaintopicResponse;
 import com.application.discussion.project.application.services.topics.MaintopicDetailService;
 import com.application.discussion.project.application.services.topics.MaintopicsListService;
+import com.application.discussion.project.infrastructure.exceptions.ResourceNotFoundException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -107,7 +108,7 @@ public class MainTopicController {
             description = "Topic with the specified ID not found",
             content = @Content(
                 mediaType = "application/json",
-                schema = @Schema(type = "string", example = "Topic not found") 
+                schema = @Schema(implementation=ResourceNotFoundException.class) 
             )
         )
     })
