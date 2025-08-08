@@ -15,11 +15,15 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.application.discussion.project.application.dtos.topics.MaintopicCreateRequest;
+import com.application.discussion.project.application.dtos.topics.MaintopicCreateResponse;
 import com.application.discussion.project.application.dtos.topics.MaintopicListResponse;
 import com.application.discussion.project.application.dtos.topics.MaintopicResponse;
+import com.application.discussion.project.application.services.topics.MaintopicCreateService;
 import com.application.discussion.project.application.services.topics.MaintopicDetailService;
 import com.application.discussion.project.application.services.topics.MaintopicsListService;
 import com.application.discussion.project.infrastructure.exceptions.ResourceNotFoundException;
@@ -42,6 +46,9 @@ public class MainTopicController {
 
     @Autowired
     private MaintopicDetailService maintopicDetailService;
+
+    @Autowired
+    private MaintopicCreateService maintopicCreateService;
     
     private static final Logger logger = LoggerFactory.getLogger(MainTopicController.class);
     
@@ -53,7 +60,16 @@ public class MainTopicController {
             @ApiResponse(responseCode = "500",description = "Internal Server Error",content = @Content)
     })
     @PostMapping
-    public void createMainTopic(){}
+    public ResponseEntity<MaintopicCreateResponse> createMainTopic(@RequestBody MaintopicCreateRequest maintopicCreateRequest){
+        logger.info("Creating a new main topic with title: {}", maintopicCreateRequest.getTitle());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        MaintopicCreateResponse response = maintopicCreateService.service(maintopicCreateRequest);
+        logger.info("Main topic created with ID: {}", response.getId());
+        return  ResponseEntity.status(HttpStatus.CREATED)
+                .headers(headers)
+                .body(response);
+    }
 
     @Operation(summary = "Update topic information", description = "Edits the information of an existing topic")
     @ApiResponses({
