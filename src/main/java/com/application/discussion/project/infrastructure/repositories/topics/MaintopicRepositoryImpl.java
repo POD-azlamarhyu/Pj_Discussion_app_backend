@@ -22,6 +22,7 @@ public class MaintopicRepositoryImpl implements MaintopicRepository {
     public MaintopicRepositoryImpl(JpaMaintopicsRepository jpaMaintopicsRepository) {
         this.jpaMaintopicsRepository = jpaMaintopicsRepository;
     }
+
     @Override
     public Maintopic findMaintopicById(Long maintopicId) {
         logger.info("Finding maintopic by ID: {}", maintopicId);
@@ -61,5 +62,30 @@ public class MaintopicRepositoryImpl implements MaintopicRepository {
                         entity.getIsClosed()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Maintopic createMaintopic(Maintopic maintopic) {
+        logger.info("Creating new maintopic with title: {}", maintopic.getTitle());
+        Maintopics entity = new Maintopics();
+        entity.setTitle(maintopic.getTitle());
+        entity.setDescription(maintopic.getDescription());
+        entity.setCreatedAt(maintopic.getCreatedAt());
+        entity.setUpdatedAt(maintopic.getUpdatedAt());
+        entity.setIsDeleted(maintopic.getIsDeleted());
+        entity.setIsClosed(maintopic.getIsClosed());
+
+        Maintopics savedEntity = jpaMaintopicsRepository.save(entity);
+        logger.info("Maintopic created with ID: {}", savedEntity.getId());
+
+        return Maintopic.of(
+            savedEntity.getId(),
+            savedEntity.getTitle(),
+            savedEntity.getDescription(),
+            savedEntity.getCreatedAt(),
+            savedEntity.getUpdatedAt(),
+            savedEntity.getIsDeleted(),
+            savedEntity.getIsClosed()
+        );
     }
 }
