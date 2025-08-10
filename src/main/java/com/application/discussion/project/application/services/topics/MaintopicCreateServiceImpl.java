@@ -23,7 +23,7 @@ public class MaintopicCreateServiceImpl implements MaintopicCreateService {
 
     @Override
     public MaintopicCreateResponse service(final MaintopicCreateRequest maintopicCreateRequest){
-        // Validate the request
+        
         try{
             logger.info("Creating a new maintopic with title: {}", maintopicCreateRequest.getTitle());
             final Title title = Title.of(maintopicCreateRequest.getTitle());
@@ -39,9 +39,8 @@ public class MaintopicCreateServiceImpl implements MaintopicCreateService {
                 savedMaintopic.getCreatedAt().toString()
             );
         }catch (Exception e){
-            logger.error("Error creating maintopic: {}", e);
+            logger.error("Error creating maintopic: {}", e.getMessage());
             throw new InternalServerErrorException("登録に失敗しました。","INTERNAL_SERVER_ERROR");
         }
-        
     }
 }
