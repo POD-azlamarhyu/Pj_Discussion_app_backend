@@ -3,6 +3,7 @@ package com.application.discussion.project.application.services.topics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.application.discussion.project.application.dtos.topics.MaintopicCreateRequest;
 import com.application.discussion.project.application.dtos.topics.MaintopicCreateResponse;
@@ -12,6 +13,7 @@ import com.application.discussion.project.domain.valueobjects.topics.Description
 import com.application.discussion.project.domain.valueobjects.topics.Title;
 import com.application.discussion.project.application.dtos.exceptions.InternalServerErrorException;
 
+@Service
 public class MaintopicCreateServiceImpl implements MaintopicCreateService {
     
     @Autowired
