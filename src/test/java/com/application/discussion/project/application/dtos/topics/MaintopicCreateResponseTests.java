@@ -107,7 +107,7 @@ public class MaintopicCreateResponseTests {
             1L, 
             "title", 
             "desc", 
-            description
+            createdAt
         );
         Long newId = 999L;
 
