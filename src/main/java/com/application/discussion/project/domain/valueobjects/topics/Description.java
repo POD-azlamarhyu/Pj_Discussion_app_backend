@@ -2,6 +2,7 @@ package com.application.discussion.project.domain.valueobjects.topics;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.application.discussion.project.domain.exceptions.BadRequestException;
 
 public class Description {
     private final String value;
@@ -13,11 +14,11 @@ public class Description {
     private Description(String value){
         if (value == null || value.isBlank()) {
             logger.error("Description cannot be null or empty: {}", value);
-            throw new IllegalArgumentException("Description cannot be null or empty");
+            throw new BadRequestException("説明が空です", "Bad_Request");
         }
         if (value.length() < MIN_LENGTH || value.length() > MAX_LENGTH) {
             logger.error("Description must be between {} and {} characters: {}", MIN_LENGTH, MAX_LENGTH, value);
-            throw new IllegalArgumentException("Description must be between " + MIN_LENGTH + " and " + MAX_LENGTH + " characters");
+            throw new BadRequestException("説明の文字数は " + MIN_LENGTH + " と " + MAX_LENGTH + " の間でなければなりません", "Bad_Request");
         }
         this.value = value;
     }
