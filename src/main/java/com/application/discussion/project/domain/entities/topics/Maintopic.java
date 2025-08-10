@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.application.discussion.project.domain.valueobjects.topics.Description;
+import com.application.discussion.project.domain.valueobjects.topics.Title;
+
 import lombok.Builder;
 
 
@@ -51,6 +54,20 @@ public class Maintopic {
         Boolean isClosed
     ) {
         return new Maintopic(maintopicId, title, description, createdAt, updatedAt, isDeleted, isClosed);
+    }
+    public static Maintopic create(
+        Title title,
+        Description description
+    ){
+        return new Maintopic(
+            null,
+            title.getValue(),
+            description.getValue(),
+            null,
+            null,
+            false,
+            false
+        );
     }
 
     public Long getMaintopicId() {

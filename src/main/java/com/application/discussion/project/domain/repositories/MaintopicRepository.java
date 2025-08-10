@@ -8,4 +8,6 @@ public interface MaintopicRepository {
     List<Maintopic> findMaintopicList();
 
     Maintopic findMaintopicById(Long maintopicId);
+
+    Maintopic createMaintopic(Maintopic maintopic);
 }
