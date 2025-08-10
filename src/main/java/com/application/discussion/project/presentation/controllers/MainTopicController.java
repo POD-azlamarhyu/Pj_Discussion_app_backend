@@ -9,6 +9,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -27,6 +29,7 @@ import com.application.discussion.project.application.services.topics.MaintopicC
 import com.application.discussion.project.application.services.topics.MaintopicDetailService;
 import com.application.discussion.project.application.services.topics.MaintopicsListService;
 import com.application.discussion.project.infrastructure.exceptions.ResourceNotFoundException;
+import com.application.discussion.project.presentation.validations.MaintopicCreateRequestValidation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -60,7 +63,9 @@ public class MainTopicController {
             @ApiResponse(responseCode = "500",description = "Internal Server Error",content = @Content)
     })
     @PostMapping
-    public ResponseEntity<MaintopicCreateResponse> createMainTopic(@RequestBody MaintopicCreateRequest maintopicCreateRequest){
+    public ResponseEntity<MaintopicCreateResponse> createMainTopic(@RequestBody  MaintopicCreateRequest maintopicCreateRequest){
+        MaintopicCreateRequestValidation.isValidTitle(maintopicCreateRequest.getTitle());
+        MaintopicCreateRequestValidation.isValidDescription(maintopicCreateRequest.getDescription());
         logger.info("Creating a new main topic with title: {}", maintopicCreateRequest.getTitle());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
