@@ -43,7 +43,7 @@ class DescriptionTests {
 
     @Test
     void testMinLengthDescription() {
-        String value = "FizzBazzF";
+        String value = "F".repeat(10);
         Description description = Description.of(value);
         assertEquals(value, description.getValue());
     }
