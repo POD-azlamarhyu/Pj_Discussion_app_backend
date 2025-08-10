@@ -9,12 +9,25 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.application.discussion.project.application.dtos.exceptions.ErrorResponse;
 import com.application.discussion.project.infrastructure.exceptions.ResourceNotFoundException;
+import com.application.discussion.project.application.dtos.exceptions.InternalServerErrorException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+    @ExceptionHandler(InternalServerErrorException.class)
+    public ResponseEntity<ErrorResponse> handleInternalServerErrorExceptions(
+        InternalServerErrorException ex
+    ){
+        ErrorResponse errorResponse = ErrorResponse.of(
+            ex.getMessage(),
+            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            ex.getType()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleInternalServerErrorException(
+    public ResponseEntity<ErrorResponse> handleAllException(
         Exception ex
     ) {
         ErrorResponse errorResponse = ErrorResponse.of(
