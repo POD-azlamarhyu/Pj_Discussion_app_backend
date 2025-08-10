@@ -2,18 +2,23 @@ package com.application.discussion.project.domain.entities.topics;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.application.discussion.project.domain.valueobjects.topics.Description;
+import com.application.discussion.project.domain.valueobjects.topics.Title;
+
 public class MaintopicTests {
-    private Maintopic maintopic;
+    private Maintopic testMaintopic;
 
     @BeforeEach
     void setUp(){
-        maintopic = Maintopic.of(
+        testMaintopic = Maintopic.of(
             1L, 
             "Sample Title", 
             "Sample Description", 
@@ -25,38 +30,72 @@ public class MaintopicTests {
     }
 
     @Test
+    void testMaintopicCreation(){
+        final Maintopic maintopic = Maintopic.create(
+            Title.of("New Title"),
+            Description.of("New Description")
+        );
+
+        assertNotNull(maintopic);
+        assertInstanceOf(Maintopic.class, maintopic);
+        assertEquals("New Title", maintopic.getTitle());
+        assertEquals("New Description", maintopic.getDescription());
+    }
+
+    @Test
+    void testMaintopicOf(){
+        final Maintopic maintopic = Maintopic.of(
+            99L,
+            "Test Title",
+            "Test Description",
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+            false,
+            false
+        );
+        assertNotNull(maintopic);
+        assertInstanceOf(Maintopic.class, maintopic);
+        assertEquals(99L, maintopic.getMaintopicId());
+        assertEquals("Test Title", maintopic.getTitle());
+        assertEquals("Test Description", maintopic.getDescription());
+        assertFalse(maintopic.getIsDeleted());
+        assertFalse(maintopic.getIsClosed());
+    }
+
+
+    @Test
     void testGetMaintopicId() throws Exception {
-        assertEquals(1L, maintopic.getMaintopicId());
+        assertEquals(1L, testMaintopic.getMaintopicId());
     }
 
     @Test
     void testGetTitle() throws Exception {
-        assertEquals("Sample Title", maintopic.getTitle());
+        assertEquals("Sample Title", testMaintopic.getTitle());
     }
 
     @Test
     void testGetDescription() throws Exception {
-        assertEquals("Sample Description", maintopic.getDescription());
+        assertEquals("Sample Description", testMaintopic.getDescription());
     }
 
     @Test
     void testGetCreatedAt() throws Exception {
-        assertEquals(LocalDateTime.of(2026, 7, 10, 12, 0, 0), maintopic.getCreatedAt());
+        assertEquals(LocalDateTime.of(2026, 7, 10, 12, 0, 0), testMaintopic.getCreatedAt());
     }
 
     @Test
     void testGetUpdatedAt() throws Exception {
-        assertEquals(LocalDateTime.of(2026, 7, 10, 12, 0, 0), maintopic.getUpdatedAt());
+        assertEquals(LocalDateTime.of(2026, 7, 10, 12, 0, 0), testMaintopic.getUpdatedAt());
     }
 
     @Test
     void testIsDeleted() throws Exception {
-        assertFalse(maintopic.getIsDeleted());
+        assertFalse(testMaintopic.getIsDeleted());
     }
 
     @Test
     void testIsClosed()  throws Exception {
-        assertFalse(maintopic.getIsClosed());
+        assertFalse(testMaintopic.getIsClosed());
     }
 
 
