@@ -21,13 +21,20 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import com.application.discussion.project.application.dtos.topics.MaintopicCreateRequest;
+import com.application.discussion.project.application.dtos.topics.MaintopicCreateResponse;
 import com.application.discussion.project.application.dtos.topics.MaintopicListResponse;
 import com.application.discussion.project.application.dtos.topics.MaintopicResponse;
+import com.application.discussion.project.application.services.topics.MaintopicCreateServiceImpl;
 import com.application.discussion.project.application.services.topics.MaintopicDetailServiceImpl;
 import com.application.discussion.project.application.services.topics.MaintopicsListServiceImpl;
 
@@ -44,6 +51,11 @@ public class MaintopicControllerTests {
     private MaintopicListResponse response1;
     private MaintopicListResponse response2;
     private MaintopicResponse response3;
+    private MaintopicCreateRequest testMaintopicCreateRequest;
+    private MaintopicCreateResponse testMaintopicCreateResponse;
+
+    private final String testCreateRequestTitle = "HogeFuge";
+    private final String testCreateRequestDescription = "HogeFuge Description";
     
     @Autowired
     private MockMvc mockMvc;
@@ -53,6 +65,9 @@ public class MaintopicControllerTests {
 
     @MockitoBean
     private MaintopicDetailServiceImpl maintopicDetailService;
+
+    @MockitoBean
+    private MaintopicCreateServiceImpl maintopicCreateServiceImpl;
 
     @BeforeEach
     void setUp(){
@@ -74,6 +89,17 @@ public class MaintopicControllerTests {
             LocalDateTime.of(2025, 12, 31, 10, 10, 10), 
             LocalDateTime.of(2025, 12, 31, 10, 20, 10), 
             false, false
+        );
+
+        testMaintopicCreateRequest = new MaintopicCreateRequest(
+            testCreateRequestTitle,
+            testCreateRequestDescription
+        );
+        testMaintopicCreateResponse = new MaintopicCreateResponse(
+            4L, 
+            testCreateRequestTitle, 
+            testCreateRequestDescription,
+            LocalDateTime.now().toString()
         );
     }
 
@@ -136,5 +162,23 @@ public class MaintopicControllerTests {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").doesNotExist());
         verify(maintopicDetailService, times(1)).service(999L);
+    }
+
+    @Test
+    @DisplayName("MaintopicControllerのメイントピック作成テスト")
+    void testCreateMaintopic() throws Exception{
+        
+        when(maintopicCreateServiceImpl.service(testMaintopicCreateRequest)).thenReturn(
+            testMaintopicCreateResponse
+        );
+        mockMvc.perform(post("/maintopics"))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(testMaintopicCreateResponse.getId()))
+                .andExpect(jsonPath("$.title").value(testMaintopicCreateResponse.getTitle()))
+                .andExpect(jsonPath("$.description").value(testMaintopicCreateResponse.getDescription()));
+
+        verify(maintopicCreateServiceImpl, times(1)).service(testMaintopicCreateRequest);
     }
 }
