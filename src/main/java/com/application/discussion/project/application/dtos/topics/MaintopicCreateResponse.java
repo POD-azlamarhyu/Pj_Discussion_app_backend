@@ -1,5 +1,8 @@
 package com.application.discussion.project.application.dtos.topics;
 
+import lombok.Builder;
+
+@Builder
 public class MaintopicCreateResponse {
     private Long id;
     private String title;
