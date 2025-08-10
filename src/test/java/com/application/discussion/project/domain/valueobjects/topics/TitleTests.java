@@ -24,7 +24,7 @@ public class TitleTests {
     void testCreateInstance(){
         final Title testHoge = Title.of(testValue);
         assertNotNull(testHoge);
-        assertInstanceOf(Title.class, testValue);
+        assertInstanceOf(Title.class, testHoge);
     }
 
     @Test
