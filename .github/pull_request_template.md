@@ -1,5 +1,7 @@
 <!-- I want to review in Japanese. -->
+
 ## Issueの番号
+
 <!-- チケット番号などを記入してください -->
 
 
@@ -32,7 +34,6 @@
 ## Remark：補足
 
 <!-- 補足事項があれば記入してください -->
-
 
 <!-- for GitHub Copilot review rule -->
 
