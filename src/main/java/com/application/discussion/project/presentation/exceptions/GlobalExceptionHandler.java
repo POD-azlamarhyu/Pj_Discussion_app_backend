@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInternalServerErrorExceptions(
             InternalServerErrorException ex,
             WebRequest webRequest) {
-        logger.error("Internal Server Error: {}", ex.getMessage(), ex);
+        logger.error("Error Handler internal Server Error: {}", ex.getMessage(), ex);
         ErrorResponse errorResponse = ErrorResponse.of(
             ex.getMessage(),
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAllException(
             Exception ex,
             WebRequest webRequest) {
-        logger.error("An unexpected error occurred: {}", ex.getMessage(), ex);
+        logger.error("Error Handler an unexpected error occurred: {}", ex.getMessage(), ex);
         ErrorResponse errorResponse = ErrorResponse.of(
             "An unexpected error occurred",
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
             ResourceNotFoundException ex,
             WebRequest webRequest) {
-        logger.error("Resource not found: {}", ex.getMessage(), ex);
+        logger.error("Error Handler resource not found: {}", ex.getMessage(), ex);
         ErrorResponse errorResponse = ErrorResponse.of(
             ex.getMessage(),
             HttpStatus.NOT_FOUND.value(),
@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBadRequestException(
             BadRequestException ex,
             WebRequest webRequest) {
-        logger.error("Bad request: {}", ex);
+        logger.error("Error Handler bad request: {}", ex);
         ErrorResponse errorResponse = ErrorResponse.of(
             ex.getMessage(),
             HttpStatus.BAD_REQUEST.value(),
@@ -81,7 +81,7 @@ public class GlobalExceptionHandler {
         RequestNotValidException ex,
         WebRequest webRequest
     ) {
-        logger.error("Request not valid: {}", ex.getMessage(), ex);
+        logger.error("Error handler request not valid: {}", ex.getMessage(), ex);
         ErrorResponse errorResponse = ErrorResponse.of(
             ex.getMessage(),
             HttpStatus.BAD_REQUEST.value(),
@@ -94,7 +94,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
             WebRequest request) {
-        logger.error("Validation error occurred: {}", ex.getMessage());
+        logger.error("Error Handler validation error occurred: {}", ex.getMessage());
 
         Map<String, String> validationErrors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
@@ -103,7 +103,7 @@ public class GlobalExceptionHandler {
             validationErrors.put(fieldName, errorMessage);
         });
 
-        logger.error("Validation errors: {}", validationErrors);
+        logger.error("Error Handler validation errors: {}", validationErrors);
 
         ErrorResponse errorResponse = ErrorResponse.of(
             "入力データに問題があります: " + validationErrors.toString(),
@@ -118,7 +118,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
             HttpMessageNotReadableException ex,
             WebRequest request) {
-        logger.warn("Invalid JSON format: {}", ex.getMessage());
+        logger.warn("Error Handler invalid JSON format: {}", ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.of(
             "リクエストボディのJSON形式が不正です",
