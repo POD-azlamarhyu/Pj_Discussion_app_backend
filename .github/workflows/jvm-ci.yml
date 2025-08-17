@@ -34,9 +34,3 @@ jobs:
             -   name: build and test application
                 run: ./gradlew build test
             
-            
-            -   name: save JAR
-                uses: actions/upload-artifact@v4
-                with:
-                    name: spring-boot-app
-                    path: build/libs/*.jar
