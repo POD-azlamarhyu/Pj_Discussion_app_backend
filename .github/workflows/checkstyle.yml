@@ -33,3 +33,31 @@ jobs:
 
             -   name: Run CheckStyle
                 run: ./gradlew checkstyleMain checkstyleTest
+
+            -   name: Generate Summary and Comment
+                if: always()
+                run: |
+                    # CheckStyleの結果をパースしてサマリーを作成
+                    if [ -f "build/reports/checkstyle/main.xml" ]; then
+                        VIOLATIONS=$(grep -c "<error " build/reports/checkstyle/main.xml || echo "0")
+                        echo "## 🔍 CheckStyle Results" >> $GITHUB_STEP_SUMMARY
+                        echo "- **Main violations:** $VIOLATIONS" >> $GITHUB_STEP_SUMMARY
+                        echo "- **Report location:** \`build/reports/checkstyle/main.html\`" >> $GITHUB_STEP_SUMMARY
+                        
+                        if [ "$VIOLATIONS" -gt "0" ]; then
+                            echo "### ❌ Violations found:" >> $GITHUB_STEP_SUMMARY
+                            grep "<error " build/reports/checkstyle/main.xml | head -10 | while IFS= read -r line; do
+                                echo "- $line" >> $GITHUB_STEP_SUMMARY
+                            done
+                        else
+                            echo "### ✅ No violations found!" >> $GITHUB_STEP_SUMMARY
+                        fi
+                    fi
+            -   name: Upload CheckStyle results
+                uses: actions/upload-artifact@v4
+                with:
+                    name: checkstyle-results
+            
+            -   name: PR Comment with CheckStyle results
+                if: github.event_name == 'pull_request'
+                uses: actions/github-script@v6
