@@ -91,4 +91,31 @@ public class Maintopic {
     public Boolean getIsClosed() {
         return this.isClosed;
     }
+
+    /**
+     * タイトルと説明を更新した新しいMaintopicインスタンスを返す
+     *
+     * @param title 新しいタイトル
+     * @param description 新しい説明
+     * @return 更新された新しいMaintopicインスタンス
+     * @throws IllegalArgumentException titleまたはdescriptionがnullの場合
+     */
+    public Maintopic update(final Title title, final Description description) {
+        if (title.isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be null");
+        }
+        if (description.isEmpty()) {
+            throw new IllegalArgumentException("Description cannot be null");
+        }
+        
+        return new Maintopic(
+            this.maintopicId,
+            title.getValue(),
+            description.getValue(),
+            this.createdAt,
+            LocalDateTime.now(),
+            this.isDeleted,
+            this.isClosed
+        );
+    }
 }
