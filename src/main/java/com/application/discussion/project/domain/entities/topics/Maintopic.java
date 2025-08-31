@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.application.discussion.project.domain.exceptions.BadRequestException;
 import com.application.discussion.project.domain.valueobjects.topics.Description;
 import com.application.discussion.project.domain.valueobjects.topics.Title;
 
@@ -24,7 +25,6 @@ public class Maintopic {
 
     private static final Logger logger = LoggerFactory.getLogger(Maintopic.class);
 
-    // Additional fields and methods can be added as needed
     public Maintopic(
         Long maintopicId, 
         String title, 
@@ -98,14 +98,29 @@ public class Maintopic {
      * @param title 新しいタイトル
      * @param description 新しい説明
      * @return 更新された新しいMaintopicインスタンス
-     * @throws IllegalArgumentException titleまたはdescriptionがnullの場合
+     * @throws BadRequestException titleまたはdescriptionがnullの場合
      */
-    public Maintopic update(final Title title, final Description description) {
+    public Maintopic update(
+        final Title title, 
+        final Description description
+    ) {
+        logger.info("Updating maintopic ID: {} with new title and description", this.maintopicId);
         if (title.isEmpty()) {
-            throw new IllegalArgumentException("Title cannot be null");
+            logger.error("Attempted to update maintopic with empty title");
+            throw new BadRequestException("Title cannot be null", "Bad_Request");
         }
         if (description.isEmpty()) {
-            throw new IllegalArgumentException("Description cannot be null");
+            logger.error("Attempted to update maintopic with empty description");
+            throw new BadRequestException("Description cannot be null", "Bad_Request");
+        }
+
+        if (title.equals(this.title)) {
+            logger.error("Attempted to update maintopic with unchanged title",this.title);
+            throw new BadRequestException("同じ内容です", "Bad_Request");
+        }
+        if (description.equals(this.description)) {
+            logger.error("Attempted to update maintopic with unchanged description",this.description);
+            throw new BadRequestException("同じ内容です", "Bad_Request");
         }
         
         return new Maintopic(
