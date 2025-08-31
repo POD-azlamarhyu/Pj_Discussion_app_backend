@@ -105,22 +105,18 @@ public class Maintopic {
         final Description description
     ) {
         logger.info("Updating maintopic ID: {} with new title and description", this.maintopicId);
-        if (title.isEmpty()) {
-            logger.error("Attempted to update maintopic with empty title");
-            throw new BadRequestException("Title cannot be null", "Bad_Request");
-        }
-        if (description.isEmpty()) {
-            logger.error("Attempted to update maintopic with empty description");
-            throw new BadRequestException("Description cannot be null", "Bad_Request");
+        if (title.isEmpty() && description.isEmpty()) {
+            logger.error("Attempted to update maintopic with empty title and description");
+            throw new BadRequestException("タイトルと説明の両方が空です", "Bad_Request");
         }
 
         if (title.equals(this.title)) {
             logger.error("Attempted to update maintopic with unchanged title",this.title);
-            throw new BadRequestException("同じ内容です", "Bad_Request");
+            throw new BadRequestException("既存のタイトルと同じ内容です", "Bad_Request");
         }
         if (description.equals(this.description)) {
             logger.error("Attempted to update maintopic with unchanged description",this.description);
-            throw new BadRequestException("同じ内容です", "Bad_Request");
+            throw new BadRequestException("既存の説明と同じ内容です", "Bad_Request");
         }
         
         return new Maintopic(
