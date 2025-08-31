@@ -33,7 +33,6 @@ public class MaintopicUpdateServiceImpl implements MaintopicUpdateService {
      * @throws InternalServerErrorException 更新処理中にエラーが発生した場合
      */
     @Override
-    @Async
     public MaintopicUpdateResponse service(
         final Long id, 
         final MaintopicUpdateRequest maintopicUpdateRequest
