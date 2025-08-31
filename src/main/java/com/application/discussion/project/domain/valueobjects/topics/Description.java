@@ -30,4 +30,23 @@ public class Description {
     public String getValue() {
         return this.value;
     }
+
+    /**
+     * 説明が空かどうかを判定する
+     *
+     * @return 説明が空の場合true、そうでなければfalse
+     */
+    public Boolean isEmpty() {
+        return this.value == null || this.value.isEmpty() || this.value.isBlank();
+    }
+
+    /**
+     * 他のDescriptionオブジェクトと値を比較する
+     *
+     * @param recentDescription 比較する現在のdescription
+     * @return 値が等しい場合true、そうでなければfalse
+     */
+    public Boolean equals(String recentDescription){
+        return this.value.equals(recentDescription);
+    }
 }
