@@ -23,11 +23,15 @@ import com.application.discussion.project.application.dtos.topics.MaintopicCreat
 import com.application.discussion.project.application.dtos.topics.MaintopicCreateResponse;
 import com.application.discussion.project.application.dtos.topics.MaintopicListResponse;
 import com.application.discussion.project.application.dtos.topics.MaintopicResponse;
+import com.application.discussion.project.application.dtos.topics.MaintopicUpdateRequest;
+import com.application.discussion.project.application.dtos.topics.MaintopicUpdateResponse;
 import com.application.discussion.project.application.services.topics.MaintopicCreateService;
 import com.application.discussion.project.application.services.topics.MaintopicDetailService;
+import com.application.discussion.project.application.services.topics.MaintopicUpdateService;
 import com.application.discussion.project.application.services.topics.MaintopicsListService;
 import com.application.discussion.project.infrastructure.exceptions.ResourceNotFoundException;
 import com.application.discussion.project.presentation.validations.MaintopicCreateRequestValidation;
+import com.application.discussion.project.presentation.validations.MaintopicUpdateRequestValidations;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,6 +40,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
 
 @Tag(name = "maintopic",description = "API for manipulating the main topic information of discussions.")
 @RestController
@@ -50,6 +55,9 @@ public class MainTopicController {
 
     @Autowired
     private MaintopicCreateService maintopicCreateService;
+
+    @Autowired
+    private MaintopicUpdateService maintopicUpdateService;
     
     private static final Logger logger = LoggerFactory.getLogger(MainTopicController.class);
     
@@ -75,14 +83,50 @@ public class MainTopicController {
                 .body(response);
     }
 
-    @Operation(summary = "Update topic information", description = "Edits the information of an existing topic")
+    @Operation(
+        summary = "Update main topic information", 
+        description = "Updates the title and description of an existing main topic with the specified ID. Returns the updated main topic information."
+    )
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Topic information has been updated successfully"),
-        @ApiResponse(responseCode = "404", description = "Topic with the specified ID not found"),
-        @ApiResponse(responseCode = "500",description = "Internal Server Error")
+        @ApiResponse(
+            responseCode = "200", 
+            description = "Main topic information has been successfully updated",
+            content = @Content(
+                schema = @Schema(implementation = MaintopicUpdateResponse.class),
+                mediaType = "application/json"
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400", 
+            description = "Bad request - Invalid parameters or request format",
+            content = @Content(mediaType = "application/json")
+        ),
+        @ApiResponse(
+            responseCode = "404", 
+            description = "Main topic with the specified ID not found",
+            content = @Content(mediaType = "application/json")
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Internal server error - An error occurred during the update process",
+            content = @Content(mediaType = "application/json")
+        )
     })
-    @PutMapping("/{id}")
-    public void updateMainTopic(){}
+    @PutMapping("/{maintopicId}")
+    public ResponseEntity<MaintopicUpdateResponse> updateMainTopic(
+        @Parameter(description = "ID of the main topic to be updated", required = true, example = "1")
+        @PathVariable Long maintopicId,
+        @Parameter(description = "Request body containing the update information", required = true)
+        @RequestBody MaintopicUpdateRequest maintopicUpdateRequest
+    ){
+        logger.info("Updating main topic with ID: {}", maintopicId);
+        MaintopicUpdateRequestValidations.isValidateMaintopicUpdate(maintopicUpdateRequest);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return ResponseEntity.status(HttpStatus.OK)
+                .headers(headers)
+                .body(maintopicUpdateService.service(maintopicId, maintopicUpdateRequest));
+    }
 
 
     @Operation(summary = "Retrieve topic list information", description = "Fetches the information of a topics")
