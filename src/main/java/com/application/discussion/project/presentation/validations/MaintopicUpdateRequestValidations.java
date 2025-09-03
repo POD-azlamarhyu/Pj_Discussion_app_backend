@@ -7,7 +7,7 @@ import com.application.discussion.project.application.dtos.topics.MaintopicUpdat
 import com.application.discussion.project.presentation.exceptions.RequestNotValidException;
 
 public class MaintopicUpdateRequestValidations {
-    private static final String EATHER_REQUIRED = "タイトル，説明のどちらかは必須です";
+    private static final String EITHER_REQUIRED = "タイトル，説明のどちらかは必須です";
     private static final String TYPE = "Request_Not_Valid";
     private static final Logger logger = LoggerFactory.getLogger(MaintopicUpdateRequestValidations.class);
 
@@ -22,9 +22,9 @@ public class MaintopicUpdateRequestValidations {
     public static void isValidateMaintopicUpdate(
         final MaintopicUpdateRequest maintopicUpdateRequest
     ){
-        if (isValidateTitle(maintopicUpdateRequest.getTitle()) || isValidateDescription(maintopicUpdateRequest.getDescription())) {
-            logger.error("Title is required and cannot be null");
-            throw new RequestNotValidException(EATHER_REQUIRED, TYPE);
+        if (isValidateTitle(maintopicUpdateRequest.getTitle()) && isValidateDescription(maintopicUpdateRequest.getDescription())) {
+            logger.error("Either title or Description are required and cannot be null");
+            throw new RequestNotValidException(EITHER_REQUIRED, TYPE);
         }
     }
 }
