@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -112,7 +111,7 @@ public class MainTopicController {
             content = @Content(mediaType = "application/json")
         )
     })
-    @PutMapping("/{maintopicId}")
+    @PatchMapping("/{maintopicId}")
     public ResponseEntity<MaintopicUpdateResponse> updateMainTopic(
         @Parameter(description = "ID of the main topic to be updated", required = true, example = "1")
         @PathVariable Long maintopicId,
