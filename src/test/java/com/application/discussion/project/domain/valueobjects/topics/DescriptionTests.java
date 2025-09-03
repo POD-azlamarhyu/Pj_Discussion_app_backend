@@ -69,4 +69,25 @@ class DescriptionTests {
             Description.of(value);
         });
     }
+
+    @Test
+    void testEqualsTrue() {
+        assertTrue(testDescription.equals(testValue));
+    }
+
+    @Test
+    void testEqualsFalse() {
+        assertFalse(testDescription.equals("異なる説明文"));
+    }
+
+    @Test
+    void testIsEmptyFalse() {
+        assertFalse(testDescription.isEmpty());
+    }
+
+    @Test
+    void testIsEmptyTrue() {
+        Description emptyDescription = Description.of("");
+        assertTrue(emptyDescription.isEmpty());
+    }
 }
