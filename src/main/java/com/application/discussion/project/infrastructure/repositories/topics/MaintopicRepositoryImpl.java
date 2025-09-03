@@ -112,19 +112,14 @@ public class MaintopicRepositoryImpl implements MaintopicRepository {
         Maintopics updatedEntity = jpaMaintopicsRepository.save(updateMaintopics);
         logger.info("Maintopic with ID: {} updated successfully", updatedEntity.getId());
 
-        return Optional.ofNullable(updatedEntity)
-            .map(entity -> Maintopic.of(
-                entity.getId(),
-                entity.getTitle(),
-                entity.getDescription(),
-                entity.getCreatedAt(),
-                entity.getUpdatedAt(),
-                entity.getIsDeleted(),
-                entity.getIsClosed()
-            ))
-            .orElseThrow(() -> {
-                logger.error("Failed to update maintopic with ID: {}", updateMaintopics.getId());
-                return new RuntimeException("Failed to update maintopic");
-            });
+        return Maintopic.of(
+            updatedEntity.getId(),
+            updatedEntity.getTitle(),
+            updatedEntity.getDescription(),
+            updatedEntity.getCreatedAt(),
+            updatedEntity.getUpdatedAt(),
+            updatedEntity.getIsDeleted(),
+            updatedEntity.getIsClosed()
+        );
     }
 }
