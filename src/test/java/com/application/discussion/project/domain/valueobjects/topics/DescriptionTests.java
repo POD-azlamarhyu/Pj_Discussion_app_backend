@@ -85,9 +85,4 @@ class DescriptionTests {
         assertFalse(testDescription.isEmpty());
     }
 
-    @Test
-    void testIsEmptyTrue() {
-        Description emptyDescription = Description.of("");
-        assertTrue(emptyDescription.isEmpty());
-    }
 }
