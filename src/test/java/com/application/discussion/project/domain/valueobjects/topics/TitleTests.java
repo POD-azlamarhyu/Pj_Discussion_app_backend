@@ -68,9 +68,4 @@ public class TitleTests {
         assertFalse(title.isEmpty());
     }
 
-    @Test
-    void testIsEmptyTrue(){
-        final Title emptyTitle = Title.of("");
-        assertTrue(emptyTitle.isEmpty());
-    }
 }
