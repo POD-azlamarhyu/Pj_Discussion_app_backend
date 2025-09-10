@@ -4,6 +4,13 @@ public class MaintopicUpdateRequest {
     private String title;
     private String description;
 
+    public MaintopicUpdateRequest() {}
+
+    public MaintopicUpdateRequest(String title, String description) {
+        this.title = title;
+        this.description = description;
+    }
+
     public String getTitle() {
         return title;
     }
