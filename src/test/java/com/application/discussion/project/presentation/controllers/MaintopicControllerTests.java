@@ -14,11 +14,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -26,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.application.discussion.project.application.dtos.exceptions.InternalServerErrorException;
@@ -33,24 +37,36 @@ import com.application.discussion.project.application.dtos.topics.MaintopicCreat
 import com.application.discussion.project.application.dtos.topics.MaintopicCreateResponse;
 import com.application.discussion.project.application.dtos.topics.MaintopicListResponse;
 import com.application.discussion.project.application.dtos.topics.MaintopicResponse;
+import com.application.discussion.project.application.dtos.topics.MaintopicUpdateRequest;
+import com.application.discussion.project.application.dtos.topics.MaintopicUpdateResponse;
 import com.application.discussion.project.application.services.topics.MaintopicCreateServiceImpl;
 import com.application.discussion.project.application.services.topics.MaintopicDetailServiceImpl;
 import com.application.discussion.project.application.services.topics.MaintopicUpdateServiceImpl;
 import com.application.discussion.project.application.services.topics.MaintopicsListServiceImpl;
+import com.application.discussion.project.domain.exceptions.BadRequestException;
+import com.application.discussion.project.infrastructure.exceptions.ResourceNotFoundException;
+import com.application.discussion.project.presentation.exceptions.GlobalExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(MainTopicController.class)
 @ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc(addFilters = false)
+@Import(GlobalExceptionHandler.class)
 public class MaintopicControllerTests {
 	private MaintopicListResponse response1;
     private MaintopicListResponse response2;
     private MaintopicResponse response3;
     private MaintopicCreateRequest testMaintopicCreateRequest;
     private MaintopicCreateResponse testMaintopicCreateResponse;
+    private MaintopicUpdateRequest testMaintopicUpdateRequest;
+    private MaintopicUpdateResponse testMaintopicUpdateResponse;
 
     private final String testCreateRequestTitle = "HogeFuge";
     private final String testCreateRequestDescription = "HogeFuge Description";
+    private final String testUpdateRequestTitle = "Updated Title";
+    private final String testUpdateRequestDescription = "Updated Description";
+	private final LocalDateTime testCreatedAt = LocalDateTime.of(2025, 12, 31, 10, 10, 10);
+	private final LocalDateTime testUpdatedAt = LocalDateTime.of(2026, 1, 31, 10, 20, 10);
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
@@ -103,6 +119,17 @@ public class MaintopicControllerTests {
 			testCreateRequestDescription,
 			LocalDateTime.now().toString()
 		);
+        testMaintopicUpdateRequest = new MaintopicUpdateRequest(
+            testUpdateRequestTitle,
+            testUpdateRequestDescription
+        );
+        testMaintopicUpdateResponse = new MaintopicUpdateResponse(
+            1L,
+            testUpdateRequestTitle,
+            testUpdateRequestDescription,
+            testCreatedAt.toString(),
+			testUpdatedAt.toString()
+        );
     }
 
     @DisplayName("MaintopicControllerのメイントピックリスト取得テスト")
@@ -267,5 +294,109 @@ public class MaintopicControllerTests {
 		);
 
         verify(maintopicCreateServiceImpl, times(1)).service(any(MaintopicCreateRequest.class));
+    }
+
+    @Test
+    @DisplayName("MaintopicControllerのメイントピック更新テスト")
+    void testUpdateMaintopic() throws Exception {
+        when(maintopicUpdateServiceImpl.service(eq(1L), any(MaintopicUpdateRequest.class)))
+            .thenReturn(testMaintopicUpdateResponse);
+
+        String requestJson = objectMapper.writeValueAsString(testMaintopicUpdateRequest);
+        mockMvc.perform(
+            put("/maintopics/1")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestJson))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").value(testMaintopicUpdateResponse.getId()))
+            .andExpect(jsonPath("$.title").value(testMaintopicUpdateResponse.getTitle()))
+            .andExpect(jsonPath("$.description").value(testMaintopicUpdateResponse.getDescription()));
+
+        verify(maintopicUpdateServiceImpl, times(1)).service(eq(1L), any(MaintopicUpdateRequest.class));
+    }
+
+    @Test
+    @DisplayName("MaintopicControllerのメイントピック更新テスト - タイトルが空の場合")
+    void testUpdateMaintopicWithEmptyTitle() throws Exception {
+        when(maintopicUpdateServiceImpl.service(eq(1L), any(MaintopicUpdateRequest.class))).thenThrow(new BadRequestException("タイトルは必須です", "BAD_REQUEST"));
+        MaintopicUpdateRequest invalidRequest = new MaintopicUpdateRequest("", testUpdateRequestDescription);
+
+        String requestJson = objectMapper.writeValueAsString(invalidRequest);
+        mockMvc.perform(
+            put("/maintopics/1")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestJson))
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+
+        verify(maintopicUpdateServiceImpl, times(1)).service(eq(1L), any(MaintopicUpdateRequest.class));
+    }
+
+    @Test
+    @DisplayName("MaintopicControllerのメイントピック更新テスト - 説明が空の場合")
+    void testUpdateMaintopicWithEmptyDescription() throws Exception {
+        when(maintopicUpdateServiceImpl.service(eq(1L), any(MaintopicUpdateRequest.class))).thenThrow(new BadRequestException("説明は必須です", "BAD_REQUEST"));
+        MaintopicUpdateRequest invalidRequest = new MaintopicUpdateRequest(testUpdateRequestTitle, "");
+
+        String requestJson = objectMapper.writeValueAsString(invalidRequest);
+        mockMvc.perform(
+            put("/maintopics/1")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestJson))
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+
+        verify(maintopicUpdateServiceImpl, times(1)).service(eq(1L), any(MaintopicUpdateRequest.class));
+    }
+
+    @Test
+    @DisplayName("MaintopicControllerのメイントピック更新テスト - 存在しないID")
+    void testUpdateMaintopicNotFound() throws Exception {
+		when(maintopicUpdateServiceImpl.service(eq(1000L), any(MaintopicUpdateRequest.class))).thenThrow(new ResourceNotFoundException("メイントピックが見つかりません", "NOT_FOUND"));
+
+        String requestJson = objectMapper.writeValueAsString(testMaintopicUpdateRequest);
+
+        mockMvc.perform(
+            put("/maintopics/1000")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestJson))
+            .andDo(print())
+            .andExpect(status().isNotFound());
+
+        verify(maintopicUpdateServiceImpl, times(1)).service(eq(1000L), any(MaintopicUpdateRequest.class));
+    }
+
+    @Test
+    @DisplayName("MaintopicControllerのメイントピック更新テスト - サービス層で例外発生")
+    void testUpdateMaintopicServiceException() throws Exception {
+        when(maintopicUpdateServiceImpl.service(eq(1L), any(MaintopicUpdateRequest.class)))
+            .thenThrow(new InternalServerErrorException("更新処理でエラーが発生しました", "INTERNAL_SERVER_ERROR"));
+
+        String requestJson = objectMapper.writeValueAsString(testMaintopicUpdateRequest);
+        mockMvc.perform(
+            put("/maintopics/1")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestJson))
+            .andDo(print())
+            .andExpect(status().isInternalServerError());
+
+        verify(maintopicUpdateServiceImpl, times(1)).service(eq(1L), any(MaintopicUpdateRequest.class));
+    }
+
+    @Test
+    @DisplayName("MaintopicControllerのメイントピック更新テスト - 不正なJSON形式")
+    void testUpdateMaintopicWithInvalidJson() throws Exception {
+        String invalidJson = "{ invalid json }";
+
+        mockMvc.perform(
+            put("/maintopics/1")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(invalidJson))
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+
+        verify(maintopicUpdateServiceImpl, never()).service(anyLong(), any(MaintopicUpdateRequest.class));
     }
 }
