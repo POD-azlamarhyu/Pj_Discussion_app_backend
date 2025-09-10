@@ -39,7 +39,7 @@ public class MaintopicRepositoryImpl implements MaintopicRepository {
                 ))
                 .orElseThrow(() -> {
                     logger.error("Maintopic with ID {} not found", maintopicId);
-                    return new ResourceNotFoundException("メイントピックは存在しません", "Not_Found");
+                    throw new ResourceNotFoundException("メイントピックは存在しません", "Not_Found");
                 });
     }
 
@@ -95,7 +95,7 @@ public class MaintopicRepositoryImpl implements MaintopicRepository {
         return jpaMaintopicsRepository.findById(maintopicId)
                 .orElseThrow(() -> {
                     logger.error("Maintopic model with ID {} not found", maintopicId);
-                    return new ResourceNotFoundException("メイントピックは存在しません", "Not_Found");
+                    throw new ResourceNotFoundException("メイントピックは存在しません", "Not_Found");
                 });
     }
 
