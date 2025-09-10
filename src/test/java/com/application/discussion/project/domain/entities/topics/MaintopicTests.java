@@ -4,17 +4,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.application.discussion.project.domain.exceptions.BadRequestException;
 import com.application.discussion.project.domain.valueobjects.topics.Description;
 import com.application.discussion.project.domain.valueobjects.topics.Title;
 
 public class MaintopicTests {
     private Maintopic testMaintopic;
+    private Title testTitle;
+    private Description testDescription;
+    private final String TITLE_TEXT = "タイトル名のテストサンプル";
+    private final String DESCRIPTION_TEXT = "説明文のテストサンプル";
+    private final String ALTERNATE_TITLE_TEXT = "別のタイトル名のテストサンプル";
+    private final String ALTERNATE_DESCRIPTION_TEXT = "別の説明文のテストサンプル";
 
     @BeforeEach
     void setUp(){
@@ -27,6 +35,9 @@ public class MaintopicTests {
             false, 
             false
         );
+
+        testTitle = Title.of(TITLE_TEXT);
+        testDescription = Description.of(DESCRIPTION_TEXT);
     }
 
     @Test
@@ -98,5 +109,46 @@ public class MaintopicTests {
         assertFalse(testMaintopic.getIsClosed());
     }
 
+    @Test
+    void testMaintopicInstance() throws Exception {
+        assertInstanceOf(Maintopic.class, testMaintopic);
+    }
 
+    @Test
+    void testUpdateMaintopicEntity() throws Exception {
+        final Maintopic updatedMaintopic = testMaintopic.update(
+            testTitle,
+            testDescription
+        );
+
+        assertNotNull(updatedMaintopic);
+        assertEquals(testTitle.getValue(), updatedMaintopic.getTitle());
+        assertEquals(testDescription.getValue(), updatedMaintopic.getDescription());
+    }
+
+    @Test
+    void testUpdateNullMaintopicFailure() throws Exception {
+        assertNotNull(testMaintopic);
+        assertThrows(BadRequestException.class, () -> {
+            testMaintopic.update(
+                Title.of(""), 
+                Description.of("")
+            );
+        });
+    }
+
+    @Test
+    void testUpdateSameMaintopicFailture(){
+        final Maintopic maintopic = Maintopic.create(
+            Title.of(ALTERNATE_TITLE_TEXT),
+            Description.of(ALTERNATE_DESCRIPTION_TEXT)
+        );
+        assertNotNull(maintopic);
+        assertThrows(BadRequestException.class, () -> {
+            maintopic.update(
+                Title.of(ALTERNATE_TITLE_TEXT),
+                Description.of(ALTERNATE_DESCRIPTION_TEXT)
+            );
+        });
+    }
 }

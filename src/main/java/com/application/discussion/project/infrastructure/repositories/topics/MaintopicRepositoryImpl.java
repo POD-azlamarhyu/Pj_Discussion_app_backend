@@ -2,6 +2,7 @@ package com.application.discussion.project.infrastructure.repositories.topics;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ public class MaintopicRepositoryImpl implements MaintopicRepository {
                 ))
                 .orElseThrow(() -> {
                     logger.error("Maintopic with ID {} not found", maintopicId);
-                    return new ResourceNotFoundException("メイントピックは存在しません", "Not_Found");
+                    throw new ResourceNotFoundException("メイントピックは存在しません", "Not_Found");
                 });
     }
 
@@ -86,6 +87,39 @@ public class MaintopicRepositoryImpl implements MaintopicRepository {
             savedEntity.getUpdatedAt(),
             savedEntity.getIsDeleted(),
             savedEntity.getIsClosed()
+        );
+    }
+    @Override
+    public Maintopics findModelById(final Long maintopicId) {
+        logger.info("Finding maintopic model by ID: {}", maintopicId);
+        return jpaMaintopicsRepository.findById(maintopicId)
+                .orElseThrow(() -> {
+                    logger.error("Maintopic model with ID {} not found", maintopicId);
+                    throw new ResourceNotFoundException("メイントピックは存在しません", "Not_Found");
+                });
+    }
+
+    /**
+     * メイントピックを更新する
+     * @param updateMaintopics 更新するMaintopicsエンティティ
+     * @return 更新されたMaintopicドメインエンティティ
+     * @throws RuntimeException 更新に失敗した場合
+     */
+    @Override
+    public Maintopic updateMaintopic(final Maintopics updateMaintopics) {
+        logger.info("Updating maintopic with ID: {}", updateMaintopics.getId());
+
+        Maintopics updatedEntity = jpaMaintopicsRepository.save(updateMaintopics);
+        logger.info("Maintopic with ID: {} updated successfully", updatedEntity.getId());
+
+        return Maintopic.of(
+            updatedEntity.getId(),
+            updatedEntity.getTitle(),
+            updatedEntity.getDescription(),
+            updatedEntity.getCreatedAt(),
+            updatedEntity.getUpdatedAt(),
+            updatedEntity.getIsDeleted(),
+            updatedEntity.getIsClosed()
         );
     }
 }

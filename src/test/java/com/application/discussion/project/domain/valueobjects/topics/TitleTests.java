@@ -52,4 +52,20 @@ public class TitleTests {
         final String value = null;
         assertThrows(BadRequestException.class, () -> {Title.of(value);});
     }
+
+    @Test
+    void testEqualsTrue(){
+        assertTrue(title.equals(testValue));
+    }
+
+    @Test
+    void testEqualsFalse(){
+        assertFalse(title.equals("DifferentTitle"));
+    }
+
+    @Test
+    void testIsEmptyFalse(){
+        assertFalse(title.isEmpty());
+    }
+
 }

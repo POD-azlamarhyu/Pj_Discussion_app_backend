@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.application.discussion.project.domain.exceptions.BadRequestException;
 import com.application.discussion.project.domain.valueobjects.topics.Description;
 import com.application.discussion.project.domain.valueobjects.topics.Title;
 
@@ -24,7 +25,6 @@ public class Maintopic {
 
     private static final Logger logger = LoggerFactory.getLogger(Maintopic.class);
 
-    // Additional fields and methods can be added as needed
     public Maintopic(
         Long maintopicId, 
         String title, 
@@ -90,5 +90,43 @@ public class Maintopic {
     }
     public Boolean getIsClosed() {
         return this.isClosed;
+    }
+
+    /**
+     * タイトルと説明を更新した新しいMaintopicインスタンスを返す
+     *
+     * @param title 新しいタイトル
+     * @param description 新しい説明
+     * @return 更新された新しいMaintopicインスタンス
+     * @throws BadRequestException titleまたはdescriptionがnullの場合
+     */
+    public Maintopic update(
+        final Title title, 
+        final Description description
+    ) {
+        logger.info("Updating maintopic ID: {} with new title and description", this.maintopicId);
+        if (title.isEmpty() && description.isEmpty()) {
+            logger.error("Attempted to update maintopic with empty title and description");
+            throw new BadRequestException("タイトルと説明の両方が空です", "Bad_Request");
+        }
+
+        if (title.equals(this.title)) {
+            logger.error("Attempted to update maintopic with unchanged title",this.title);
+            throw new BadRequestException("既存のタイトルと同じ内容です", "Bad_Request");
+        }
+        if (description.equals(this.description)) {
+            logger.error("Attempted to update maintopic with unchanged description",this.description);
+            throw new BadRequestException("既存の説明と同じ内容です", "Bad_Request");
+        }
+        
+        return new Maintopic(
+            this.maintopicId,
+            title.getValue(),
+            description.getValue(),
+            this.createdAt,
+            LocalDateTime.now(),
+            this.isDeleted,
+            this.isClosed
+        );
     }
 }

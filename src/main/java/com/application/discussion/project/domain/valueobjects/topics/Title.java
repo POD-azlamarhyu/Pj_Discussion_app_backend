@@ -33,4 +33,22 @@ public class Title {
     public String getValue() {
         return this.value;
     }
+    
+    /**
+     * タイトルが空かどうかを判定する
+     *
+     * @return タイトルが空の場合true、そうでなければfalse
+     */
+    public Boolean isEmpty() {
+        return this.value == null || this.value.isEmpty() || this.value.isBlank();
+    }
+
+    /**
+     * 他のTitleオブジェクトと値を比較する
+     * @param newTitle 比較する現在のtitle
+     * @return 値が等しい場合true、そうでなければfalse
+     */
+    public Boolean equals(String recentTitle){
+        return this.value.equals(recentTitle);
+    }
 }
