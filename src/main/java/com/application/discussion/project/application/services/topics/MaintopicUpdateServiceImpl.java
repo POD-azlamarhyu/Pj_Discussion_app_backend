@@ -30,7 +30,6 @@ public class MaintopicUpdateServiceImpl implements MaintopicUpdateService {
      * @param id メイントピックのID
      * @param maintopicUpdateRequest 更新内容を含むリクエストオブジェクト
      * @return 更新されたメイントピックの情報を含むレスポンスオブジェクト  
-     * @throws InternalServerErrorException 更新処理中にエラーが発生した場合
      */
     @Override
     public MaintopicUpdateResponse service(
@@ -40,7 +39,8 @@ public class MaintopicUpdateServiceImpl implements MaintopicUpdateService {
         try {
             logger.info("Starting update service for maintopic ID: {}", id);
             Maintopics maintopicEntity = maintopicRepository.findModelById(id);
-            Maintopic updateMaintopic = maintopicRepository.findMaintopicById(id).update(
+            Maintopic existingMaintopic = maintopicRepository.findMaintopicById(id);
+            Maintopic updateMaintopic = existingMaintopic.update(
                 Title.of(maintopicUpdateRequest.getTitle()),
                 Description.of(maintopicUpdateRequest.getDescription())
             );
