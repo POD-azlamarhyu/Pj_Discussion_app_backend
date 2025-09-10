@@ -24,31 +24,19 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(InternalServerErrorException.class)
-    public ResponseEntity<ErrorResponse> handleInternalServerErrorExceptions(
-            InternalServerErrorException ex,
-            WebRequest webRequest) {
-        logger.error("Error Handler internal Server Error: {}", ex.getMessage(), ex);
-        ErrorResponse errorResponse = ErrorResponse.of(
-            ex.getMessage(),
-            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            ex.getType()
-        );
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleAllException(
-            Exception ex,
-            WebRequest webRequest) {
-        logger.error("Error Handler an unexpected error occurred: {}", ex.getMessage(), ex);
-        ErrorResponse errorResponse = ErrorResponse.of(
-            "An unexpected error occurred",
-            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            "INTERNAL_SERVER_ERROR"
-        );
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-    }
+    //TODO: Exceptionで例外をキャッチした場合はすべてINTERNAL_SERVER_ERRORクラスにするため，コメントアウトとする．今後削除するかをIssueで検討する．
+    // @ExceptionHandler(Exception.class)
+    // public ResponseEntity<ErrorResponse> handleAllException(
+    //         Exception ex,
+    //         WebRequest webRequest) {
+    //     logger.error("Error Handler an unexpected error occurred: {}", ex.getMessage(), ex);
+    //     ErrorResponse errorResponse = ErrorResponse.of(
+    //         "An unexpected error occurred",
+    //         HttpStatus.INTERNAL_SERVER_ERROR.value(),
+    //         "INTERNAL_SERVER_ERROR"
+    //     );
+    //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    // }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
@@ -128,5 +116,16 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
-
+    @ExceptionHandler(InternalServerErrorException.class)
+    public ResponseEntity<ErrorResponse> handleInternalServerErrorExceptions(
+            InternalServerErrorException ex,
+            WebRequest webRequest) {
+        logger.error("Error Handler internal Server Error: {}", ex.getMessage(), ex);
+        ErrorResponse errorResponse = ErrorResponse.of(
+            ex.getMessage(),
+            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            ex.getType()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
 }
