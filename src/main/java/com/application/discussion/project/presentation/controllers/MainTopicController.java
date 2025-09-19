@@ -21,16 +21,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.application.discussion.project.application.dtos.topics.MaintopicCreateRequest;
 import com.application.discussion.project.application.dtos.topics.MaintopicCreateResponse;
+import com.application.discussion.project.application.dtos.topics.MaintopicDeleteResponse;
 import com.application.discussion.project.application.dtos.topics.MaintopicListResponse;
 import com.application.discussion.project.application.dtos.topics.MaintopicResponse;
 import com.application.discussion.project.application.dtos.topics.MaintopicUpdateRequest;
 import com.application.discussion.project.application.dtos.topics.MaintopicUpdateResponse;
 import com.application.discussion.project.application.services.topics.MaintopicCreateService;
+import com.application.discussion.project.application.services.topics.MaintopicDeleteService;
 import com.application.discussion.project.application.services.topics.MaintopicDetailService;
 import com.application.discussion.project.application.services.topics.MaintopicUpdateService;
 import com.application.discussion.project.application.services.topics.MaintopicsListService;
 import com.application.discussion.project.infrastructure.exceptions.ResourceNotFoundException;
 import com.application.discussion.project.presentation.validations.MaintopicCreateRequestValidation;
+import com.application.discussion.project.presentation.validations.MaintopicIdRequestValidation;
 import com.application.discussion.project.presentation.validations.MaintopicUpdateRequestValidations;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,6 +62,9 @@ public class MainTopicController {
     @Autowired
     private MaintopicUpdateService maintopicUpdateService;
     
+    @Autowired
+    private MaintopicDeleteService maintopicDeleteService;
+
     private static final Logger logger = LoggerFactory.getLogger(MainTopicController.class);
     
     @Operation(summary = "Create a new topic", description = "Registers a new discussion topic in the system")
@@ -188,11 +194,27 @@ public class MainTopicController {
 
     @Operation(summary = "Delete topic information", description = "Delete the information of a topic based on its ID")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Topic information delete successfully"),
+        @ApiResponse(responseCode = "204", description = "Topic information delete successfully", 
+            content = @Content(
+                schema = @Schema(
+                    implementation = MaintopicDeleteResponse.class
+                )
+        )),
         @ApiResponse(responseCode = "404", description = "Topic with the specified ID not found")
     })
-    @DeleteMapping
-    public void deleteMainTopic(){}
+    @DeleteMapping("/{maintopicId}")
+    public ResponseEntity<MaintopicDeleteResponse> deleteMainTopic(
+        @Parameter(description = "ID of the main topic to be deleted", required = true, example = "1")
+        @PathVariable Long maintopicId
+    ){
+        logger.info("Deleting main topic with ID: {}", maintopicId);
+        MaintopicIdRequestValidation.isValidateMaintopicId(maintopicId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .headers(headers)
+                .body(maintopicDeleteService.service(maintopicId));
+    }
 
     @Operation(summary = "Close a topic", description = "Marks a topic as closed, preventing further discussion")
     @ApiResponses({
