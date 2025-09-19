@@ -53,6 +53,7 @@ import com.application.discussion.project.application.services.topics.Maintopics
 import com.application.discussion.project.domain.exceptions.BadRequestException;
 import com.application.discussion.project.infrastructure.exceptions.ResourceNotFoundException;
 import com.application.discussion.project.presentation.exceptions.GlobalExceptionHandler;
+import com.application.discussion.project.presentation.exceptions.PresentationLayerErrorException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(MainTopicController.class)
@@ -65,6 +66,7 @@ public class MaintopicControllerTests {
     private static final String NOT_FOUND_DELETE_MESSAGE = "メイントピックは存在しません";
     private static final String CANNOT_DELETE_MESSAGE = "このメイントピックは削除できません";
     private static final String DELETE_RESPONSE_MESSAGE = "このリソースは存在しません";
+    private static final String MAINTOPIC_ID_TYPE = "メイントピックIDが不正です";
 	private MaintopicListResponse response1;
     private MaintopicListResponse response2;
     private MaintopicResponse response3;
@@ -455,10 +457,10 @@ public class MaintopicControllerTests {
     @DisplayName("MaintopicControllerのメイントピック削除テスト - 無効なID（負の値）")
     void testDeleteMaintopicInvalidId() throws Exception {
         when(maintopicDeleteServiceImpl.service(-1L)).thenThrow(
-            new ApplicationLayerException(
-                DELETE_RESPONSE_MESSAGE,
-                HttpStatus.NOT_FOUND,
-                HttpStatusCode.valueOf(404)
+            new PresentationLayerErrorException(
+                MAINTOPIC_ID_TYPE,
+                HttpStatus.BAD_REQUEST,
+                HttpStatusCode.valueOf(400)
             )
         );
         mockMvc.perform(delete("/maintopics/-1"))
