@@ -456,18 +456,11 @@ public class MaintopicControllerTests {
     @Test
     @DisplayName("MaintopicControllerのメイントピック削除テスト - 無効なID（負の値）")
     void testDeleteMaintopicInvalidId() throws Exception {
-        when(maintopicDeleteServiceImpl.service(-1L)).thenThrow(
-            new PresentationLayerErrorException(
-                MAINTOPIC_ID_TYPE,
-                HttpStatus.BAD_REQUEST,
-                HttpStatusCode.valueOf(400)
-            )
-        );
         mockMvc.perform(delete("/maintopics/-1"))
             .andDo(print())
-            .andExpect(status().isNotFound());
+            .andExpect(status().isBadRequest());
 
-        verify(maintopicDeleteServiceImpl, times(1)).service(-1L);
+        verify(maintopicDeleteServiceImpl, nerver()).service(-1L);
     }
 
     @Test
