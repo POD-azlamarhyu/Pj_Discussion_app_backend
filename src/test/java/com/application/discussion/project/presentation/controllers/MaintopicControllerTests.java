@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,17 +30,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
+import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
 import com.application.discussion.project.application.dtos.exceptions.InternalServerErrorException;
 import com.application.discussion.project.application.dtos.topics.MaintopicCreateRequest;
 import com.application.discussion.project.application.dtos.topics.MaintopicCreateResponse;
+import com.application.discussion.project.application.dtos.topics.MaintopicDeleteResponse;
 import com.application.discussion.project.application.dtos.topics.MaintopicListResponse;
 import com.application.discussion.project.application.dtos.topics.MaintopicResponse;
 import com.application.discussion.project.application.dtos.topics.MaintopicUpdateRequest;
 import com.application.discussion.project.application.dtos.topics.MaintopicUpdateResponse;
 import com.application.discussion.project.application.services.topics.MaintopicCreateServiceImpl;
+import com.application.discussion.project.application.services.topics.MaintopicDeleteServiceImpl;
 import com.application.discussion.project.application.services.topics.MaintopicDetailServiceImpl;
 import com.application.discussion.project.application.services.topics.MaintopicUpdateServiceImpl;
 import com.application.discussion.project.application.services.topics.MaintopicsListServiceImpl;
@@ -53,6 +60,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @AutoConfigureMockMvc(addFilters = false)
 @Import(GlobalExceptionHandler.class)
 public class MaintopicControllerTests {
+
+    private static final String SUCCESS_DELETE_MESSAGE = "メイントピックが正常に削除されました";
+    private static final String NOT_FOUND_DELETE_MESSAGE = "メイントピックは存在しません";
+    private static final String CANNOT_DELETE_MESSAGE = "このメイントピックは削除できません";
+    private static final String DELETE_RESPONSE_MESSAGE = "このリソースは存在しません";
 	private MaintopicListResponse response1;
     private MaintopicListResponse response2;
     private MaintopicResponse response3;
@@ -60,6 +72,7 @@ public class MaintopicControllerTests {
     private MaintopicCreateResponse testMaintopicCreateResponse;
     private MaintopicUpdateRequest testMaintopicUpdateRequest;
     private MaintopicUpdateResponse testMaintopicUpdateResponse;
+    private MaintopicDeleteResponse testMaintopicDeleteResponse;
 
     private final String testCreateRequestTitle = "HogeFuge";
     private final String testCreateRequestDescription = "HogeFuge Description";
@@ -83,6 +96,9 @@ public class MaintopicControllerTests {
 
 	@MockitoBean
 	private MaintopicUpdateServiceImpl maintopicUpdateServiceImpl;
+
+    @MockitoBean
+    private MaintopicDeleteServiceImpl maintopicDeleteServiceImpl;
 
     @InjectMocks
     private MainTopicController maintopicController;
@@ -130,6 +146,7 @@ public class MaintopicControllerTests {
             testCreatedAt.toString(),
 			testUpdatedAt.toString()
         );
+        testMaintopicDeleteResponse = new MaintopicDeleteResponse();
     }
 
     @DisplayName("MaintopicControllerのメイントピックリスト取得テスト")
@@ -398,5 +415,72 @@ public class MaintopicControllerTests {
             .andExpect(status().isBadRequest());
 
         verify(maintopicUpdateServiceImpl, never()).service(anyLong(), any(MaintopicUpdateRequest.class));
+    }
+
+    @Test
+    @DisplayName("MaintopicControllerのメイントピック削除テスト")
+    void testDeleteMaintopic() throws Exception {
+        when(maintopicDeleteServiceImpl.service(1L)).thenReturn(testMaintopicDeleteResponse);
+
+        mockMvc.perform(delete("/maintopics/1"))
+            .andDo(print())
+            .andExpect(status().isNoContent())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.message").value(DELETE_RESPONSE_MESSAGE));
+
+        verify(maintopicDeleteServiceImpl, times(1)).service(1L);
+    }
+
+    @Test
+    @DisplayName("MaintopicControllerのメイントピック削除テスト - 存在しないID")
+    void testDeleteMaintopicNotFound() throws Exception {
+        when(maintopicDeleteServiceImpl.service(999L)).thenThrow(
+            new ApplicationLayerException(
+                DELETE_RESPONSE_MESSAGE,
+                HttpStatus.NOT_FOUND,
+                HttpStatusCode.valueOf(404)
+            )
+        );
+
+        mockMvc.perform(delete("/maintopics/999"))
+            .andDo(print())
+            .andExpect(status().isNotFound())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+
+        verify(maintopicDeleteServiceImpl, times(1)).service(999L);
+    }
+
+    @Test
+    @DisplayName("MaintopicControllerのメイントピック削除テスト - 無効なID（負の値）")
+    void testDeleteMaintopicInvalidId() throws Exception {
+        when(maintopicDeleteServiceImpl.service(-1L)).thenThrow(
+            new ApplicationLayerException(
+                DELETE_RESPONSE_MESSAGE,
+                HttpStatus.NOT_FOUND,
+                HttpStatusCode.valueOf(404)
+            )
+        );
+        mockMvc.perform(delete("/maintopics/-1"))
+            .andDo(print())
+            .andExpect(status().isNotFound());
+
+        verify(maintopicDeleteServiceImpl, times(1)).service(-1L);
+    }
+
+    @Test
+    @DisplayName("MaintopicControllerのメイントピック削除テスト - 大きなID値")
+    void testDeleteMaintopicLargeId() throws Exception {
+        Long largeId = Long.MAX_VALUE;
+        MaintopicDeleteResponse response = new MaintopicDeleteResponse();
+        when(maintopicDeleteServiceImpl.service(largeId)).thenReturn(response);
+
+        mockMvc.perform(delete("/maintopics/" + largeId))
+            .andDo(print())
+            .andExpect(status().isNoContent())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.message").value(DELETE_RESPONSE_MESSAGE));
+
+        verify(maintopicDeleteServiceImpl, times(1)).service(largeId);
     }
 }
