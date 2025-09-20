@@ -18,6 +18,7 @@ import com.application.discussion.project.application.dtos.exceptions.ErrorRespo
 import com.application.discussion.project.infrastructure.exceptions.ResourceNotFoundException;
 import com.application.discussion.project.application.dtos.exceptions.InternalServerErrorException;
 import com.application.discussion.project.domain.exceptions.BadRequestException;
+import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -49,6 +50,32 @@ public class GlobalExceptionHandler {
             ex.getType()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(PresentationLayerErrorException.class)
+    public ResponseEntity<ErrorResponse> handlePresentationLayerException(
+            PresentationLayerErrorException ex,
+            WebRequest webRequest) {
+        logger.error("Error Handler presentation layer exception: {}", ex.getMessage(), ex);
+        ErrorResponse errorResponse = ErrorResponse.of(
+            ex.getMessage(),
+            ex.getCode().value(),
+            ex.getStatus().getReasonPhrase()
+        );
+        return ResponseEntity.status(ex.getStatus()).body(errorResponse);
+    }
+
+    @ExceptionHandler(ApplicationLayerException.class)
+    public ResponseEntity <ErrorResponse> handleApplicationLayerException(
+            ApplicationLayerException ex,
+            WebRequest webRequest) {
+        logger.error("Error Handler application layer exception: {}", ex.getMessage(), ex);
+        ErrorResponse errorResponse = ErrorResponse.of(
+            ex.getMessage(),
+            ex.getCode().value(),
+            ex.getStatus().getReasonPhrase()
+        );
+        return ResponseEntity.status(ex.getStatus()).body(errorResponse);
     }
 
     @ExceptionHandler(BadRequestException.class)

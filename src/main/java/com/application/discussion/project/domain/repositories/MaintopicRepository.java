@@ -16,4 +16,8 @@ public interface MaintopicRepository {
     Maintopics findModelById(Long maintopicId);
 
     Maintopic updateMaintopic(Maintopics updateMaintopics);
+
+    public void deleteMaintopic(Long maintopicId);
+
+    public Boolean existsMaintopic(Long maintopicId);
 }

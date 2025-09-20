@@ -122,4 +122,30 @@ public class MaintopicRepositoryImpl implements MaintopicRepository {
             updatedEntity.getIsClosed()
         );
     }
+
+
+
+    /**
+     * 指定されたIDのメイントピックが存在するかをチェックする
+     * @param maintopicId チェック対象のメイントピックID
+     * @return メイントピックが存在する場合はtrue、存在しない場合はfalse
+     */
+    @Override
+    public Boolean existsMaintopic(final Long maintopicId) {
+        logger.info("Checking if maintopic exists with ID: {}", maintopicId);
+        
+        return jpaMaintopicsRepository.existsById(maintopicId);
+    }
+
+    /**
+     * 指定されたIDのメイントピックを物理削除する
+     * @param maintopicId 削除するメイントピックのID
+     * @throws ResourceNotFoundException 指定されたIDのメイントピックが存在しない場合
+     */
+    @Override
+    public void deleteMaintopic(final Long maintopicId) {
+        logger.info("Deleting maintopic with ID: {}", maintopicId);
+        jpaMaintopicsRepository.deleteById(maintopicId);
+        logger.info("Maintopic with ID: {} deleted successfully", maintopicId);
+    }
 }
