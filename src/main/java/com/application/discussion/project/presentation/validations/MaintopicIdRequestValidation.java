@@ -27,6 +27,9 @@ public class MaintopicIdRequestValidation {
         }
     }
 
+    /*
+     * TODO: Github Copilotのレビューがあったように，Long型で型を指定しているので，このバリデーションは不要になる可能性がある．
+     */
     private static void validateIdType(final Long maintopicId) {
         if (!(maintopicId instanceof Long)) {
             throw new PresentationLayerErrorException(
@@ -47,6 +50,9 @@ public class MaintopicIdRequestValidation {
         }
     }
 
+    /*
+     * TODO: Github Copilotのレビューがあったように，Long型で型を指定しているので，このバリデーションは不要になる可能性がある．
+     */
     private static void validateIdNotTooLarge(final Long maintopicId) {
         if (maintopicId > MAX_MAINTOPIC_ID) {
             throw new PresentationLayerErrorException(
