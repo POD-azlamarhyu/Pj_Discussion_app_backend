@@ -460,7 +460,7 @@ public class MaintopicControllerTests {
             .andDo(print())
             .andExpect(status().isBadRequest());
 
-        verify(maintopicDeleteServiceImpl, nerver()).service(-1L);
+        verify(maintopicDeleteServiceImpl, never()).service(-1L);
     }
 
     @Test
