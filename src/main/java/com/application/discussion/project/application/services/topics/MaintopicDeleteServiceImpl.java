@@ -25,6 +25,11 @@ public class MaintopicDeleteServiceImpl implements MaintopicDeleteService {
      */
     @Override
     public MaintopicDeleteResponse service(final Long id) {
+        /*
+        * TODO: メイントピックの削除時に削除するロジックを噛ませて，Maintopicが削除できるかどうかをチェックする内容を注入する必要がある．
+        * この際は，ドメインモデルを使う．
+        * NOTE: 削除するロジックは議論機能やユーザ機能も関わってくるので，サービス層で実装することになると思われる．
+        */ 
         if(!maintopicRepository.existsMaintopic(id)){
             logger.error("Maintopic with ID {} not found for deletion", id);
             throw new ApplicationLayerException("メイントピックは存在しません", HttpStatus.NOT_FOUND, HttpStatusCode.valueOf(404));
