@@ -1,0 +1,146 @@
+package com.application.discussion.project.domain.valueobjects.discussion;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Pattern;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.util.StringUtils;
+
+import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
+
+
+/**
+ * 議論における文章を表現する値オブジェクト
+ * ユーザーが入力する文章のビジネスルールと制約を管理する
+ */
+public class Paragraph {
+
+    private static final int MIN_LENGTH = 3;
+    private static final int MAX_LENGTH = 5000;
+    private static final Pattern INVALID_PATTERN = Pattern.compile("^\\s*$");
+    private static final Pattern HTML_TAG_PATTERN = Pattern.compile("<[^>]+>");
+    private static final Pattern EXCESSIVE_WHITESPACE_PATTERN = Pattern.compile("\\s{3,}");
+
+    private final String value;
+
+    /**
+     * 文章の値オブジェクトを作成する
+     *
+     * @param value 文章の内容
+     * @throws IllegalArgumentException 文章が制約に違反している場合
+     */
+    private Paragraph(String value) {
+        String validatedValue = validateAndNormalize(value);
+        this.value = validatedValue;
+    }
+
+    /**
+     * デフォルトコンストラクタ（空の文章を生成）
+     */
+    private Paragraph() {
+        this.value = "";
+    }
+
+    /**
+     * ファクトリメソッド：安全な文章作成
+     *
+     * @param value 文章の内容
+     * @return Paragraphのインスタンス、作成に失敗した場合はEmpty
+     */
+    public static Paragraph of(String value) {
+        return new Paragraph(value);
+    }
+
+    /**
+     * 文章を検証し正規化する
+     *
+     * @param input 入力文章
+     * @return 正規化された文章
+     * @throws IllegalArgumentException 検証に失敗した場合
+     */
+    private String validateAndNormalize(String input) {
+        validateNotNull(input);
+
+        String normalized = normalizeText(input);
+
+        validateLength(normalized);
+        validateContent(normalized);
+
+        return normalized;
+    }
+
+    private void validateNotNull(String input) {
+        if (!StringUtils.hasText(input)){
+            throw new DomainLayerErrorException(
+                "文章はnullまたは空白にできません",
+                HttpStatus.BAD_REQUEST,
+                HttpStatusCode.valueOf(400)
+            );
+        }
+    }
+
+    private String normalizeText(String input) {
+        return Optional.ofNullable(input)
+                .map(String::trim)
+                .map(text -> HTML_TAG_PATTERN.matcher(text).replaceAll(""))
+                .map(text -> EXCESSIVE_WHITESPACE_PATTERN.matcher(text).replaceAll(" "))
+                .orElse("");
+    }
+
+    private void validateLength(String text) {
+        if (text.length() < MIN_LENGTH) {
+            throw new DomainLayerErrorException(
+                String.format("文章は%d文字以上である必要があります", MIN_LENGTH),
+                HttpStatus.BAD_REQUEST,
+                HttpStatusCode.valueOf(400)
+            );
+        }
+
+        if (text.length() > MAX_LENGTH) {
+            throw new DomainLayerErrorException(
+                String.format("文章は%d文字以下である必要があります", MIN_LENGTH),
+                HttpStatus.BAD_REQUEST,
+                HttpStatusCode.valueOf(400)
+            );
+        }
+    }
+
+    private void validateContent(String text) {
+        if (INVALID_PATTERN.matcher(text).matches()) {
+            throw new DomainLayerErrorException(
+                "文章はnullまたは空白にできません",
+                HttpStatus.BAD_REQUEST,
+                HttpStatusCode.valueOf(400)
+            );
+        }
+    }
+
+    /**
+     * 文章の内容を取得する
+     *
+     * @return 文章の内容
+     */
+    public String getValue() {
+        return this.value;
+    }
+
+    /**
+     * 文章の長さを取得する
+     *
+     * @return 文字数
+     */
+    public int length() {
+        return this.value.length();
+    }
+
+    /**
+     * 文章が空かどうかを判定する
+     *
+     * @return 空の場合true
+     */
+    public boolean isEmpty() {
+        return StringUtils.hasText(this.value);
+    }
+}
