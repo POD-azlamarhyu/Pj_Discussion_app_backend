@@ -29,7 +29,7 @@ public class Paragraph {
      * 文章の値オブジェクトを作成する
      *
      * @param value 文章の内容
-     * @throws IllegalArgumentException 文章が制約に違反している場合
+     * @throws DomainLayerErrorException 文章が制約に違反している場合
      */
     private Paragraph(String value) {
         String validatedValue = validateAndNormalize(value);
@@ -58,7 +58,7 @@ public class Paragraph {
      *
      * @param input 入力文章
      * @return 正規化された文章
-     * @throws IllegalArgumentException 検証に失敗した場合
+     * @throws DomainLayerErrorException 検証に失敗した場合
      */
     private String validateAndNormalize(String input) {
         validateNotNull(input);
@@ -71,6 +71,12 @@ public class Paragraph {
         return normalized;
     }
 
+    /**
+     * 文章がnullまたは空白でないことを検証する
+     *
+     * @param input 入力文章
+     * @throws DomainLayerErrorException 文章がnullまたは空白の場合
+     */
     private void validateNotNull(String input) {
         if (!StringUtils.hasText(input)){
             throw new DomainLayerErrorException(
@@ -81,6 +87,12 @@ public class Paragraph {
         }
     }
 
+    /**
+     * 文章を正規化する（トリム、HTMLタグ除去、過剰な空白削除）
+     *
+     * @param input 入力文章
+     * @return 正規化された文章
+     */
     private String normalizeText(String input) {
         return Optional.ofNullable(input)
                 .map(String::trim)
@@ -89,6 +101,12 @@ public class Paragraph {
                 .orElse("");
     }
 
+    /**
+     * 文章の長さが制約内であることを検証する
+     *
+     * @param text 正規化された文章
+     * @throws DomainLayerErrorException 文章の長さが制約外の場合
+     */
     private void validateLength(String text) {
         if (text.length() < MIN_LENGTH) {
             throw new DomainLayerErrorException(
@@ -107,6 +125,12 @@ public class Paragraph {
         }
     }
 
+    /**
+     * 文章の内容を検証する（不正なパターンのチェックなど）
+     *
+     * @param text 正規化された文章
+     * @throws DomainLayerErrorException 文章が不正な内容を含む場合
+     */
     private void validateContent(String text) {
         if (INVALID_PATTERN.matcher(text).matches()) {
             throw new DomainLayerErrorException(
