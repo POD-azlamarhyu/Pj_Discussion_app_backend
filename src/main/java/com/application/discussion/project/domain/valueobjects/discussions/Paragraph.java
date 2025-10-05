@@ -1,6 +1,5 @@
-package com.application.discussion.project.domain.valueobjects.discussion;
+package com.application.discussion.project.domain.valueobjects.discussions;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -18,7 +17,7 @@ import com.application.discussion.project.domain.exceptions.DomainLayerErrorExce
 public class Paragraph {
 
     private static final int MIN_LENGTH = 3;
-    private static final int MAX_LENGTH = 5000;
+    private static final int MAX_LENGTH = 2000;
     private static final Pattern INVALID_PATTERN = Pattern.compile("^\\s*$");
     private static final Pattern HTML_TAG_PATTERN = Pattern.compile("<[^>]+>");
     private static final Pattern EXCESSIVE_WHITESPACE_PATTERN = Pattern.compile("\\s{3,}");
