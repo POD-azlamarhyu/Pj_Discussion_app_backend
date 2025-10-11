@@ -7,7 +7,10 @@ import com.application.discussion.project.application.dtos.discussions.Discussio
 import com.application.discussion.project.application.dtos.discussions.DiscussionCreateResponse;
 import com.application.discussion.project.domain.entities.discussions.Discussion;
 import com.application.discussion.project.domain.repositories.DiscussionRepository;
+import com.application.discussion.project.domain.repositories.MaintopicRepository;
 import com.application.discussion.project.domain.valueobjects.discussions.Paragraph;
+import com.application.discussion.project.infrastructure.models.discussions.Discussions;
+import com.application.discussion.project.infrastructure.models.topics.Maintopics;
 
 /**
  * ディスカッション作成サービスの実装クラス
@@ -17,6 +20,9 @@ import com.application.discussion.project.domain.valueobjects.discussions.Paragr
 public class DiscussionCreateServiceImpl implements DiscussionCreateService {
     @Autowired
     private DiscussionRepository discussionRepository;
+
+    @Autowired
+    private MaintopicRepository maintopicRepository;
 
     /**
      * 指定されたメイントピックに対してディスカッションを作成する
@@ -28,12 +34,20 @@ public class DiscussionCreateServiceImpl implements DiscussionCreateService {
      * @return 作成されたディスカッションのレスポンスDTO
      */
     @Override
-    public DiscussionCreateResponse service(Long maintopicId, DiscussionCreateRequest discussionCreateRequest){
+    public DiscussionCreateResponse service(
+        final Long maintopicId, 
+        final DiscussionCreateRequest discussionCreateRequest
+    ){
         Discussion discussion = Discussion.create(
             Paragraph.of(discussionCreateRequest.getParagraph()),
             maintopicId
         );
-        Discussion createdDiscussion = discussionRepository.createDiscussion(discussion);
+        
+        Maintopics maintopicEntity = maintopicRepository.findModelById(maintopicId);
+        Discussions entity = new Discussions();
+        entity.setParagraph(discussion.getParagraph());
+        entity.setMaintopic(maintopicEntity);
+        Discussion createdDiscussion = discussionRepository.createDiscussion(entity);
 
         return new DiscussionCreateResponse(
             createdDiscussion.getDiscussionId(),
