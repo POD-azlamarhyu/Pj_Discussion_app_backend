@@ -1,6 +1,7 @@
 package com.application.discussion.project.domain.repositories;
 
 import com.application.discussion.project.domain.entities.discussions.Discussion;
+import com.application.discussion.project.infrastructure.models.discussions.Discussions;
 
 /**
  * ディスカッションリポジトリインターフェイス
@@ -15,5 +16,5 @@ public interface DiscussionRepository {
      * @param discussion 保存するディスカッションエンティティ
      * @return 保存されたディスカッションエンティティ（IDや日時が設定済み）
      */
-    Discussion createDiscussion(Discussion discussion);
+    Discussion createDiscussion(Discussions discussions);
 }
