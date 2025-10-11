@@ -37,11 +37,9 @@ public class DiscussionsRepositoryImpl implements DiscussionRepository {
      * @return 保存されたディスカッションドメインエンティティ
      */
     @Override
-    public Discussion createDiscussion(Discussion discussion) {
-        logger.info("Creating discussion with paragraph: {}", discussion.getParagraph());
-        Discussions entity = new Discussions();
-        entity.setParagraph(discussion.getParagraph());
-        Discussions savedEntity = jpaDiscussionsRepository.save(entity);
+    public Discussion createDiscussion(final Discussions discussions) {
+        logger.info("Creating discussion with paragraph: {}", discussions.getParagraph());
+        Discussions savedEntity = jpaDiscussionsRepository.save(discussions);
         logger.info("Discussion created with ID: {}", savedEntity.getId());
         return Discussion.of(
             savedEntity.getId(),
