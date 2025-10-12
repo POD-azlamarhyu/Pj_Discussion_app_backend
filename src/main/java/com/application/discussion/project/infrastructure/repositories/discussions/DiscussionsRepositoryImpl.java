@@ -29,6 +29,12 @@ public class DiscussionsRepositoryImpl implements DiscussionRepository {
     }
 
     /**
+     * FIXME: このメソッドには、例外処理を追加する必要があります。
+     *       例えば、データベース接続エラーやデータ整合性エラーなどのシナリオを考慮してください。
+     * NOTE: 例外処理については、今のところは時間的な理由で実装していませんが、将来的には追加する予定です。
+     */
+
+    /**
      * ディスカッションを新規作成してデータベースに保存する
      * ドメインエンティティをインフラストラクチャ層のエンティティに変換し、
      * 保存後に再度ドメインエンティティとして返却する
@@ -39,7 +45,7 @@ public class DiscussionsRepositoryImpl implements DiscussionRepository {
     @Override
     public Discussion createDiscussion(final Discussions discussions) {
         logger.info("Creating discussion with paragraph: {}", discussions.getParagraph());
-        Discussions savedEntity = jpaDiscussionsRepository.save(discussions);
+        final Discussions savedEntity = jpaDiscussionsRepository.save(discussions);
         logger.info("Discussion created with ID: {}", savedEntity.getId());
         return Discussion.of(
             savedEntity.getId(),
