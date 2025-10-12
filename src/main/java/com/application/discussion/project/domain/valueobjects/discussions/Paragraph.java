@@ -2,10 +2,11 @@ package com.application.discussion.project.domain.valueobjects.discussions;
 
 import java.util.Optional;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.util.StringUtils;
+
 
 import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
 
@@ -77,7 +78,7 @@ public class Paragraph {
      * @throws DomainLayerErrorException 文章がnullまたは空白の場合
      */
     private void validateNotNull(String input) {
-        if (!StringUtils.hasText(input)){
+        if (StringUtils.isBlank(input) || StringUtils.isEmpty(input)) {
             throw new DomainLayerErrorException(
                 "文章はnullまたは空白にできません",
                 HttpStatus.BAD_REQUEST,
@@ -117,7 +118,7 @@ public class Paragraph {
 
         if (text.length() > MAX_LENGTH) {
             throw new DomainLayerErrorException(
-                String.format("文章は%d文字以下である必要があります", MIN_LENGTH),
+                String.format("文章は%d文字以下である必要があります", MAX_LENGTH),
                 HttpStatus.BAD_REQUEST,
                 HttpStatusCode.valueOf(400)
             );
@@ -164,6 +165,6 @@ public class Paragraph {
      * @return 空の場合true
      */
     public boolean isEmpty() {
-        return StringUtils.hasText(this.value);
+        return StringUtils.isEmpty(this.value);
     }
 }
