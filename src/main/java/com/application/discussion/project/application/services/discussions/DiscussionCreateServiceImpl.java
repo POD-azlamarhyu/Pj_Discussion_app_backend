@@ -38,16 +38,16 @@ public class DiscussionCreateServiceImpl implements DiscussionCreateService {
         final Long maintopicId, 
         final DiscussionCreateRequest discussionCreateRequest
     ){
-        Discussion discussion = Discussion.create(
+        final Discussion discussion = Discussion.create(
             Paragraph.of(discussionCreateRequest.getParagraph()),
             maintopicId
         );
         
-        Maintopics maintopicEntity = maintopicRepository.findModelById(maintopicId);
-        Discussions entity = new Discussions();
+        final Maintopics maintopicEntity = maintopicRepository.findModelById(maintopicId);
+        final Discussions entity = new Discussions();
         entity.setParagraph(discussion.getParagraph());
         entity.setMaintopic(maintopicEntity);
-        Discussion createdDiscussion = discussionRepository.createDiscussion(entity);
+        final Discussion createdDiscussion = discussionRepository.createDiscussion(entity);
 
         return new DiscussionCreateResponse(
             createdDiscussion.getDiscussionId(),
