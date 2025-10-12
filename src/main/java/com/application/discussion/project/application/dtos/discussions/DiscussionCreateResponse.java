@@ -27,6 +27,12 @@ public class DiscussionCreateResponse {
     public DiscussionCreateResponse() {}
 
     /**
+     * FIXME: 現状では、このコンストラクタのみが実装されているが、
+     * 将来的に他のコンストラクタやファクトリーメソッド、ビルダーパターンを追加する可能性がある。
+     * NOTE: 追加する場合は、DTOの不変性を保つために注意が必要。
+     */
+
+    /**
      * 全フィールドを初期化するコンストラクタ
      * 
      * @param discussionId 作成されたディスカッションのID
