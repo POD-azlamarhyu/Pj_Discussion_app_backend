@@ -18,7 +18,7 @@ public class ParagraphTests {
     private static final String JAPANESE_TEXT = "テスト文章です。";
     private static final String NULL_OR_EMPTY_MESSAGE = "文章はnullまたは空白にできません";
     private static final String MIN_LENGTH_MESSAGE = "文章は3文字以上である必要があります";
-    private static final String MAX_LENGTH_MESSAGE = "文章は3文字以下である必要があります";
+    private static final String MAX_LENGTH_MESSAGE = "文章は2000文字以下である必要があります";
     private static final int MIN_LENGTH = 3;
     private static final int MAX_LENGTH = 2000;
     private static final int INVALID_SHORT_LENGTH = 2;
