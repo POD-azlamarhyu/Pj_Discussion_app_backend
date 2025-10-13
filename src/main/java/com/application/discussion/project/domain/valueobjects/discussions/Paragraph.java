@@ -2,11 +2,13 @@ package com.application.discussion.project.domain.valueobjects.discussions;
 
 import java.util.Optional;
 import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-
 
 import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
 
@@ -22,6 +24,8 @@ public class Paragraph {
     private static final Pattern INVALID_PATTERN = Pattern.compile("^\\s*$");
     private static final Pattern HTML_TAG_PATTERN = Pattern.compile("<[^>]+>");
     private static final Pattern EXCESSIVE_WHITESPACE_PATTERN = Pattern.compile("\\s{3,}");
+
+    private static final Logger logger = LoggerFactory.getLogger(Paragraph.class);
 
     private final String value;
 
@@ -61,12 +65,15 @@ public class Paragraph {
      * @throws DomainLayerErrorException 検証に失敗した場合
      */
     private String validateAndNormalize(String input) {
+        logger.info("Validating and normalizing paragraph: {}", input);
         validateNotNull(input);
 
         String normalized = normalizeText(input);
 
         validateLength(normalized);
         validateContent(normalized);
+
+        logger.info("Paragraph validated and normalized: {}", normalized);
 
         return normalized;
     }
@@ -79,6 +86,7 @@ public class Paragraph {
      */
     private void validateNotNull(String input) {
         if (StringUtils.isBlank(input) || StringUtils.isEmpty(input)) {
+            logger.error("Paragraph cannot be null or empty: {}", input);
             throw new DomainLayerErrorException(
                 "文章はnullまたは空白にできません",
                 HttpStatus.BAD_REQUEST,
@@ -109,6 +117,7 @@ public class Paragraph {
      */
     private void validateLength(String text) {
         if (text.length() < MIN_LENGTH) {
+            logger.error("Paragraph length is too short: {}", text.length());
             throw new DomainLayerErrorException(
                 String.format("文章は%d文字以上である必要があります", MIN_LENGTH),
                 HttpStatus.BAD_REQUEST,
@@ -117,6 +126,7 @@ public class Paragraph {
         }
 
         if (text.length() > MAX_LENGTH) {
+            logger.error("Paragraph length is too long: {}", text.length());
             throw new DomainLayerErrorException(
                 String.format("文章は%d文字以下である必要があります", MAX_LENGTH),
                 HttpStatus.BAD_REQUEST,
@@ -133,6 +143,7 @@ public class Paragraph {
      */
     private void validateContent(String text) {
         if (INVALID_PATTERN.matcher(text).matches()) {
+            logger.error("Paragraph contains invalid content: {}", text);
             throw new DomainLayerErrorException(
                 "文章はnullまたは空白にできません",
                 HttpStatus.BAD_REQUEST,
