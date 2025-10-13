@@ -40,7 +40,7 @@ public class DiscussionController {
     @Operation(
         summary = "ディスカッションを新規作成する", 
         description = "指定されたメイントピックに対して新しいディスカッションを投稿する。" +
-                     "ディスカッションの本文は必須で、1000文字以内で入力する必要がある。"
+                     "ディスカッションの本文は必須で、2000文字以内で入力する必要がある。"
     )
     @ApiResponses({
         @ApiResponse(
