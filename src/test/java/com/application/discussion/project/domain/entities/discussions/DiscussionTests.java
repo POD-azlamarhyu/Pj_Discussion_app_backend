@@ -207,7 +207,7 @@ public class DiscussionTests {
     @DisplayName("createメソッドでnullの段落を渡すと例外が発生する")
     void throwExceptionForNullParagraphInCreateTest() {
         assertThrows(
-            NullPointerException.class,
+            DomainLayerErrorException.class,
             () -> Discussion.create(null, VALID_MAINTOPIC_ID)
         );
     }
