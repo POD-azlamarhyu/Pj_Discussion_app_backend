@@ -1,5 +1,7 @@
 package com.application.discussion.project.application.services.discussions;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,8 @@ public class DiscussionCreateServiceImpl implements DiscussionCreateService {
     @Autowired
     private MaintopicRepository maintopicRepository;
 
+    private static final Logger logger = LoggerFactory.getLogger(DiscussionCreateServiceImpl.class);
+
     /**
      * 指定されたメイントピックに対してディスカッションを作成する
      * リクエストから本文を取得してParagraphバリューオブジェクトに変換し、
@@ -38,6 +42,7 @@ public class DiscussionCreateServiceImpl implements DiscussionCreateService {
         final Long maintopicId, 
         final DiscussionCreateRequest discussionCreateRequest
     ){
+        logger.info("Creating discussion for maintopicId: {}", maintopicId);
         final Discussion discussion = Discussion.create(
             Paragraph.of(discussionCreateRequest.getParagraph()),
             maintopicId
@@ -48,7 +53,7 @@ public class DiscussionCreateServiceImpl implements DiscussionCreateService {
         entity.setParagraph(discussion.getParagraph());
         entity.setMaintopic(maintopicEntity);
         final Discussion createdDiscussion = discussionRepository.createDiscussion(entity);
-
+        logger.info("Discussion created with ID: {}", createdDiscussion.getDiscussionId());
         return new DiscussionCreateResponse(
             createdDiscussion.getDiscussionId(),
             createdDiscussion.getParagraph(),
