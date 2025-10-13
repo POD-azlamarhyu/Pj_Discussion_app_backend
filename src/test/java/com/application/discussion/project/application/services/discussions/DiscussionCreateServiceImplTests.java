@@ -1,5 +1,8 @@
 package com.application.discussion.project.application.services.discussions;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,27 +40,40 @@ public class DiscussionCreateServiceImplTests {
     @InjectMocks
     private DiscussionCreateServiceImpl discussionCreateService;
 
-    private Long maintopicId;
+    private final Long maintopicId = 8L;
     private DiscussionCreateRequest discussionCreateRequest;
     private Maintopics maintopicEntity;
     private Discussion createdDiscussion;
     private Paragraph testParagraph;
 
     private final String defaultParagraph = "Javaの新機能について議論しましょう。ラムダ式の活用方法を中心に話し合いたいです。";
+    private final String anotherParagraph = "Spring Bootのベストプラクティスについて意見を交換しましょう。";
+    private final String title = "ディスカッションのタイトル";
+    private final Long discussionId = 10L;
+    private final Integer stringRepeatCount = 10;
+    private final LocalDateTime discussionCreatedAt = LocalDateTime.of(2023, 10, 1, 12, 0);
+    private final LocalDateTime discussionUpdatedAt = LocalDateTime.of(2023, 10, 1, 12, 0);
+    private final LocalDateTime discussionDeletedAt = null;
+    private final Integer mockWantedNumber = 1;
+    
 
     @BeforeEach
     void setUp() {
-        maintopicId = 1L;
         discussionCreateRequest = new DiscussionCreateRequest(
             defaultParagraph
         );
         
         maintopicEntity = new Maintopics();
         maintopicEntity.setId(maintopicId);
+        maintopicEntity.setTitle(title);
         testParagraph = Paragraph.of(discussionCreateRequest.getParagraph());
-        createdDiscussion = Discussion.create(
-            testParagraph,
-            maintopicId
+        createdDiscussion = Discussion.of(
+            discussionId,
+            testParagraph.getValue(),
+            maintopicId,
+            discussionCreatedAt,
+            discussionUpdatedAt,
+            discussionDeletedAt
         );
     }
 
@@ -71,12 +87,12 @@ public class DiscussionCreateServiceImplTests {
         DiscussionCreateResponse response = discussionCreateService.service(maintopicId, discussionCreateRequest);
 
         assertNotNull(response);
-        assertEquals(100L, response.getDiscussionId());
+        assertEquals(discussionId, response.getDiscussionId());
         assertEquals(defaultParagraph, response.getParagraph());
         assertEquals(maintopicId, response.getMaintopicId());
 
-        verify(maintopicRepository, times(1)).findModelById(maintopicId);
-        verify(discussionRepository, times(1)).createDiscussion(any(Discussions.class));
+        verify(maintopicRepository, times(mockWantedNumber)).findModelById(maintopicId);
+        verify(discussionRepository, times(mockWantedNumber)).createDiscussion(any(Discussions.class));
     }
 
     @Test
@@ -91,7 +107,7 @@ public class DiscussionCreateServiceImplTests {
             discussionCreateService.service(maintopicId, discussionCreateRequest);
         });
 
-        verify(maintopicRepository, never()).findModelById(maintopicId);
+        verify(maintopicRepository, times(mockWantedNumber)).findModelById(maintopicId);
         verify(discussionRepository, never()).createDiscussion(any(Discussions.class));
     }
 
@@ -119,10 +135,15 @@ public class DiscussionCreateServiceImplTests {
         Long differentMaintopicId = 999L;
         Maintopics differentMaintopicEntity = new Maintopics();
         differentMaintopicEntity.setId(differentMaintopicId);
+        differentMaintopicEntity.setTitle(title);
         
-        Discussion differentCreatedDiscussion = Discussion.create(
-            testParagraph,
-            differentMaintopicId
+        Discussion differentCreatedDiscussion = Discussion.of(
+            discussionId,
+            anotherParagraph,
+            differentMaintopicId,
+            discussionCreatedAt,
+            discussionUpdatedAt,
+            discussionDeletedAt
         );
 
         when(maintopicRepository.findModelById(differentMaintopicId)).thenReturn(differentMaintopicEntity);
@@ -131,40 +152,42 @@ public class DiscussionCreateServiceImplTests {
         DiscussionCreateResponse response = discussionCreateService.service(differentMaintopicId, discussionCreateRequest);
 
         assertNotNull(response);
-        assertEquals(200L, response.getDiscussionId());
-        assertEquals(defaultParagraph, response.getParagraph());
+        assertEquals(discussionId, response.getDiscussionId());
+        assertEquals(anotherParagraph, response.getParagraph());
         assertEquals(differentMaintopicId, response.getMaintopicId());
 
-        verify(maintopicRepository, times(1)).findModelById(differentMaintopicId);
-        verify(discussionRepository, times(1)).createDiscussion(any(Discussions.class));
+        verify(maintopicRepository, times(mockWantedNumber)).findModelById(differentMaintopicId);
+        verify(discussionRepository, times(mockWantedNumber)).createDiscussion(any(Discussions.class));
     }
 
     @Test
     @DisplayName("正常系：長い本文でディスカッション作成が成功すること")
     void serviceWithLongParagraphTest() {
         
-        final String longParagraph = "これは非常に長いディスカッションの内容です。Spring Bootフレームワークの詳細な機能について詳しく説明し、" +
-                              "実際の開発現場での活用方法やベストプラクティスについて議論したいと思います。" +
-                              "特にDependency InjectionやAOP機能について深く掘り下げて話し合いましょう。";
+        final String longParagraph = "これは非常に長いディスカッションの内容です。Spring Bootフレームワークの詳細な機能について詳しく説明し、実際の開発現場での活用方法やベストプラクティスについて議論したいと思います。特にDependency InjectionやAOP機能について深く掘り下げて話し合いましょう。".repeat(stringRepeatCount);
         DiscussionCreateRequest longRequest = new DiscussionCreateRequest(longParagraph);
         
-        Discussion longCreatedDiscussion = Discussion.create(
-            Paragraph.of(longParagraph), 
-            maintopicId
+        final Discussion longCreatedDiscussion = Discussion.of(
+            discussionId,
+            longRequest.getParagraph(),
+            maintopicId,
+            discussionCreatedAt,
+            discussionUpdatedAt,
+            discussionDeletedAt
         );
 
         when(maintopicRepository.findModelById(maintopicId)).thenReturn(maintopicEntity);
         when(discussionRepository.createDiscussion(any(Discussions.class))).thenReturn(longCreatedDiscussion);
 
-        DiscussionCreateResponse response = discussionCreateService.service(maintopicId, longRequest);
+        final DiscussionCreateResponse response = discussionCreateService.service(maintopicId, longRequest);
 
         assertNotNull(response);
-        assertEquals(300L, response.getDiscussionId());
+        assertEquals(discussionId, response.getDiscussionId());
         assertEquals(longParagraph, response.getParagraph());
         assertEquals(maintopicId, response.getMaintopicId());
 
-        verify(maintopicRepository, times(1)).findModelById(maintopicId);
-        verify(discussionRepository, times(1)).createDiscussion(any(Discussions.class));
+        verify(maintopicRepository, times(mockWantedNumber)).findModelById(maintopicId);
+        verify(discussionRepository, times(mockWantedNumber)).createDiscussion(any(Discussions.class));
     }
 
     @Test
