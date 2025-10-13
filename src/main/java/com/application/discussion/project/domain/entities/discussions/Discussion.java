@@ -4,8 +4,10 @@ import java.time.LocalDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
-import com.application.discussion.project.domain.entities.topics.Maintopic;
+import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
 import com.application.discussion.project.domain.valueobjects.discussions.Paragraph;
 
 import lombok.Builder;
@@ -31,7 +33,7 @@ public class Discussion {
     private final LocalDateTime updatedAt;
     private final LocalDateTime deletedAt;
 
-    private static final Logger logger = LoggerFactory.getLogger(Maintopic.class);
+    private static final Logger logger = LoggerFactory.getLogger(Discussion.class);
 
     /**
      * ディスカッションエンティティのコンストラクタ
@@ -52,6 +54,21 @@ public class Discussion {
         LocalDateTime deletedAt
         
     ) {
+        if (paragraph == null){
+            throw new DomainLayerErrorException(
+                "Paragraph must not be null when creating a Discussion.",
+                HttpStatus.BAD_REQUEST,
+                HttpStatusCode.valueOf(400)
+            );
+        }
+
+        if (maintopicId == null){
+            throw new DomainLayerErrorException(
+                "MaintopicId must not be null when creating a Discussion.",
+                HttpStatus.BAD_REQUEST,
+                HttpStatusCode.valueOf(400)
+            );
+        }
         this.discussionId = discussionId;
         this.paragraph = paragraph;
         this.createdAt = createdAt;
@@ -98,10 +115,12 @@ public class Discussion {
      * @return 新規作成されたディスカッションエンティティ
      */
     public static Discussion create(
-        Paragraph paragraph,
-        Long maintopicId
+        final Paragraph paragraph,
+        final Long maintopicId
     ){  
         logger.info("Creating new Discussion with paragraph: {}", paragraph);
+
+        
         return new Discussion(
             Long.valueOf(0),
             paragraph,
