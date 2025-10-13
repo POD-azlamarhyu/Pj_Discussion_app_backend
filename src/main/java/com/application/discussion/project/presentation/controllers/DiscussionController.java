@@ -1,29 +1,90 @@
 package com.application.discussion.project.presentation.controllers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.application.discussion.project.application.dtos.discussions.DiscussionCreateRequest;
+import com.application.discussion.project.application.dtos.discussions.DiscussionCreateResponse;
+import com.application.discussion.project.application.services.discussions.DiscussionCreateService;
+import com.application.discussion.project.presentation.validations.DiscussionCreateRequestValidation;
+
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/discussions")
+@RequestMapping("/v1/maintopics/{maintopicId}/discussions")
 @Tag(name = "Discussion Management", description = "API for managing discussions")
 public class DiscussionController {
 
-    @Operation(summary = "Create a new discussion", description = "Posts a new discussion to the platform")
+    @Autowired
+    private DiscussionCreateService discussionCreateService;
+
+    private static final Logger logger = LoggerFactory.getLogger(DiscussionController.class);
+
+    @Operation(
+        summary = "ディスカッションを新規作成する", 
+        description = "指定されたメイントピックに対して新しいディスカッションを投稿する。" +
+                     "ディスカッションの本文は必須で、2000文字以内で入力する必要がある。"
+    )
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Discussion successfully created"),
-        @ApiResponse(responseCode = "400", description = "Invalid input data")
+        @ApiResponse(
+            responseCode = "201", 
+            description = "ディスカッションが正常に作成された",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = DiscussionCreateResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400", 
+            description = "リクエストデータが無効 - 本文が空または文字数制限を超過",
+            content = @Content(mediaType = "application/json")
+        ),
+        @ApiResponse(
+            responseCode = "404", 
+            description = "指定されたメイントピックIDが存在しない",
+            content = @Content(mediaType = "application/json")
+        )
     })
     @PostMapping
-    public void createDiscussion(){}
+    public ResponseEntity<DiscussionCreateResponse> createDiscussion(
+        @Parameter(
+            description = "ディスカッションを関連付けるメイントピックのID", 
+            required = true,
+            example = "1"
+        )
+        @PathVariable Long maintopicId,
+        @Parameter(
+            description = "ディスカッション作成リクエスト", 
+            required = true
+        )
+        @RequestBody DiscussionCreateRequest discussionCreateRequest
+    ){
+        logger.info("Received request to create discussion: {}", discussionCreateRequest);
+        DiscussionCreateRequestValidation.validate(discussionCreateRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            discussionCreateService.service(
+                maintopicId,
+                discussionCreateRequest
+            )
+        );
+    }
 
 
     @Operation(summary = "Update discussion information", description = "Edits the information of an existing discussion")
