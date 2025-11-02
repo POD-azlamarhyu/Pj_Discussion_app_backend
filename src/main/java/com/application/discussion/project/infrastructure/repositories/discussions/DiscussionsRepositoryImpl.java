@@ -121,10 +121,10 @@ public class DiscussionsRepositoryImpl implements DiscussionRepository {
      * @return ページング情報を含むディスカッションドメインエンティティのPageオブジェクト
      */
     @Override
-    public Page<Discussion> findAllDiscussions(final Pageable pageable) {
+    public Page<Discussion> findAllDiscussions(final Long maintopicId,final Pageable pageable) {
         logger.info("Finding all discussions with pagination: page {}, size {}", 
             pageable.getPageNumber(), pageable.getPageSize());
-        final Page<Discussions> entitiesPage = jpaDiscussionsRepository.findAll(pageable);
+        final Page<Discussions> entitiesPage = jpaDiscussionsRepository.findByMaintopicId(maintopicId,pageable);
         logger.info("Found {} discussions in total", entitiesPage.getTotalElements());
         return entitiesPage.map(entity -> Discussion.of(
             entity.getId(),
