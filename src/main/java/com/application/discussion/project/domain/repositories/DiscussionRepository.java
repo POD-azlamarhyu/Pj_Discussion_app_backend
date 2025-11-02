@@ -43,5 +43,5 @@ public interface DiscussionRepository {
      * @param pageable ページネーション情報
      * @return ページング情報を含むディスカッションエンティティのリスト
      */
-    Page<Discussion> findAllDiscussions(Pageable pageable);
+    Page<Discussion> findAllDiscussions(Long maintopicId, Pageable pageable);
 }
