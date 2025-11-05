@@ -3,6 +3,9 @@ package com.application.discussion.project.presentation.controllers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,12 +15,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.application.discussion.project.application.dtos.discussions.DiscussionCreateRequest;
 import com.application.discussion.project.application.dtos.discussions.DiscussionCreateResponse;
+import com.application.discussion.project.application.dtos.discussions.DiscussionListResponse;
 import com.application.discussion.project.application.services.discussions.DiscussionCreateService;
+import com.application.discussion.project.application.services.discussions.DiscussionListService;
 import com.application.discussion.project.presentation.validations.DiscussionCreateRequestValidation;
+import com.application.discussion.project.presentation.validations.DiscussionListRequestValidation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,6 +41,9 @@ public class DiscussionController {
 
     @Autowired
     private DiscussionCreateService discussionCreateService;
+
+    @Autowired
+    private DiscussionListService discussionListService;
 
     private static final Logger logger = LoggerFactory.getLogger(DiscussionController.class);
 
@@ -95,10 +105,72 @@ public class DiscussionController {
     @PutMapping("/{id}")
     public void updateDiscussion(){}
 
-    @Operation(summary = "Get all discussions", description = "Retrieves a list of all discussions")
-    @ApiResponse(responseCode = "200", description = "All discussions retrieved successfully")
+    @Operation(
+        summary = "議論リストを取得する", 
+        description = "指定されたメイントピックに関連する議論のリストをページング形式で取得する。" +
+                     "ページ番号、ページサイズ、ソート順を指定できる。"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200", 
+            description = "議論リストが正常に取得された",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = DiscussionListResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "404", 
+            description = "指定されたメイントピックIDが存在しない",
+            content = @Content(mediaType = "application/json")
+        )
+    })
     @GetMapping
-    public void getDiscussions(){}
+    public ResponseEntity<DiscussionListResponse> getDiscussions(
+        @Parameter(
+            description = "議論を取得するメイントピックのID", 
+            required = true,
+            example = "1"
+        )
+        @PathVariable Long maintopicId,
+        @Parameter(
+            description = "ページ番号（0から開始）", 
+            example = "0"
+        )
+        @RequestParam(defaultValue = "0") int page,
+        @Parameter(
+            description = "1ページあたりの件数", 
+            example = "10"
+        )
+        @RequestParam(defaultValue = "10") int size,
+        @Parameter(
+            description = "ソート項目（createdAt, updatedAtなど）", 
+            example = "createdAt"
+        )
+        @RequestParam(defaultValue = "createdAt") String sortBy,
+        @Parameter(
+            description = "ソート順（asc: 昇順, desc: 降順）", 
+            example = "desc"
+        )
+        @RequestParam(defaultValue = "desc") String direction
+    ) {
+        logger.info("Fetching discussions for maintopicId: {}, page: {}, size: {}", maintopicId, page, size);
+        
+        DiscussionListRequestValidation.validate(maintopicId, page, size, sortBy, direction);
+        
+        final Sort.Direction sortDirection = direction.equalsIgnoreCase("asc") 
+            ? Sort.Direction.ASC 
+            : Sort.Direction.DESC;
+        final Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        
+        final DiscussionListResponse response = discussionListService.service(
+            maintopicId, 
+            pageable
+        );
+        
+        logger.info("Successfully fetched {} discussions", response.getTotalCount());
+        return ResponseEntity.ok(response);
+    }
     
     @Operation(summary = "Get discussion information", description = "Retrieves the details of a discussion by ID")
     @ApiResponses({
