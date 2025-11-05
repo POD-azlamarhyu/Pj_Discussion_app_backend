@@ -1,12 +1,14 @@
 package com.application.discussion.project.presentation.validations;
 
 import com.application.discussion.project.presentation.exceptions.PresentationLayerErrorException;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import org.springframework.http.HttpStatusCode;
 
 @DisplayName("DiscussionListRequestValidation ユニットテスト")
 class DiscussionListRequestValidationTests {
@@ -21,7 +23,7 @@ class DiscussionListRequestValidationTests {
     private static final Integer MAX_PAGE = 1000;
     private static final Integer NEGATIVE_PAGE = -1;
     private static final Integer OVER_MAX_PAGE = 1001;
-    
+    private static final Integer BAD_REQUEST_CODE= 400;
     private static final Integer VALID_SIZE = 10;
     private static final Integer MIN_SIZE = 1;
     private static final Integer MAX_SIZE = 100;
@@ -215,7 +217,8 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_MAINTOPIC_ID_REQUIRED)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status",HttpStatus.BAD_REQUEST)
+            .hasFieldOrPropertyWithValue("code", HttpStatusCode.valueOf(BAD_REQUEST_CODE));
     }
 
     @Test
@@ -230,7 +233,8 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_MAINTOPIC_ID_POSITIVE)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST)
+            .hasFieldOrPropertyWithValue("code", HttpStatusCode.valueOf(BAD_REQUEST_CODE));
     }
 
     @Test
@@ -245,7 +249,8 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_MAINTOPIC_ID_POSITIVE)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST)
+            .hasFieldOrPropertyWithValue("code", HttpStatusCode.valueOf(BAD_REQUEST_CODE));
     }
 
     @Test
@@ -260,7 +265,8 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_PAGE_REQUIRED)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST)
+            .hasFieldOrPropertyWithValue("code", HttpStatusCode.valueOf(BAD_REQUEST_CODE));
     }
 
     @Test
@@ -275,7 +281,8 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_PAGE_MIN)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST)
+            .hasFieldOrPropertyWithValue("code", HttpStatusCode.valueOf(BAD_REQUEST_CODE));
     }
 
     @Test
@@ -290,7 +297,8 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_PAGE_MAX)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST)
+            .hasFieldOrPropertyWithValue("code", HttpStatusCode.valueOf(BAD_REQUEST_CODE));
     }
 
     @Test
@@ -305,7 +313,8 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_SIZE_REQUIRED)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST)
+            .hasFieldOrPropertyWithValue("code", HttpStatusCode.valueOf(BAD_REQUEST_CODE));
     }
 
     @Test
@@ -320,7 +329,8 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_SIZE_MIN)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST)
+            .hasFieldOrPropertyWithValue("code", HttpStatusCode.valueOf(BAD_REQUEST_CODE));
     }
 
     @Test
@@ -335,7 +345,7 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_SIZE_MIN)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -350,7 +360,7 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_SIZE_MAX)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -365,7 +375,7 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_SORT_BY_REQUIRED)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -380,7 +390,7 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_SORT_BY_REQUIRED)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -395,7 +405,7 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_SORT_BY_REQUIRED)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -410,7 +420,7 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_SORT_BY_INVALID)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -425,7 +435,7 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_DIRECTION_REQUIRED)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -440,7 +450,7 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_DIRECTION_REQUIRED)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -455,7 +465,7 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_DIRECTION_REQUIRED)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -470,6 +480,6 @@ class DiscussionListRequestValidationTests {
         ))
             .isInstanceOf(PresentationLayerErrorException.class)
             .hasMessage(ERROR_MESSAGE_DIRECTION_INVALID)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
     }
 }
