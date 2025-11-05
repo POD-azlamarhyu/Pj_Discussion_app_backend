@@ -126,7 +126,7 @@ public class DiscussionListRequestValidation {
      * ソート項目のバリデーション
      */
     private static void validateSortBy(final String sortBy) {
-        if (StringUtils.isBlank(sortBy) || StringUtils.trimToNull(sortBy) == null || StringUtils.trimToNull(sortBy).isEmpty()) {
+        if (StringUtils.isBlank(sortBy) ) {
             throw new PresentationLayerErrorException(
                 "ソート項目は必須です",
                 HttpStatus.BAD_REQUEST,
@@ -146,7 +146,7 @@ public class DiscussionListRequestValidation {
      * ソート順のバリデーション
      */
     private static void validateDirection(final String direction) {
-        if (StringUtils.isBlank(direction) || StringUtils.trimToNull(direction) == null || StringUtils.trimToNull(direction).isEmpty()) {
+        if (StringUtils.isBlank(direction)) {
             throw new PresentationLayerErrorException(
                 "ソート順は必須です",
                 HttpStatus.BAD_REQUEST,
