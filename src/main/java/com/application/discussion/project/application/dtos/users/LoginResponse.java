@@ -3,67 +3,96 @@ package com.application.discussion.project.application.dtos.users;
 import java.util.List;
 import java.util.UUID;
 
-import lombok.Builder;
-
-
-
 public class LoginResponse {
     private UUID userId;
-    private String token;
     private String username;
     private List<String> roles;
 
+    /**
+     * デフォルトコンストラクタ
+     */
     public LoginResponse() {
     }
-    public LoginResponse(UUID userId, String token, String username, List<String> roles) {
+
+    /**
+     * コンストラクタ
+     * @param userId ユーザーID
+     * @param token アクセストークン
+     * @param username ユーザー名
+     * @param roles ユーザーロールのリスト
+     */
+    public LoginResponse(UUID userId, String username, List<String> roles) {
         this.userId = userId;
-        this.token = token;
         this.username = username;
         this.roles = roles;
     }
 
+    /**
+     * ユーザーIDを取得する
+     * @return ユーザーID
+     */
     public UUID getUserId() {
         return userId;
     }
+
+    /**
+     * ユーザーIDを設定する
+     * @param userId ユーザーID
+     */
     public void setUserId(UUID userId) {
         this.userId = userId;
     }
-    public String getToken() {
-        return token;
-    }
-    public void setToken(String token) {
-        this.token = token;
-    }
+
+    /**
+     * ユーザー名を取得する
+     * @return ユーザー名
+     */
     public String getUsername() {
         return username;
     }
+
+    /**
+     * ユーザー名を設定する
+     * @param username ユーザー名
+     */
     public void setUsername(String username) {
         this.username = username;
     }
+
+    /**
+     * ユーザーロールのリストを取得する
+     * @return ユーザーロールのリスト
+     */
     public List<String> getRoles() {
         return roles;
     }
+
+    /**
+     * ユーザーロールのリストを設定する
+     * @param roles ユーザーロールのリスト
+     */
     public void setRoles(List<String> roles) {
         this.roles = roles;
     }
 
+    /**
+     * ビルダーパターンのためのビルダーメソッド
+     * @return Builderインスタンス
+     */
     public static Builder builder() {
         return new Builder();
     }
 
+    /**
+     * LoginResponseのビルダークラス
+     */
     public static class Builder {
         private UUID userId;
-        private String token;
         private String username;
         private List<String> roles;
 
         public Builder userId(UUID userId) {
             this.userId = userId;
-            return this;
-        }
-
-        public Builder token(String token) {
-            this.token = token;
             return this;
         }
 
@@ -78,7 +107,7 @@ public class LoginResponse {
         }
 
         public LoginResponse build() {
-            return new LoginResponse(userId, token, username, roles);
+            return new LoginResponse(userId, username, roles);
         }
     }
 }
