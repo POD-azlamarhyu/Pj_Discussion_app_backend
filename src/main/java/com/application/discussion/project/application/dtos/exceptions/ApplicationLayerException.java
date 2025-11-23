@@ -32,6 +32,14 @@ public class ApplicationLayerException extends RuntimeException {
     public ApplicationLayerException(String message) {
         super(message);
     }
+    /**
+     * エラーメッセージを取得する
+     * @return エラーメッセージ
+     */
+    @Override
+    public String getMessage() {
+        return super.getMessage();
+    }
 
     /**
      * HTTPステータスコードを取得する
