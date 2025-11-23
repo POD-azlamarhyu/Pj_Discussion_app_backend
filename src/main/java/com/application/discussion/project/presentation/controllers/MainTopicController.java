@@ -84,7 +84,7 @@ public class MainTopicController {
         headers.setContentType(MediaType.APPLICATION_JSON);
         MaintopicCreateResponse response = maintopicCreateService.service(maintopicCreateRequest);
         logger.info("Main topic created with ID: {}", response.getId());
-        return  ResponseEntity.status(HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .headers(headers)
                 .body(response);
     }
