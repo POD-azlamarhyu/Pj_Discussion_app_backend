@@ -46,18 +46,17 @@ public class JWTAuthUserDetails implements UserDetails {
     private static final Logger logger = LoggerFactory.getLogger(JWTAuthUserDetails.class);
 
     /**
-     * Constructor for JWTAuthUserDetails.
+     * JWTAuthUserDetailsのコンストラクタ
      *
-     * @param userId      the unique identifier of the user
-     * @param username    the username of the user
-     * @param email       the email of the user
-     * @param password    the password of the user
-     * @param loginId     the login ID of the user
-     * @param isDeleted   indicates if the user is deleted
-     * @param isActive    indicates if the user is active
-     * @param authorities the authorities granted to the user
+     * @param userId        ユーザID 
+     * @param username      ユーザー名 
+     * @param email         Emailアドレス 
+     * @param password      パスワード 
+     * @param loginId       ログインID 
+     * @param isDeleted     削除フラグ 
+     * @param isActive      アクティブフラグ 
+     * @param authorities   ロール情報のコレクション 
      */
-
     public JWTAuthUserDetails(
         UUID userId,
         String username,
@@ -68,6 +67,7 @@ public class JWTAuthUserDetails implements UserDetails {
         Boolean isActive,
         Collection<? extends GrantedAuthority> authorities
     ){
+        logger.info("Initializing JWTAuthUserDetails for user: {}", username);
         this.userId = userId;
         this.username = username;
         this.email = email;
@@ -78,9 +78,18 @@ public class JWTAuthUserDetails implements UserDetails {
         this.authorities = authorities;
     }
 
+    /**
+     * ユーザー情報とその役割からJWTAuthUserDetailsオブジェクトを構築する
+     * 
+     * @param user ユーザー情報を含むUsersオブジェクト
+     * @param roles ユーザーの役割を含むRolesのセット
+     * @return 構築されたJWTAuthUserDetailsオブジェクト
+     */
     public static JWTAuthUserDetails build(Users user, Set<Roles> roles){
+        logger.info("Building JWTAuthUserDetails for user: {}", user.getUsername());
         List<GrantedAuthority> authorities = roles.stream().map(role -> new SimpleGrantedAuthority(role.getRoleName())).collect(Collectors.toList());
 
+        logger.info("Authorities assigned: {}", authorities);
         return new JWTAuthUserDetails(
             user.getUserId(),
             user.getUsername(),
@@ -93,15 +102,28 @@ public class JWTAuthUserDetails implements UserDetails {
         );
     }
 
+    /**
+     * ユーザーの権限情報を取得する
+     * @return ユーザーの権限を含むコレクション
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities(){
         return authorities;
     }
 
+    /**
+     * ユーザーIDを取得する
+     * 
+     * @return ユーザーのUUID
+     */
     public UUID getUserId(){
         return userId;
     }
 
+    /**
+     * ユーザー名を取得する
+     * @return ユーザー名
+     */
     @Override
     public String getUsername(){
         return username;
@@ -111,39 +133,91 @@ public class JWTAuthUserDetails implements UserDetails {
         return email;
     }
 
+    /**
+     * パスワードを取得する
+     * @return パスワード
+     */
     @Override
     public String getPassword(){
         return password;
     }
+
+    /**
+     * ログインIDを取得する
+     * @return ログインID
+     */
     public String getLoginId(){
         return loginId;
     }
+
+    /**
+     * 削除フラグを取得する
+     * @return 削除フラグ
+     */
     public Boolean getIsDeleted(){
         return isDeleted;
     }
+
+    /**
+     * アクティブフラグを取得する
+     * @return アクティブフラグ
+     */
     public Boolean getIsActive(){
         return isActive;
     }
 
+    /**
+     * アカウントの有効期限が切れていないかを示す
+     * @return true - アカウントは有効期限内, false - アカウントは期限切れ
+     */
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    /**
+     * アカウントがロックされていないかを示す
+     * @return true - アカウントはロックされていない, false - アカウントはロックされている
+     */
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !this.isDeleted;
     }
+
+    /**
+     * 資格情報の有効期限が切れていないかを示す
+     * @return true - 資格情報は有効期限内, false - 資格情報は期限切れ
+     */
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    /**
+     * アカウントが有効かどうかを示す
+     * @return true - アカウントは有効, false - アカウントは無効
+     */
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.isActive && !this.isDeleted;
     }
 
+    /**
+     * ハッシュコードを生成する
+     * 
+     * @return オブジェクトのハッシュコード
+     */
+    @Override
+    public int hashCode(){
+        return Objects.hash(userId);
+    }
+
+    /**
+     * オブジェクトの等価性を比較する
+     * 
+     * @param object 比較対象のオブジェクト
+     * @return true - 等価, false - 非等価
+     */
     @Override
     public boolean equals(Object object){
         if (this == object) return true;
