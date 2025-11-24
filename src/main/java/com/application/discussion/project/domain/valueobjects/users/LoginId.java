@@ -1,24 +1,30 @@
 package com.application.discussion.project.domain.valueobjects.users;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.apache.commons.lang3.StringUtils;
+
+import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
+
 public class LoginId {
     private final String loginId;
     private final static Integer maxLength = 255;
     private final static Integer minLength = 8;
     private final static String pattern = "^[a-zA-Z0-9._-]{8,255}$";
 
-    private LoginId(String loginId) {
+    private LoginId(final String loginId) {
         this.validate(loginId);
         this.loginId = loginId;
     }
-    private void validate(String loginId) {
-        if (loginId == null || loginId.isEmpty()) {
-            throw new IllegalArgumentException("Login ID cannot be null or empty");
+    private void validate(final String loginId) {
+        if (StringUtils.isBlank(loginId)) {
+            throw new DomainLayerErrorException("ログインIDは必須項目です",HttpStatus.BAD_REQUEST , HttpStatusCode.valueOf(400));
         }
         if (loginId.length() > maxLength || loginId.length() < minLength) {
-            throw new IllegalArgumentException("Login ID must be between " + minLength + " and " + maxLength + " characters");
+            throw new DomainLayerErrorException("ログインIDは" + minLength + "文字以上" + maxLength + "文字以下である必要があります",HttpStatus.BAD_REQUEST , HttpStatusCode.valueOf(400));
         }
         if (!loginId.matches(pattern)) {
-            throw new IllegalArgumentException("Login ID can only contain alphanumeric characters, dots, underscores, and hyphens");
+            throw new DomainLayerErrorException("ログインIDは英数字および._-のみ使用可能で、8文字以上255文字以下である必要があります",HttpStatus.BAD_REQUEST , HttpStatusCode.valueOf(400));
         }
     }
     public static LoginId of(String loginId) {
