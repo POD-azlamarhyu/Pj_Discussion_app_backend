@@ -2,7 +2,8 @@ package com.application.discussion.project.infrastructure.seeds.users;
 
 import java.util.List;
 
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,16 +24,18 @@ public class RoleDataSeeder {
     @Autowired
     private JpaRolesRepository jpaRolesRepository;
 
+    private static final Logger logger = LoggerFactory.getLogger(RoleDataSeeder.class);
+
     public void seed() {
-        // テスト用ロールデータ投入ロジック
-        System.out.println("Seeding test role data...");
-        // ここにテスト用ロール作成処理を書く
+        
+        logger.info("Seeding role data...");
+        
         roles.forEach(roleName -> {
             if (!jpaRolesRepository.existsByRoleName(roleName)) {
                 jpaRolesRepository.save(new Roles(null, roleName, null, null, null, null));
-                System.out.println("Created role: " + roleName);
+                logger.info("Role created: {}", roleName);
             } else {
-                System.out.println("Role already exists: " + roleName);
+                logger.info("Role already exists: {}", roleName);
             }
         });
     }
