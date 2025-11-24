@@ -41,6 +41,13 @@ public class Role {
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
     }
+
+    /**
+     * ファクトリーメソッド：新しいRoleインスタンスを作成する
+     *
+     * @param roleName ロール名
+     * @return 新しいRoleインスタンス
+     */
     public static Role create(
         String roleName
     ) {
