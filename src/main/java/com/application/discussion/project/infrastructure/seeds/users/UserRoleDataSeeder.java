@@ -33,13 +33,21 @@ public class UserRoleDataSeeder {
     public void seed() {
         List<Users> users = jpaUsersRepository.findAll();
         List<Roles> roles = jpaRolesRepository.findAll();
+        logger.info("Seeding user roles...");
 
+        logger.info("Found {} users and {} roles in the database.", users.size(), roles.size());
+        logger.info("user available: {}", users);
+        logger.info("roles available: {}", roles);
         String NORMAL_ROLE= "NORMAL";
         Roles normalRole = roles.stream()
             .filter(role -> NORMAL_ROLE.equals(role.getRoleName()))
             .findFirst()
             .orElse(null);
-
+        /**
+         * * ユーザとロールの関連付けについて、すべてのユーザに対してNORMALロールを割り当てる処理
+         * ! 注意: 既存の関連付けがある場合、重複して割り当てられる可能性があります。
+         * ! 重複チェックをする必要がある
+         */
         users.stream().map(user ->{
             if (roles.isEmpty()) {
                 logger.error("No roles found in the database.");
