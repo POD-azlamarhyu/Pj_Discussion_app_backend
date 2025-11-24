@@ -5,11 +5,10 @@ import java.security.Key;
 
 
 import org.springframework.http.ResponseCookie;
-import org.springframework.stereotype.Component;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-@Component
+
 public interface JWTUtilsInterface {
     String generateToken(JWTAuthUserDetails userDetails);
     ResponseCookie generateJwtCookie(JWTAuthUserDetails userDetails);
