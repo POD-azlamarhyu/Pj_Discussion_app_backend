@@ -22,7 +22,7 @@ public class Password {
      * @param password
      */
     private Password(String password) {
-        logger.info("Creating Password value object with password");
+        logger.info("Creating Password value object with password {}: ",password != null ? "********" : null);
         this.validate(password);
         this.password = password;
     }
