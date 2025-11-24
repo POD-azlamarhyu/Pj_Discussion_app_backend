@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import com.application.discussion.project.domain.repositories.users.UsersRepositoryInterface;
@@ -23,5 +24,14 @@ public class UsersRepositoryImpl implements UsersRepositoryInterface{
     public Optional<Users> findByEmailOrLoginId(String emailOrLoginId){
         logger.debug("Searching for user with email or login ID: {}", emailOrLoginId);
         return jpaUsersRepository.findByEmailOrLoginId(emailOrLoginId, emailOrLoginId);
+    }
+
+    @Override
+    public void saveSeededUsers(Users user) {
+        Users editedUser = new Users();
+        editedUser.setLoginId(user.getLoginId());
+        editedUser.setEmail(user.getEmail());
+        editedUser.setPassword(user.getPassword());
+        jpaUsersRepository.save(editedUser);
     }
 }
