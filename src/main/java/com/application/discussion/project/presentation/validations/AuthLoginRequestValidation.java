@@ -6,14 +6,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
 public class AuthLoginRequestValidation {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthLoginRequestValidation.class);
+
     public static void validate(final LoginRequest loginRequest) {
         List<String> errors = new ArrayList<>();
-
+        logger.info("Starting validation for LoginRequest");
         Optional.ofNullable(loginRequest)
             .ifPresentOrElse(
                 request -> {
@@ -33,6 +37,7 @@ public class AuthLoginRequestValidation {
     }
 
     private static Optional<String> validateEmailOrLoginId(final String emailOrLoginId) {
+        logger.info("Validating emailOrLoginId: {}", emailOrLoginId);
         return Optional.ofNullable(emailOrLoginId)
             .filter(value -> !value.trim().isEmpty())
             .map(value -> Optional.<String>empty())
@@ -40,6 +45,7 @@ public class AuthLoginRequestValidation {
     }
 
     private static Optional<String> validatePassword(final String password) {
+        logger.info("Validating password: {}", password != null ? "********" : null);
         return Optional.ofNullable(password)
             .filter(value -> !value.trim().isEmpty())
             .map(value -> Optional.<String>empty())
