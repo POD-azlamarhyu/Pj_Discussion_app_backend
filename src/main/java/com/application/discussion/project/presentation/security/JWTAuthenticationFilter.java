@@ -64,7 +64,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             final FilterChain filterChain
     ) throws ServletException, IOException {
         String requestURI=httpServletRequest.getRequestURI();
-        logger.debug("JWTAuthenticationFiler called for URI : {}",requestURI);
+        logger.debug("called for URI : {}",requestURI);
 
         /**
          * * パブリックパスの場合は認証をスキップする
