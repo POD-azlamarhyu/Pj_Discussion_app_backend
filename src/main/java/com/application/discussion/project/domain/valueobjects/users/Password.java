@@ -1,7 +1,10 @@
 package com.application.discussion.project.domain.valueobjects.users;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 public class Password {
     private final String password;
@@ -9,23 +12,21 @@ public class Password {
     private final static Integer minLength = 10;
     private final static String pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{10,255}$";
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     private Password(String password) {
         this.validate(password);
-        this.password = passwordEncoder.encode(password);
+        this.password = password;
     }
 
     private void validate(String password) {
         if (password == null || password.isEmpty()) {
-            throw new IllegalArgumentException("Password cannot be null or empty");
+            throw new DomainLayerErrorException("パスワードは必須項目です",HttpStatus.BAD_REQUEST , HttpStatusCode.valueOf(400));
         }
         if (password.length() > maxLength || password.length() < minLength) {
-            throw new IllegalArgumentException("Password must be between " + minLength + " and " + maxLength + " characters");
+            throw new DomainLayerErrorException("パスワードは" + minLength + "文字以上" + maxLength + "文字以下である必要があります",HttpStatus.BAD_REQUEST , HttpStatusCode.valueOf(400));
         }
         if (!password.matches(pattern)) {
-            throw new IllegalArgumentException("Password must contain at least one uppercase letter, one lowercase letter, and one digit");
+            throw new DomainLayerErrorException("パスワードは英大文字、英小文字、数字をそれぞれ1文字以上含む必要があります",HttpStatus.BAD_REQUEST , HttpStatusCode.valueOf(400));
         }
     }
 
