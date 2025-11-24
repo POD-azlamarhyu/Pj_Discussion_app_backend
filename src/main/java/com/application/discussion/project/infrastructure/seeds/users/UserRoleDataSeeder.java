@@ -2,6 +2,8 @@ package com.application.discussion.project.infrastructure.seeds.users;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -16,9 +18,7 @@ import com.application.discussion.project.infrastructure.repositories.users.JpaU
 @Component
 @Profile("dev")
 public class UserRoleDataSeeder {
-    // ユーザーロールのシードデータを定義
-    // ここでは、ユーザーロールの初期データを定義するロジックを実装します。
-    // 例えば、管理者や一般ユーザーなどのロールを定義できます。
+    
     @Autowired
     private JpaUsersRepository jpaUsersRepository;
 
@@ -27,6 +27,8 @@ public class UserRoleDataSeeder {
 
     @Autowired
     private JpaUsersRolesRepository jpaUsersRolesRepository;
+
+    private static final Logger logger = LoggerFactory.getLogger(UserRoleDataSeeder.class);
 
     public void seed() {
         List<Users> users = jpaUsersRepository.findAll();
@@ -40,21 +42,16 @@ public class UserRoleDataSeeder {
 
         users.stream().map(user ->{
             if (roles.isEmpty()) {
-                System.out.println("No roles found to assign to user: " + user.getEmail());
+                logger.error("No roles found in the database.");
                 return null;
             }
-            
-            // ユーザーにロールを割り当てるロジック
-            // ここでは、各ユーザーに最初のロールを割り当てる例を示します。
             UsersRoles userRole = new UsersRoles(null, user, normalRole, null, null, null);
             return userRole;
         }).forEach(userRole -> {
             if (userRole != null) {
-                // ユーザーロールを保存
                 jpaUsersRolesRepository.save(userRole);
             }
         });
-        System.out.println("Seeding user roles...");
-        // ここにユーザーロール作成処理を書く
+        logger.info("User roles seeding completed.");
     }
 }
