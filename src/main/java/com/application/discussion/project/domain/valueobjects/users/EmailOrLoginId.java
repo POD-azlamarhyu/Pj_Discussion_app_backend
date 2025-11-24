@@ -21,6 +21,10 @@ public class EmailOrLoginId {
     private final static Pattern emailPatternCompiled = Pattern.compile(emailPattern);
     private final static Pattern emailBannedDomainPatternCompiled = Pattern.compile(emailBannedDomainPattern);
 
+    /**
+     * メールアドレスまたはログインID値オブジェクトを生成する
+     * @param emailOrLoginId
+     */
     private EmailOrLoginId(final String emailOrLoginId) {
         if (StringUtils.isBlank(emailOrLoginId)) {
             throw new DomainLayerErrorException("メールアドレスまたはログインIDは必須項目です",HttpStatus.BAD_REQUEST , HttpStatusCode.valueOf(400));
@@ -30,14 +34,31 @@ public class EmailOrLoginId {
         this.emailOrLoginId = emailOrLoginId;
     }
 
+    /**
+     * メールアドレスまたはログインID値オブジェクトを生成するファクトリメソッド
+     * 
+     * @param emailOrLoginId メールアドレスまたはログインIDの文字列
+     * @return EmailOrLoginId メールアドレスまたはログインIDの値オブジェクト
+     */
     public static EmailOrLoginId of(final String emailOrLoginId) {
         return new EmailOrLoginId(emailOrLoginId);
     }
 
+    /**
+     * メールアドレスまたはログインIDの文字列を取得する
+     * 
+     * @return String メールアドレスまたはログインIDの文字列
+     */
     public String value() {
         return this.emailOrLoginId;
     }
 
+    /**
+     * メールアドレスの妥当性を検証する
+     * 
+     * @param emailOrLoginId 検証対象のメールアドレス
+     * @throws DomainLayerErrorException メールアドレスが不正な場合
+     */
     private void validateEmail(final String emailOrLoginId) {
         if (emailOrLoginId.length() > maxLength) {
             throw new DomainLayerErrorException("メールアドレスは最大" + maxLength + "文字までです",HttpStatus.BAD_REQUEST , HttpStatusCode.valueOf(400));
@@ -47,6 +68,12 @@ public class EmailOrLoginId {
         }
     }
 
+    /**
+     * ログインIDの妥当性を検証する
+     * 
+     * @param emailOrLoginId 検証対象のログインID
+     * @throws DomainLayerErrorException ログインIDが不正な場合
+     */
     private void validateLoginId(final String emailOrLoginId) {
         if (!loginIdPatternCompiled.matcher(emailOrLoginId).matches()) {
             throw new DomainLayerErrorException("ログインIDは英数字および._-のみ使用可能で、8文字以上255文字以下である必要があります",HttpStatus.BAD_REQUEST , HttpStatusCode.valueOf(400));
