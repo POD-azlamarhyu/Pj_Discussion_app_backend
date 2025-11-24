@@ -1,16 +1,22 @@
 package com.application.discussion.project.application.services.security;
 
 import java.security.Key;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Optional;
 
 import javax.crypto.SecretKey;
 
-
+import org.apache.tomcat.util.http.SameSiteCookies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
+
+import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -18,11 +24,19 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
+/**
+ * JWTトークンの生成、検証、抽出を行うユーティリティクラス
+ * Spring Securityの認証・認可処理で使用される
+ */
 @Component
-public class JWTUtils implements JWTUtilsInterface {
+public class JWTUtils {
     private static final Logger logger = LoggerFactory.getLogger(JWTUtils.class);
+
+    private static final Integer TOKEN_SECRET_LENGTH = 512;
+    private static final Integer TOKEN_SECRET_BYTE_LENGTH = TOKEN_SECRET_LENGTH / 8;
 
     @Value("${springboot.app.authentication.jwt.token.expiration}")
     private long jwtTokenExpirationMs;
@@ -31,9 +45,13 @@ public class JWTUtils implements JWTUtilsInterface {
     @Value("${springboot.app.cookies.name}")
     private String jwtCookieName;
 
-    @Override
+    /**
+     * HTTPリクエストのAuthorizationヘッダーからJWTトークンを抽出する
+     * 
+     * @param httpServletRequest HTTPサーブレットリクエスト
+     * @return 抽出されたJWTトークン。ヘッダーが存在しないか不正な形式の場合はnull
+     */
     public String getJwtFromHeader(HttpServletRequest httpServletRequest) {
-        // Implementation for extracting JWT from the Authorization header
         logger.info("Extracting JWT from Authorization header");
         
         String bearerToken = httpServletRequest.getHeader("Authorization");
@@ -43,18 +61,34 @@ public class JWTUtils implements JWTUtilsInterface {
         return null;
     }
 
-    @Override
-    public String getJwtFromCookies(HttpServletRequest httpServletRequest) {
-        // Implementation for extracting JWT from cookies
+    /**
+     * HTTPリクエストのCookieからJWTトークンを抽出する
+     * 
+     * @param httpServletRequest HTTPサーブレットリクエスト
+     * @return 抽出されたJWTトークン。Cookieが存在しない場合はnull
+     */
+    public String getJwtFromCookies(final HttpServletRequest httpServletRequest) {
         logger.info("Extracting JWT from cookies");
         
+        Cookie[] cookies = httpServletRequest.getCookies();
         
-        return null;
+        return Optional.ofNullable(cookies)
+                .stream()
+                .flatMap(Arrays::stream)
+                .filter(cookie -> jwtCookieName.equals(cookie.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
     }
 
-    @Override
-    public String generateToken(JWTAuthUserDetails userDetails) {
-        // Implementation for generating JWT token
+    /**
+     * ユーザー詳細情報からJWTトークンを生成する
+     * トークンにはユーザーID、ログインID、ユーザー名、発行日時、有効期限が含まれる
+     * 
+     * @param userDetails JWT認証用のユーザー詳細情報
+     * @return 生成されたJWTトークン文字列
+     */
+    public String generateToken(final JWTAuthUserDetails userDetails) {
         logger.info("Generating JWT token for user: {} {}", userDetails.getUsername(), userDetails.getEmail());
         
         return Jwts.builder()
@@ -68,8 +102,13 @@ public class JWTUtils implements JWTUtilsInterface {
                 .compact();
     }
     
-    @Override
-    public String getEmailOrLoginId(String token){
+    /**
+     * JWTトークンからメールアドレスまたはログインIDを取得する
+     * 
+     * @param token JWTトークン文字列
+     * @return トークンのsubjectに設定されているメールアドレスまたはログインID
+     */
+    public String getEmailOrLoginId(final String token){
         return Jwts.parser()
                 .verifyWith((SecretKey) getKey())
                 .build()
@@ -78,9 +117,13 @@ public class JWTUtils implements JWTUtilsInterface {
                 .getSubject();
     }
 
-    @Override
+    /**
+     * JWTトークンからユーザーIDを取得する
+     * 
+     * @param token JWTトークン文字列
+     * @return トークンに含まれるユーザーID
+     */
     public String getUserIdFromToken(String token) {
-        // Implementation for extracting user ID from JWT token
         logger.info("Extracting user ID from JWT token");
         
         return Jwts.parser()
@@ -90,10 +133,17 @@ public class JWTUtils implements JWTUtilsInterface {
                 .getPayload()
                 .getId();
     }
-    @Override
+
+    /**
+     * JWTトークンの妥当性を検証する
+     * トークンの署名、有効期限、形式をチェックし、問題があれば例外をスローする
+     * 
+     * @param token 検証対象のJWTトークン文字列
+     * @return トークンが有効な場合はtrue
+     * @throws ApplicationLayerException トークンが不正な形式、期限切れ、サポート外の形式、空の場合
+     */
     public Boolean validateJwtToken(String token) {
-        // Implementation for validating JWT token
-        logger.info("Validating JWT token");
+        logger.info("Try validating JWT token");
         
         try {
             Jwts.parser()
@@ -101,44 +151,58 @@ public class JWTUtils implements JWTUtilsInterface {
                 .build()
                 .parseSignedClaims(token);
             return true;
-        } catch (MalformedJwtException e){
-            logger.error("Invalid JWT token: ", e.getMessage());
-            throw new MalformedJwtException("Invalid JWT token: " + e.getMessage());
-        } catch (ExpiredJwtException e){
-            logger.error("JWT token is expired: ", e.getMessage());
-            throw new ExpiredJwtException(null, null, "JWT token is expired: " + e.getMessage());
-        } catch (UnsupportedJwtException e){
-            logger.error("Unsupported JWT token {}", e);
-        } catch (IllegalArgumentException e) {
-            logger.error("JWT claims string is empty: {}", e.getMessage());
-            throw new IllegalArgumentException("JWT claims string is empty: " + e.getMessage());
-        } catch (Exception e) {
-            logger.error("JWT token validation failed: {}", e.getMessage());
-            throw new RuntimeException("JWT token validation failed: " + e.getMessage());
+        } catch (MalformedJwtException malformedJwtException){
+            logger.error("Malformed JWT Exception Invalid JWT token: {}", malformedJwtException.getMessage());
+            throw new ApplicationLayerException("Invalid JWT token",HttpStatus.BAD_REQUEST, HttpStatusCode.valueOf(400));
+        
+        } catch (ExpiredJwtException expiredJwtException){
+            logger.error("JWT token is expired: ", expiredJwtException.getMessage());
+            throw new ApplicationLayerException("JWT token is expired", HttpStatus.BAD_REQUEST, HttpStatusCode.valueOf(400));
+        } catch (UnsupportedJwtException unsupportedJwtException){
+            logger.error("UnsupportedJwtException Unsupported JWT token: {}", unsupportedJwtException.getMessage());
+            throw new ApplicationLayerException("Unsupported JWT token: ", HttpStatus.BAD_REQUEST, HttpStatusCode.valueOf(400));
+        
+        } catch (IllegalArgumentException illegalArgumentException) {
+            logger.error("JWT claims string is empty: {}", illegalArgumentException.getMessage());
+            throw new ApplicationLayerException("JWT claims string is empty", HttpStatus.BAD_REQUEST, HttpStatusCode.valueOf(400));
+        
         }
-        return false;
     }
 
-    @Override
-    public ResponseCookie generateJwtCookie(JWTAuthUserDetails userDetails) {
-        // Implementation for generating JWT cookie
+    /**
+     * ユーザー詳細情報からJWT Cookieを生成する
+     * Cookieには HttpOnly、Secure、SameSite などのセキュリティ属性が設定される
+     * 
+     * @param userDetails JWT認証用のユーザー詳細情報
+     * @return 生成されたResponseCookieオブジェクト
+     */
+    public ResponseCookie generateJwtCookie(final JWTAuthUserDetails userDetails) {
         logger.info("Generating JWT cookie for user: {} {}", userDetails.getUsername(), userDetails.getEmail());
         
-        String jwt = generateToken(userDetails);
+        final String jwt = generateToken(userDetails);
         return ResponseCookie.from(jwtCookieName, jwt)
                 .httpOnly(true)
                 .secure(false)
-                .sameSite("Strict")
-                .path("/api")
+                .sameSite(SameSiteCookies.STRICT.name())
+                .path("/")
                 .maxAge(jwtTokenExpirationMs / 1000)
                 .build();
     }
     
-    @Override
-    public  Key getKey(){
-        // Implementation for retrieving the signing key
+    /**
+     * JWT署名用の秘密鍵を取得する
+     * application.propertiesに設定されたBase64エンコードされた秘密鍵をデコードして返す
+     * 
+     * @return HMAC-SHA アルゴリズム用の署名鍵
+     */
+    public Key getKey(){
         logger.info("Retrieving signing key for JWT token");
-        // This should return the actual Key object used for signing the JWT
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtTokenSecret));
+        byte[] keyBytes = Decoders.BASE64.decode(jwtTokenSecret);
+
+        if (keyBytes.length < TOKEN_SECRET_BYTE_LENGTH){
+            logger.error("The JWT token secret must be at least {} bits long", TOKEN_SECRET_LENGTH);
+            return Jwts.SIG.HS512.key().build();
+        }
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }
