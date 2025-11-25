@@ -26,4 +26,4 @@ WORKDIR ${DEPLOY_WORKDIR}
 COPY --from=build "${BUILD_WORKDIR}/build/libs/${APP_NAME}" .
 COPY . ${DEPLOY_WORKDIR}/
 EXPOSE 8080
-CMD sh -c "java -jar ${DEPLOY_WORKDIR}/${APP_NAME}
+CMD sh -c "java -jar ${DEPLOY_WORKDIR}/${APP_NAME}"
