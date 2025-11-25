@@ -14,7 +14,7 @@ import com.application.discussion.project.infrastructure.models.users.Roles;
 public interface JpaRolesRepository extends JpaRepository<Roles, Integer> {
 
     @Query(
-        value = "select r.*,ur.* from roles as r left join users_roles as ur on r.role_id = ur.user_role_id where ur.user_id = :userId",
+        value = "select r.*,ur.* from roles as r left join users_roles as ur on r.role_id = ur.role_id where ur.user_id = :userId",
         nativeQuery = true
     )
     Optional<Object> findUserRolesByUUID(@Param("userId") UUID userId);
