@@ -34,9 +34,10 @@ public class UserDataSeeder {
         List<Users> users = createTestUsers();
         users.forEach(user -> {
             if (!jpaUsersRepository.existsByEmail(user.getEmail())) {
+                logger.debug("Creating user with email: " + user.getEmail());
                 jpaUsersRepository.save(user);
             } else {
-                System.out.println("User with email or login ID already exists: " + user.getEmail());
+                logger.debug("User with email already exists: " + user.getEmail());
             }
         });
     }
