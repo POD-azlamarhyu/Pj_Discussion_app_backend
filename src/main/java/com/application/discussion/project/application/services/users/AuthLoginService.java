@@ -51,23 +51,24 @@ public class AuthLoginService implements AuthLoginServiceInterface {
         
         final EmailOrLoginId emailOrLoginId = EmailOrLoginId.of(loginRequest.getEmailOrLoginId());
         
-        final Password password = Password.of(loginRequest.getPassword());
+        final String password = loginRequest.getPassword();
+        
         Authentication authentication = null;
 
         try{
             authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(emailOrLoginId.value(), password.value())
+                new UsernamePasswordAuthenticationToken(emailOrLoginId.value(), password)
             );
         }catch(AuthenticationException e){
             logger.error("Authentication failed for user: {}", emailOrLoginId, e);
             throw new ApplicationLayerException("認証エラーが発生しました", HttpStatus.BAD_REQUEST, HttpStatusCode.valueOf(400));
         } 
         if (authentication == null || !authentication.isAuthenticated()) {
-            logger.error("Authentication returned null or unauthenticated for user: {}", emailOrLoginId);
+            logger.error("Authentication returned null or unauthenticated for user: {}", emailOrLoginId.value());
             throw new ApplicationLayerException("認証ができませんでした", HttpStatus.BAD_REQUEST,HttpStatusCode.valueOf(400));
         }
 
-        logger.info("User {} authenticated successfully", emailOrLoginId);
+        logger.info("User {} authenticated successfully", emailOrLoginId.value());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         final JWTAuthUserDetails userDetails = (JWTAuthUserDetails) authentication.getPrincipal();
