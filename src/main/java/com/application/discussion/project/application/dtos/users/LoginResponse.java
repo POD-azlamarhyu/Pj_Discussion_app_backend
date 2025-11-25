@@ -17,7 +17,6 @@ public class LoginResponse {
     /**
      * コンストラクタ
      * @param userId ユーザーID
-     * @param token アクセストークン
      * @param username ユーザー名
      * @param roles ユーザーロールのリスト
      */
