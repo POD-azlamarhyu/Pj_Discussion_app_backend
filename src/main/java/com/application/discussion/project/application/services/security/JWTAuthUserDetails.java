@@ -222,7 +222,7 @@ public class JWTAuthUserDetails implements UserDetails {
     public boolean equals(Object object){
         if (this == object) return true;
         if (!(object instanceof JWTAuthUserDetails)) return false;
-        if (object == null || getClass() != object.getClass()) return false;
+        if (getClass() != object.getClass()) return false;
 
         JWTAuthUserDetails user = (JWTAuthUserDetails) object;
         return Objects.equals(userId, user.userId);
