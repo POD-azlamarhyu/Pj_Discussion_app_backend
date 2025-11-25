@@ -17,6 +17,12 @@ import com.application.discussion.project.domain.exceptions.DomainLayerErrorExce
 public class Email {
     private final String email;
     private final static Integer MAX_LENGTH = 255;
+    private final static String EMAIL_BASIC_REGEX = "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
+    private final static String EMAIL_DOMAIN_REGEX = ".*\\.(jp|com)$";
+
+    private static final Pattern EMAIL_BASIC_PATTERN = Pattern.compile(EMAIL_BASIC_REGEX);
+
+    private static final Pattern EMAIL_DOMAIN_PATTERN = Pattern.compile(EMAIL_DOMAIN_REGEX);
 
     private static final Logger logger = LoggerFactory.getLogger(Email.class);
     
@@ -51,11 +57,9 @@ public class Email {
             );
         }
 
-        Pattern emailBasicPattern = Pattern.compile("/^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/");
+        
 
-        Pattern emailBannedDomainPattern = Pattern.compile(".*\\.(jp|com)$");
-
-        if(!emailBasicPattern.matcher(email).matches() || !emailBannedDomainPattern.matcher(email).matches()) {
+        if(!EMAIL_BASIC_PATTERN.matcher(email).matches() || !EMAIL_DOMAIN_PATTERN.matcher(email).matches()) {
             logger.error("Email address format is invalid: {}", email);
             throw new DomainLayerErrorException(
                 "メールアドレスの形式が正しくありません", 
