@@ -24,8 +24,7 @@ import com.application.discussion.project.application.dtos.users.LoginRequest;
 import com.application.discussion.project.application.dtos.users.LoginResponse;
 import com.application.discussion.project.application.services.security.JWTAuthUserDetails;
 import com.application.discussion.project.application.services.security.JWTUtils;
-import com.application.discussion.project.domain.valueobjects.users.EmailOrLoginId;
-import com.application.discussion.project.domain.valueobjects.users.Password;
+
 
 @Service
 public class AuthLoginService implements AuthLoginServiceInterface {
