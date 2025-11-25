@@ -46,7 +46,7 @@ public class AuthLoginService implements AuthLoginServiceInterface {
      */
     @Override
     public ResponseEntity<LoginResponse> service(final LoginRequest loginRequest) {
-        logger.debug("AuthLoginService called with request: {}", loginRequest);
+        logger.debug("AuthLoginService called with request: {}", loginRequest.toString());
         
         final String emailOrLoginId = loginRequest.getEmailOrLoginId();
         
