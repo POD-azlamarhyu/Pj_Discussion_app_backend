@@ -49,7 +49,7 @@ public class AuthLoginService implements AuthLoginServiceInterface {
     public ResponseEntity<LoginResponse> service(final LoginRequest loginRequest) {
         logger.debug("AuthLoginService called with request: {}", loginRequest);
         
-        final EmailOrLoginId emailOrLoginId = EmailOrLoginId.of(loginRequest.getEmailOrLoginId());
+        final String emailOrLoginId = loginRequest.getEmailOrLoginId();
         
         final String password = loginRequest.getPassword();
         
@@ -57,18 +57,18 @@ public class AuthLoginService implements AuthLoginServiceInterface {
 
         try{
             authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(emailOrLoginId.value(), password)
+                new UsernamePasswordAuthenticationToken(emailOrLoginId, password)
             );
         }catch(AuthenticationException e){
             logger.error("Authentication failed for user: {}", emailOrLoginId, e);
-            throw new ApplicationLayerException("認証エラーが発生しました", HttpStatus.BAD_REQUEST, HttpStatusCode.valueOf(400));
+            throw new ApplicationLayerException("認証エラーが発生しました", HttpStatus.INTERNAL_SERVER_ERROR, HttpStatusCode.valueOf(500));
         } 
         if (authentication == null || !authentication.isAuthenticated()) {
-            logger.error("Authentication returned null or unauthenticated for user: {}", emailOrLoginId.value());
-            throw new ApplicationLayerException("認証ができませんでした", HttpStatus.BAD_REQUEST,HttpStatusCode.valueOf(400));
+            logger.error("Authentication returned null or unauthenticated for user: {}", emailOrLoginId);
+            throw new ApplicationLayerException("認証に失敗しました", HttpStatus.BAD_REQUEST,HttpStatusCode.valueOf(400));
         }
 
-        logger.info("User {} authenticated successfully", emailOrLoginId.value());
+        logger.info("User {} authenticated successfully", emailOrLoginId);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         final JWTAuthUserDetails userDetails = (JWTAuthUserDetails) authentication.getPrincipal();
