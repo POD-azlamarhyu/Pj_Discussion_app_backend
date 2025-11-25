@@ -14,7 +14,7 @@ import com.application.discussion.project.infrastructure.models.users.UsersRoles
 public interface JpaUsersRolesRepository extends CrudRepository<UsersRoles, Integer> {
 
     @Query(
-        value = "select r.*,ur.* from roles as r left join users_roles as ur on r.role_id = ur.user_role_id where ur.user_id = :userId",
+        value = "select r.*,ur.* from roles as r left join users_roles as ur on r.role_id = ur.role_id where ur.user_id = :userId",
         nativeQuery = true
     )
     List<Object[]> findUserRolesByUUID(@Param("userId") UUID userId);
