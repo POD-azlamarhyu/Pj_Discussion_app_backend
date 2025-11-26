@@ -17,13 +17,16 @@ import com.application.discussion.project.infrastructure.repositories.users.JpaU
 public class UserDataSeeder {
 
 
-    PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     private JpaUsersRepository jpaUsersRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(UserDataSeeder.class);
 
-    public UserDataSeeder(PasswordEncoder passwordEncoder, JpaUsersRepository jpaUsersRepository) {
+    public UserDataSeeder(
+        PasswordEncoder passwordEncoder, 
+        JpaUsersRepository jpaUsersRepository
+    ) {
         this.passwordEncoder = passwordEncoder;
         this.jpaUsersRepository = jpaUsersRepository;
     }
