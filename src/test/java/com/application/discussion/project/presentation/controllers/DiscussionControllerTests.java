@@ -1,20 +1,14 @@
 package com.application.discussion.project.presentation.controllers;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.application.discussion.project.application.dtos.discussions.DiscussionCreateRequest;
@@ -28,8 +22,7 @@ import com.application.discussion.project.presentation.config.WebSecurityConfig;
 import com.application.discussion.project.presentation.exceptions.GlobalExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
+
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,7 +33,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
@@ -54,8 +46,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.security.test.context.support.WithUserDetails;
+
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -121,12 +112,9 @@ public class DiscussionControllerTests {
     private DiscussionCreateRequest validRequest;
     private DiscussionCreateResponse mockResponse;
 
-    // @InjectMocks
-    // private DiscussionController discussionController;
 
     @BeforeEach
     void setUp() {
-        // MockitoAnnotations.openMocks(this);
         validRequest = new DiscussionCreateRequest(VALID_PARAGRAPH);
         
         mockResponse = new DiscussionCreateResponse(
@@ -611,7 +599,10 @@ public class DiscussionControllerTests {
         verify(discussionListService, times(VERIFY_TIMES_ONE))
             .service(eq(TEST_MAINTOPIC_ID), any(Pageable.class));
     }
-
+    /**
+     * テスト用のDiscussionResponseリストを作成するヘルパーメソッド
+     * @return DiscussionResponseのリスト
+     */
     private List<DiscussionResponse> createDiscussionResponseList() {
         return List.of(
             createDiscussionResponse(LIST_DISCUSSION_ID_1, LIST_PARAGRAPH_1),
@@ -620,6 +611,12 @@ public class DiscussionControllerTests {
         );
     }
 
+    /**
+     * テスト用のDiscussionResponseを作成するヘルパーメソッド
+     * @param discussionId 議論ID
+     * @param paragraph 議論内容
+     * @return DiscussionResponseオブジェクト
+     */
     private DiscussionResponse createDiscussionResponse(Long discussionId, String paragraph) {
         return DiscussionResponse.of(
             discussionId,
