@@ -8,13 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
+
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -49,21 +45,15 @@ import com.application.discussion.project.application.services.topics.MaintopicU
 import com.application.discussion.project.application.services.topics.MaintopicsListService;
 import com.application.discussion.project.domain.exceptions.BadRequestException;
 import com.application.discussion.project.infrastructure.exceptions.ResourceNotFoundException;
-import com.application.discussion.project.presentation.exceptions.GlobalExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.application.discussion.project.presentation.config.WebSecurityConfig;
 
 
 /**
  * ! ContextConfigurationを使用して、クラスを指定するとエラーが起きる
  * ? Beanの生成ができなくなるエラーと考えられる
  */
-@SpringBootTest
-@AutoConfigureMockMvc
-@Import({GlobalExceptionHandler.class, WebSecurityConfig.class})
-@ContextConfiguration
-@ActiveProfiles("dev")
+@RestAPIControllerTest
 @DisplayName("MaintopicControllerの単体テスト")
 public class MaintopicControllerTests {
 
