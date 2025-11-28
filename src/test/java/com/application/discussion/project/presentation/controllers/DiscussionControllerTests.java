@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -18,12 +16,8 @@ import com.application.discussion.project.application.dtos.discussions.Discussio
 import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
 import com.application.discussion.project.application.services.discussions.DiscussionCreateService;
 import com.application.discussion.project.application.services.discussions.DiscussionListService;
-import com.application.discussion.project.presentation.config.WebSecurityConfig;
-import com.application.discussion.project.presentation.exceptions.GlobalExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
-import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -47,16 +41,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-
-
-@SpringBootTest
-@AutoConfigureMockMvc
-@Import({GlobalExceptionHandler.class, WebSecurityConfig.class})
 @DisplayName("DiscussionController クラスのテスト")
-@ContextConfiguration
-@ActiveProfiles("dev")
+@RestAPIControllerTest
 public class DiscussionControllerTests {
 
     private static final Long TEST_MAINTOPIC_ID = 1L;
