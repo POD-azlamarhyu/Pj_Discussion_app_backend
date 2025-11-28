@@ -9,7 +9,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -18,11 +21,14 @@ import com.application.discussion.project.application.dtos.discussions.Discussio
 import com.application.discussion.project.application.dtos.discussions.DiscussionListResponse;
 import com.application.discussion.project.application.dtos.discussions.DiscussionResponse;
 import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
-import com.application.discussion.project.application.services.discussions.DiscussionCreateServiceImpl;
+import com.application.discussion.project.application.services.discussions.DiscussionCreateService;
 import com.application.discussion.project.application.services.discussions.DiscussionListService;
+import com.application.discussion.project.presentation.config.WebSecurityConfig;
 import com.application.discussion.project.presentation.exceptions.GlobalExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -47,10 +53,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.security.test.context.support.WithUserDetails;
 
-@WebMvcTest(DiscussionController.class)
+
+@SpringBootTest
 @ExtendWith(MockitoExtension.class)
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc
 @Import(GlobalExceptionHandler.class)
 @DisplayName("DiscussionController クラスのテスト")
 public class DiscussionControllerTests {
@@ -67,7 +76,6 @@ public class DiscussionControllerTests {
     private static final int VERIFY_TIMES_ONE = 1;
     private static final Integer STATUS_CODE_INTERNAL_SERVER_ERROR = 500;
     
-    // 議論リスト取得用の定数
     private static final Long LIST_DISCUSSION_ID_1 = 10L;
     private static final Long LIST_DISCUSSION_ID_2 = 11L;
     private static final Long LIST_DISCUSSION_ID_3 = 12L;
@@ -98,7 +106,7 @@ public class DiscussionControllerTests {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private DiscussionCreateServiceImpl discussionCreateService;
+    private DiscussionCreateService discussionCreateService;
 
     @MockitoBean
     private DiscussionListService discussionListService;
@@ -109,12 +117,12 @@ public class DiscussionControllerTests {
     private DiscussionCreateRequest validRequest;
     private DiscussionCreateResponse mockResponse;
 
-    @InjectMocks
-    private DiscussionController discussionController;
+    // @InjectMocks
+    // private DiscussionController discussionController;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        // MockitoAnnotations.openMocks(this);
         validRequest = new DiscussionCreateRequest(VALID_PARAGRAPH);
         
         mockResponse = new DiscussionCreateResponse(
@@ -124,6 +132,7 @@ public class DiscussionControllerTests {
         );
     }
 
+    
     @Test
     @DisplayName("有効なリクエストでディスカッション作成が成功することを確認する")
     void createDiscussionWithValidRequestTest() throws Exception {
@@ -144,6 +153,7 @@ public class DiscussionControllerTests {
         verify(discussionCreateService, times(VERIFY_TIMES_ONE)).service(eq(TEST_MAINTOPIC_ID), any(DiscussionCreateRequest.class));
     }
 
+    
     @Test
     @DisplayName("空のコンテンツでリクエストした場合にバリデーションエラーが発生することを確認する")
     void createDiscussionWithEmptyContentTest() throws Exception {
@@ -157,6 +167,7 @@ public class DiscussionControllerTests {
                 .andExpect(status().isBadRequest());
     }
 
+    
     @Test
     @DisplayName("nullコンテンツでリクエストした場合にバリデーションエラーが発生することを確認する")
     void createDiscussionWithNullContentTest() throws Exception {
@@ -170,6 +181,7 @@ public class DiscussionControllerTests {
                 .andExpect(status().isBadRequest());
     }
 
+    
     @Test
     @DisplayName("1000文字を超えるコンテンツでリクエストした場合にバリデーションエラーが発生することを確認する")
     void createDiscussionWithTooLongContentTest() throws Exception {
@@ -184,6 +196,7 @@ public class DiscussionControllerTests {
                 .andExpect(status().isBadRequest());
     }
 
+    
     @Test
     @DisplayName("サービス層でApplicationLayerExceptionが発生した場合の例外処理を確認する")
     void createDiscussionWithServiceExceptionTest() throws Exception {
@@ -204,6 +217,7 @@ public class DiscussionControllerTests {
         verify(discussionCreateService, times(VERIFY_TIMES_ONE)).service(eq(TEST_MAINTOPIC_ID), any(DiscussionCreateRequest.class));
     }
 
+    
     @Test
     @DisplayName("無効なパスパラメータでリクエストした場合の動作を確認する")
     void createDiscussionWithInvalidPathParameterTest() throws Exception {
@@ -214,6 +228,7 @@ public class DiscussionControllerTests {
                 .andExpect(status().isBadRequest());
     }
 
+    
     @Test
     @DisplayName("JSONフォーマットが不正な場合の動作を確認する")
     void createDiscussionWithInvalidJsonTest() throws Exception {
@@ -224,6 +239,7 @@ public class DiscussionControllerTests {
                 .andExpect(status().isBadRequest());
     }
 
+    
     @Test
     @DisplayName("Content-Typeヘッダーが指定されていない場合の動作を確認する")
     void createDiscussionWithoutContentTypeTest() throws Exception {
@@ -233,6 +249,7 @@ public class DiscussionControllerTests {
                 .andExpect(status().isUnsupportedMediaType());
     }
 
+    
     @Test
     @DisplayName("正常なコンテンツ長制限内でディスカッション作成が成功することを確認する")
     void createDiscussionWithMaxLengthContentTest() throws Exception {
@@ -262,6 +279,7 @@ public class DiscussionControllerTests {
         verify(discussionCreateService, times(VERIFY_TIMES_ONE)).service(eq(TEST_MAINTOPIC_ID), any(DiscussionCreateRequest.class));
     }
 
+    
     @Test
     @DisplayName("正常系: デフォルトパラメータで議論リストを取得できること")
     void getDiscussionsWithDefaultParametersTest() throws Exception {
@@ -291,6 +309,7 @@ public class DiscussionControllerTests {
             .service(eq(TEST_MAINTOPIC_ID), any(Pageable.class));
     }
 
+    
     @Test
     @DisplayName("正常系: カスタムページパラメータで議論リストを取得できること")
     void getDiscussionsWithCustomPageParametersTest() throws Exception {
@@ -327,6 +346,7 @@ public class DiscussionControllerTests {
             .service(eq(TEST_MAINTOPIC_ID), eq(expectedPageable));
     }
 
+    
     @Test
     @DisplayName("正常系: 昇順ソートで議論リストを取得できること")
     void getDiscussionsWithAscendingSortTest() throws Exception {
@@ -358,6 +378,7 @@ public class DiscussionControllerTests {
             .service(eq(TEST_MAINTOPIC_ID), eq(expectedPageable));
     }
 
+    
     @Test
     @DisplayName("正常系: updatedAtでソートして議論リストを取得できること")
     void getDiscussionsWithUpdatedAtSortTest() throws Exception {
@@ -389,6 +410,7 @@ public class DiscussionControllerTests {
             .service(eq(TEST_MAINTOPIC_ID), eq(expectedPageable));
     }
 
+    
     @Test
     @DisplayName("正常系: 空のリストが返されること")
     void getDiscussionsReturnsEmptyListTest() throws Exception {
@@ -414,6 +436,7 @@ public class DiscussionControllerTests {
             .service(eq(TEST_MAINTOPIC_ID), any(Pageable.class));
     }
 
+    
     @Test
     @DisplayName("正常系: 全てのクエリパラメータを指定して議論リストを取得できること")
     void getDiscussionsWithAllQueryParametersTest() throws Exception {
@@ -450,6 +473,7 @@ public class DiscussionControllerTests {
             .service(eq(TEST_MAINTOPIC_ID), eq(expectedPageable));
     }
 
+    
     @Test
     @DisplayName("正常系: レスポンスのディスカッション内容が正しいこと")
     void getDiscussionsReturnsCorrectContentTest() throws Exception {
@@ -480,6 +504,7 @@ public class DiscussionControllerTests {
             .service(eq(TEST_MAINTOPIC_ID), any(Pageable.class));
     }
 
+    
     @Test
     @DisplayName("境界値: ページ番号が0の場合でも正常に動作すること")
     void getDiscussionsWithZeroPageNumberTest() throws Exception {
@@ -505,6 +530,7 @@ public class DiscussionControllerTests {
             .service(eq(TEST_MAINTOPIC_ID), any(Pageable.class));
     }
 
+    
     @Test
     @DisplayName("境界値: ページサイズが1の場合でも正常に動作すること")
     void getDiscussionsWithPageSizeOneTest() throws Exception {
@@ -532,6 +558,7 @@ public class DiscussionControllerTests {
             .service(eq(TEST_MAINTOPIC_ID), any(Pageable.class));
     }
 
+    
     @Test
     @DisplayName("正常系: directionパラメータが大文字小文字混在でも正常に動作すること")
     void getDiscussionsWithMixedCaseDirectionTest() throws Exception {
