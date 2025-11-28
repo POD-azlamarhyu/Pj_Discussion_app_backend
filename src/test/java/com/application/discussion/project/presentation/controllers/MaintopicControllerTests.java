@@ -7,18 +7,11 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -26,7 +19,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -59,10 +50,8 @@ import com.application.discussion.project.application.services.topics.Maintopics
 import com.application.discussion.project.domain.exceptions.BadRequestException;
 import com.application.discussion.project.infrastructure.exceptions.ResourceNotFoundException;
 import com.application.discussion.project.presentation.exceptions.GlobalExceptionHandler;
-import com.application.discussion.project.presentation.exceptions.PresentationLayerErrorException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.context.annotation.FilterType;
+
 import com.application.discussion.project.presentation.config.WebSecurityConfig;
 
 
@@ -118,12 +107,8 @@ public class MaintopicControllerTests {
     @MockitoBean
     private MaintopicDeleteService maintopicDeleteServiceImpl;
 
-    // @InjectMocks
-    // private MainTopicController maintopicController;
-
     @BeforeEach
     void setUp() {
-        // MockitoAnnotations.openMocks(this);
         response1 = new MaintopicListResponse(
 			1L,
 			"日本の政治体制の危うさについて",
@@ -174,9 +159,8 @@ public class MaintopicControllerTests {
         List<MaintopicListResponse> mockResponse = Arrays.asList(response1, response2);
         when(maintopicsListService.service()).thenReturn(mockResponse);
 
-        // Act & Assert: エンドポイントをテスト
         mockMvc.perform(get("/maintopics"))
-			.andDo(print()) // リクエストとレスポンスを出力
+			.andDo(print()) 
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$[0].maintopicId").value(1L))
