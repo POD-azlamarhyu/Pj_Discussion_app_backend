@@ -56,12 +56,16 @@ import java.util.List;
 
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import({GlobalExceptionHandler.class, WebSecurityConfig.class})
 @DisplayName("DiscussionController クラスのテスト")
+@ContextConfiguration
+@ActiveProfiles("dev")
 public class DiscussionControllerTests {
 
     private static final Long TEST_MAINTOPIC_ID = 1L;
