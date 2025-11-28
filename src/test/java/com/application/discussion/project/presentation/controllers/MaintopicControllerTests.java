@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -64,11 +65,17 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.context.annotation.FilterType;
 import com.application.discussion.project.presentation.config.WebSecurityConfig;
 
+
+/**
+ * ! ContextConfigurationを使用して、クラスを指定するとエラーが起きる
+ * ? Beanの生成ができなくなるエラーと考えられる
+ */
 @SpringBootTest
-@ExtendWith(MockitoExtension.class)
-@AutoConfigureMockMvc(addFilters = false)
-@Import(GlobalExceptionHandler.class)
+@AutoConfigureMockMvc
+@Import({GlobalExceptionHandler.class, WebSecurityConfig.class})
+@ContextConfiguration
 @ActiveProfiles("dev")
+@DisplayName("MaintopicControllerの単体テスト")
 public class MaintopicControllerTests {
 
     private static final String SUCCESS_DELETE_MESSAGE = "メイントピックが正常に削除されました";
@@ -444,6 +451,7 @@ public class MaintopicControllerTests {
         verify(maintopicDeleteServiceImpl, times(1)).service(1L);
     }
 
+    @WithMockUser
     @Test
     @DisplayName("MaintopicControllerのメイントピック削除テスト - 存在しないID")
     void testDeleteMaintopicNotFound() throws Exception {
@@ -464,6 +472,7 @@ public class MaintopicControllerTests {
         verify(maintopicDeleteServiceImpl, times(1)).service(999L);
     }
 
+    @WithMockUser
     @Test
     @DisplayName("MaintopicControllerのメイントピック削除テスト - 無効なID（負の値）")
     void testDeleteMaintopicInvalidId() throws Exception {
@@ -473,7 +482,7 @@ public class MaintopicControllerTests {
 
         verify(maintopicDeleteServiceImpl, never()).service(-1L);
     }
-
+    @WithMockUser
     @Test
     @DisplayName("MaintopicControllerのメイントピック削除テスト - 大きなID値")
     void testDeleteMaintopicLargeId() throws Exception {
