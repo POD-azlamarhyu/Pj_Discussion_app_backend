@@ -14,8 +14,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -45,21 +50,25 @@ import com.application.discussion.project.application.dtos.topics.MaintopicListR
 import com.application.discussion.project.application.dtos.topics.MaintopicResponse;
 import com.application.discussion.project.application.dtos.topics.MaintopicUpdateRequest;
 import com.application.discussion.project.application.dtos.topics.MaintopicUpdateResponse;
-import com.application.discussion.project.application.services.topics.MaintopicCreateServiceImpl;
-import com.application.discussion.project.application.services.topics.MaintopicDeleteServiceImpl;
-import com.application.discussion.project.application.services.topics.MaintopicDetailServiceImpl;
-import com.application.discussion.project.application.services.topics.MaintopicUpdateServiceImpl;
-import com.application.discussion.project.application.services.topics.MaintopicsListServiceImpl;
+import com.application.discussion.project.application.services.topics.MaintopicCreateService;
+import com.application.discussion.project.application.services.topics.MaintopicDeleteService;
+import com.application.discussion.project.application.services.topics.MaintopicDetailService;
+import com.application.discussion.project.application.services.topics.MaintopicUpdateService;
+import com.application.discussion.project.application.services.topics.MaintopicsListService;
 import com.application.discussion.project.domain.exceptions.BadRequestException;
 import com.application.discussion.project.infrastructure.exceptions.ResourceNotFoundException;
 import com.application.discussion.project.presentation.exceptions.GlobalExceptionHandler;
 import com.application.discussion.project.presentation.exceptions.PresentationLayerErrorException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.context.annotation.FilterType;
+import com.application.discussion.project.presentation.config.WebSecurityConfig;
 
-@WebMvcTest(MainTopicController.class)
+@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc(addFilters = false)
 @Import(GlobalExceptionHandler.class)
+@ActiveProfiles("dev")
 public class MaintopicControllerTests {
 
     private static final String SUCCESS_DELETE_MESSAGE = "メイントピックが正常に削除されました";
@@ -88,26 +97,26 @@ public class MaintopicControllerTests {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private MaintopicsListServiceImpl maintopicsListService;
+    private MaintopicsListService maintopicsListService;
 
     @MockitoBean
-    private MaintopicDetailServiceImpl maintopicDetailService;
+    private MaintopicDetailService maintopicDetailService;
 
     @MockitoBean
-    private MaintopicCreateServiceImpl maintopicCreateServiceImpl;
+    private MaintopicCreateService maintopicCreateServiceImpl;
 
 	@MockitoBean
-	private MaintopicUpdateServiceImpl maintopicUpdateServiceImpl;
+	private MaintopicUpdateService maintopicUpdateServiceImpl;
 
     @MockitoBean
-    private MaintopicDeleteServiceImpl maintopicDeleteServiceImpl;
+    private MaintopicDeleteService maintopicDeleteServiceImpl;
 
-    @InjectMocks
-    private MainTopicController maintopicController;
+    // @InjectMocks
+    // private MainTopicController maintopicController;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        // MockitoAnnotations.openMocks(this);
         response1 = new MaintopicListResponse(
 			1L,
 			"日本の政治体制の危うさについて",
@@ -151,6 +160,7 @@ public class MaintopicControllerTests {
         testMaintopicDeleteResponse = new MaintopicDeleteResponse();
     }
 
+    @WithMockUser
     @DisplayName("MaintopicControllerのメイントピックリスト取得テスト")
     @Test
     void testFindMaintopicList() throws Exception {
@@ -169,6 +179,7 @@ public class MaintopicControllerTests {
         verify(maintopicsListService, times(1)).service();
     }
 
+    @WithMockUser
     @DisplayName("MaintopicControllerのメイントピック詳細取得テスト")
     @Test
     void testFindMaintopicDetail() throws Exception {
@@ -194,7 +205,7 @@ public class MaintopicControllerTests {
 
         verify(maintopicDetailService, times(1)).service(3L);
     }
-
+    @WithMockUser
     @DisplayName("MaintopicControllerのメイントピック詳細取得テスト - 存在しないID")
     @Test
     void testFindMaintopicDetailNotFound() throws Exception {
@@ -208,7 +219,7 @@ public class MaintopicControllerTests {
 		);
         verify(maintopicDetailService, times(1)).service(999L);
     }
-
+    @WithMockUser
     @Test
     @DisplayName("MaintopicControllerのメイントピック作成テスト")
     void testCreateMaintopic() throws Exception {
@@ -232,7 +243,7 @@ public class MaintopicControllerTests {
 
         verify(maintopicCreateServiceImpl, times(1)).service(any(MaintopicCreateRequest.class));
     }
-
+    @WithMockUser
     @Test
     @DisplayName("MaintopicControllerのメイントピック作成テスト - タイトルが空の場合")
     void testCreateMaintopicWithEmptyTitle() throws Exception {
@@ -249,7 +260,7 @@ public class MaintopicControllerTests {
 
         verify(maintopicCreateServiceImpl, never()).service(any(MaintopicCreateRequest.class));
     }
-
+    @WithMockUser
     @Test
     @DisplayName("MaintopicControllerのメイントピック作成テスト - 説明が空の場合")
     void testCreateMaintopicWithEmptyDescription() throws Exception {
@@ -266,7 +277,7 @@ public class MaintopicControllerTests {
 
         verify(maintopicCreateServiceImpl, never()).service(any(MaintopicCreateRequest.class));
     }
-
+    @WithMockUser
     @Test
     @DisplayName("MaintopicControllerのメイントピック作成テスト - nullのリクエストボディ")
     void testCreateMaintopicWithNullRequest() throws Exception {
@@ -280,7 +291,7 @@ public class MaintopicControllerTests {
 
         verify(maintopicCreateServiceImpl, never()).service(any(MaintopicCreateRequest.class));
     }
-
+    @WithMockUser
     @Test
     @DisplayName("MaintopicControllerのメイントピック作成テスト - 不正なJSON形式")
     void testCreateMaintopicWithInvalidJson() throws Exception {
@@ -296,7 +307,7 @@ public class MaintopicControllerTests {
 
         verify(maintopicCreateServiceImpl, never()).service(any(MaintopicCreateRequest.class));
     }
-
+    @WithMockUser
     @Test
     @DisplayName("MaintopicControllerのメイントピック作成テスト - サービス層で例外発生")
     void testCreateMaintopicServiceException() throws Exception {
@@ -314,7 +325,7 @@ public class MaintopicControllerTests {
 
         verify(maintopicCreateServiceImpl, times(1)).service(any(MaintopicCreateRequest.class));
     }
-
+    @WithMockUser
     @Test
     @DisplayName("MaintopicControllerのメイントピック更新テスト")
     void testUpdateMaintopic() throws Exception {
@@ -335,7 +346,7 @@ public class MaintopicControllerTests {
 
         verify(maintopicUpdateServiceImpl, times(1)).service(eq(1L), any(MaintopicUpdateRequest.class));
     }
-
+    @WithMockUser
     @Test
     @DisplayName("MaintopicControllerのメイントピック更新テスト - タイトルが空の場合")
     void testUpdateMaintopicWithEmptyTitle() throws Exception {
@@ -352,7 +363,7 @@ public class MaintopicControllerTests {
 
         verify(maintopicUpdateServiceImpl, times(1)).service(eq(1L), any(MaintopicUpdateRequest.class));
     }
-
+    @WithMockUser
     @Test
     @DisplayName("MaintopicControllerのメイントピック更新テスト - 説明が空の場合")
     void testUpdateMaintopicWithEmptyDescription() throws Exception {
@@ -369,7 +380,7 @@ public class MaintopicControllerTests {
 
         verify(maintopicUpdateServiceImpl, times(1)).service(eq(1L), any(MaintopicUpdateRequest.class));
     }
-
+    @WithMockUser
     @Test
     @DisplayName("MaintopicControllerのメイントピック更新テスト - 存在しないID")
     void testUpdateMaintopicNotFound() throws Exception {
@@ -386,7 +397,7 @@ public class MaintopicControllerTests {
 
         verify(maintopicUpdateServiceImpl, times(1)).service(eq(1000L), any(MaintopicUpdateRequest.class));
     }
-
+    @WithMockUser
     @Test
     @DisplayName("MaintopicControllerのメイントピック更新テスト - サービス層で例外発生")
     void testUpdateMaintopicServiceException() throws Exception {
@@ -403,7 +414,7 @@ public class MaintopicControllerTests {
 
         verify(maintopicUpdateServiceImpl, times(1)).service(eq(1L), any(MaintopicUpdateRequest.class));
     }
-
+    @WithMockUser
     @Test
     @DisplayName("MaintopicControllerのメイントピック更新テスト - 不正なJSON形式")
     void testUpdateMaintopicWithInvalidJson() throws Exception {
@@ -418,7 +429,7 @@ public class MaintopicControllerTests {
 
         verify(maintopicUpdateServiceImpl, never()).service(anyLong(), any(MaintopicUpdateRequest.class));
     }
-
+    @WithMockUser
     @Test
     @DisplayName("MaintopicControllerのメイントピック削除テスト")
     void testDeleteMaintopic() throws Exception {
