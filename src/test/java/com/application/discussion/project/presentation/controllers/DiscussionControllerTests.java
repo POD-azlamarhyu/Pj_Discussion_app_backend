@@ -58,7 +58,7 @@ import org.springframework.security.test.context.support.WithUserDetails;
 
 
 @SpringBootTest
-@ExtendWith(MockitoExtension.class)
+// @ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @Import(GlobalExceptionHandler.class)
 @DisplayName("DiscussionController クラスのテスト")
@@ -134,6 +134,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("有効なリクエストでディスカッション作成が成功することを確認する")
     void createDiscussionWithValidRequestTest() throws Exception {
         
@@ -155,6 +156,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("空のコンテンツでリクエストした場合にバリデーションエラーが発生することを確認する")
     void createDiscussionWithEmptyContentTest() throws Exception {
         
@@ -169,6 +171,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("nullコンテンツでリクエストした場合にバリデーションエラーが発生することを確認する")
     void createDiscussionWithNullContentTest() throws Exception {
         
@@ -183,6 +186,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("1000文字を超えるコンテンツでリクエストした場合にバリデーションエラーが発生することを確認する")
     void createDiscussionWithTooLongContentTest() throws Exception {
         
@@ -198,6 +202,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("サービス層でApplicationLayerExceptionが発生した場合の例外処理を確認する")
     void createDiscussionWithServiceExceptionTest() throws Exception {
         
@@ -219,6 +224,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("無効なパスパラメータでリクエストした場合の動作を確認する")
     void createDiscussionWithInvalidPathParameterTest() throws Exception {
         
@@ -230,6 +236,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("JSONフォーマットが不正な場合の動作を確認する")
     void createDiscussionWithInvalidJsonTest() throws Exception {
         
@@ -241,6 +248,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("Content-Typeヘッダーが指定されていない場合の動作を確認する")
     void createDiscussionWithoutContentTypeTest() throws Exception {
         
@@ -251,6 +259,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("正常なコンテンツ長制限内でディスカッション作成が成功することを確認する")
     void createDiscussionWithMaxLengthContentTest() throws Exception {
         
@@ -281,6 +290,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("正常系: デフォルトパラメータで議論リストを取得できること")
     void getDiscussionsWithDefaultParametersTest() throws Exception {
         List<DiscussionResponse> discussions = createDiscussionResponseList();
@@ -311,6 +321,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("正常系: カスタムページパラメータで議論リストを取得できること")
     void getDiscussionsWithCustomPageParametersTest() throws Exception {
         List<DiscussionResponse> discussions = createDiscussionResponseList();
@@ -348,6 +359,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("正常系: 昇順ソートで議論リストを取得できること")
     void getDiscussionsWithAscendingSortTest() throws Exception {
         List<DiscussionResponse> discussions = createDiscussionResponseList();
@@ -380,6 +392,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("正常系: updatedAtでソートして議論リストを取得できること")
     void getDiscussionsWithUpdatedAtSortTest() throws Exception {
         List<DiscussionResponse> discussions = createDiscussionResponseList();
@@ -412,6 +425,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("正常系: 空のリストが返されること")
     void getDiscussionsReturnsEmptyListTest() throws Exception {
         DiscussionListResponse response = DiscussionListResponse.of(
@@ -438,6 +452,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("正常系: 全てのクエリパラメータを指定して議論リストを取得できること")
     void getDiscussionsWithAllQueryParametersTest() throws Exception {
         List<DiscussionResponse> discussions = createDiscussionResponseList();
@@ -475,6 +490,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("正常系: レスポンスのディスカッション内容が正しいこと")
     void getDiscussionsReturnsCorrectContentTest() throws Exception {
         List<DiscussionResponse> discussions = createDiscussionResponseList();
@@ -506,6 +522,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("境界値: ページ番号が0の場合でも正常に動作すること")
     void getDiscussionsWithZeroPageNumberTest() throws Exception {
         List<DiscussionResponse> discussions = createDiscussionResponseList();
@@ -532,6 +549,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("境界値: ページサイズが1の場合でも正常に動作すること")
     void getDiscussionsWithPageSizeOneTest() throws Exception {
         List<DiscussionResponse> discussions = List.of(
@@ -560,6 +578,7 @@ public class DiscussionControllerTests {
 
     
     @Test
+    @WithUserDetails
     @DisplayName("正常系: directionパラメータが大文字小文字混在でも正常に動作すること")
     void getDiscussionsWithMixedCaseDirectionTest() throws Exception {
         List<DiscussionResponse> discussions = createDiscussionResponseList();
