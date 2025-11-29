@@ -34,3 +34,10 @@ jobs:
             -   name: build and test application
                 run: ./gradlew build test
             
+            -   name: Upload CheckStyle results
+                if: always()
+                uses: actions/upload-artifact@v4
+                with:
+                    name: test-results
+                    path: |
+                        build/reports/tests/test
