@@ -15,7 +15,7 @@ import com.application.discussion.project.presentation.config.WebSecurityConfig;
 import com.application.discussion.project.presentation.exceptions.GlobalExceptionHandler;
 
 @ContextConfiguration
-@ActiveProfiles("dev")
+// @ActiveProfiles("dev")
 @SpringBootTest
 @AutoConfigureMockMvc
 @Target(ElementType.TYPE)
