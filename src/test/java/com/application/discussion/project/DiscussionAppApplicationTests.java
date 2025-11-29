@@ -7,7 +7,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 // @ComponentScan(basePackages = "com.application.discussion.project")
-// @ActiveProfiles("dev")
+@ActiveProfiles("test")
 class DiscussionAppApplicationTests {
 
 	@Test
