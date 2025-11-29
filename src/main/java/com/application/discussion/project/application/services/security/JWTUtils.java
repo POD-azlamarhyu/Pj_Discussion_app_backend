@@ -44,6 +44,8 @@ public class JWTUtils {
     private String jwtTokenSecret;
     @Value("${springboot.app.cookies.name}")
     private String jwtCookieName;
+    @Value("${springboot.app.cookies.path}")
+    private String jwtCookiesPath;
 
     /**
      * HTTPリクエストのAuthorizationヘッダーからJWTトークンを抽出する
@@ -184,7 +186,7 @@ public class JWTUtils {
                 .httpOnly(true)
                 .secure(false)
                 .sameSite(SameSiteCookies.STRICT.name())
-                .path("/")
+                .path(jwtCookiesPath)
                 .maxAge(jwtTokenExpirationMs / 1000)
                 .build();
     }
