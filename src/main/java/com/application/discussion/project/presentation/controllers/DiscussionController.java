@@ -50,7 +50,7 @@ public class DiscussionController {
     @Operation(
         summary = "ディスカッションを新規作成する", 
         description = "指定されたメイントピックに対して新しいディスカッションを投稿する。" +
-                     "ディスカッションの本文は必須で、2000文字以内で入力する必要がある。"
+                    "ディスカッションの本文は必須で、2000文字以内で入力する必要がある。"
     )
     @ApiResponses({
         @ApiResponse(
@@ -108,7 +108,7 @@ public class DiscussionController {
     @Operation(
         summary = "議論リストを取得する", 
         description = "指定されたメイントピックに関連する議論のリストをページング形式で取得する。" +
-                     "ページ番号、ページサイズ、ソート順を指定できる。"
+                    "ページ番号、ページサイズ、ソート順を指定できる。"
     )
     @ApiResponses({
         @ApiResponse(

@@ -18,6 +18,7 @@ import com.application.discussion.project.application.dtos.exceptions.ErrorRespo
 import com.application.discussion.project.infrastructure.exceptions.ResourceNotFoundException;
 import com.application.discussion.project.application.dtos.exceptions.InternalServerErrorException;
 import com.application.discussion.project.domain.exceptions.BadRequestException;
+import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
 import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
 
 @ControllerAdvice
@@ -41,8 +42,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
-            ResourceNotFoundException ex,
-            WebRequest webRequest) {
+        ResourceNotFoundException ex,
+        WebRequest webRequest
+    ) {
         logger.error("Error Handler resource not found: {}", ex.getMessage(), ex);
         ErrorResponse errorResponse = ErrorResponse.of(
             ex.getMessage(),
@@ -52,10 +54,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
+    @ExceptionHandler(DomainLayerErrorException.class)
+    public ResponseEntity<ErrorResponse> handleDomainLayerException(
+        DomainLayerErrorException ex,
+        WebRequest webRequest
+    ) {
+        logger.error("Error Handler domain layer exception: {}", ex.getMessage(), ex);
+        ErrorResponse errorResponse = ErrorResponse.of(
+            ex.getMessage(),
+            ex.getCode().value(),
+            ex.getStatus().getReasonPhrase()
+        );
+        return ResponseEntity.status(ex.getStatus()).body(errorResponse);
+    }
+
     @ExceptionHandler(PresentationLayerErrorException.class)
     public ResponseEntity<ErrorResponse> handlePresentationLayerException(
-            PresentationLayerErrorException ex,
-            WebRequest webRequest) {
+        PresentationLayerErrorException ex,
+        WebRequest webRequest
+    ) {
         logger.error("Error Handler presentation layer exception: {}", ex.getMessage(), ex);
         ErrorResponse errorResponse = ErrorResponse.of(
             ex.getMessage(),
@@ -67,8 +84,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ApplicationLayerException.class)
     public ResponseEntity <ErrorResponse> handleApplicationLayerException(
-            ApplicationLayerException ex,
-            WebRequest webRequest) {
+        ApplicationLayerException ex,
+        WebRequest webRequest
+    ) {
         logger.error("Error Handler application layer exception: {}", ex.getMessage(), ex);
         ErrorResponse errorResponse = ErrorResponse.of(
             ex.getMessage(),
@@ -80,8 +98,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> handleBadRequestException(
-            BadRequestException ex,
-            WebRequest webRequest) {
+        BadRequestException ex,
+        WebRequest webRequest
+    ) {
         logger.error("Error Handler bad request: {}", ex);
         ErrorResponse errorResponse = ErrorResponse.of(
             ex.getMessage(),
@@ -107,8 +126,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex,
-            WebRequest request) {
+        MethodArgumentNotValidException ex,
+        WebRequest request
+    ) {
         logger.error("Error Handler validation error occurred: {}", ex.getMessage());
 
         Map<String, String> validationErrors = new HashMap<>();
@@ -131,8 +151,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
-            HttpMessageNotReadableException ex,
-            WebRequest request) {
+        HttpMessageNotReadableException ex,
+        WebRequest request
+    ) {
         logger.warn("Error Handler invalid JSON format: {}", ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.of(
@@ -145,8 +166,9 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(InternalServerErrorException.class)
     public ResponseEntity<ErrorResponse> handleInternalServerErrorExceptions(
-            InternalServerErrorException ex,
-            WebRequest webRequest) {
+        InternalServerErrorException ex,
+        WebRequest webRequest
+    ) {
         logger.error("Error Handler internal Server Error: {}", ex.getMessage(), ex);
         ErrorResponse errorResponse = ErrorResponse.of(
             ex.getMessage(),

@@ -33,6 +33,7 @@ public class ApplicationLayerException extends RuntimeException {
         super(message);
     }
 
+
     /**
      * HTTPステータスコードを取得する
      * @return HTTPステータスコード
