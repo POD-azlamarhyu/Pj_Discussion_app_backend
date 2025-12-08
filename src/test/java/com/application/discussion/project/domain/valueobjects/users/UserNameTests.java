@@ -1,154 +1,153 @@
 package com.application.discussion.project.domain.valueobjects.users;
 
+import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.ValueSource;
-
-import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
-
-@DisplayName("UserName値オブジェクトのテスト")
+@DisplayName("UserName 値オブジェクトのテスト")
 class UserNameTests {
 
-    @Nested
-    @DisplayName("正常系テスト")
-    class ValidCases {
+    @Test
+    @DisplayName("of_正常なユーザー名でインスタンスが生成される")
+    void ofCreatesInstanceWithValidUserName() {
+        String expectedUserName = "testuser";
 
-        @Test
-        @DisplayName("有効なユーザー名で値オブジェクトが生成できる")
-        void of_ValidUserName_ReturnsUserNameInstance() {
-            String expectedValue = "テストユーザー";
+        UserName actualUserName = UserName.of(expectedUserName);
 
-            UserName actualUserName = UserName.of(expectedValue);
-
-            assertThat(actualUserName).isNotNull();
-            assertThat(actualUserName.value()).isEqualTo(expectedValue);
-        }
-
-        @ParameterizedTest
-        @DisplayName("様々な有効なユーザー名が生成できる")
-        @ValueSource(strings = {
-                "山田太郎",
-                "John Doe",
-                "ユーザー123",
-                "test_user",
-                "User-Name"
-        })
-        void of_VariousValidUserNames_ReturnsUserNameInstance(String expectedValue) {
-            UserName actualUserName = UserName.of(expectedValue);
-
-            assertThat(actualUserName.value()).isEqualTo(expectedValue);
-        }
-
-        @Test
-        @DisplayName("境界値: 1文字（最小長）のユーザー名が生成できる")
-        void of_MinLengthUserName_ReturnsUserNameInstance() {
-            String expectedValue = "あ";
-
-            UserName actualUserName = UserName.of(expectedValue);
-
-            assertThat(actualUserName.value()).isEqualTo(expectedValue);
-        }
-
-        @Test
-        @DisplayName("境界値: 255文字（最大長）のユーザー名が生成できる")
-        void of_MaxLengthUserName_ReturnsUserNameInstance() {
-            String expectedValue = "あ".repeat(255);
-
-            UserName actualUserName = UserName.of(expectedValue);
-
-            assertThat(actualUserName.value()).isEqualTo(expectedValue);
-        }
+        assertThat(actualUserName).isNotNull();
+        assertThat(actualUserName.value()).isEqualTo(expectedUserName);
     }
 
-    @Nested
-    @DisplayName("異常系テスト: 空値・null")
-    class BlankCases {
+    @Test
+    @DisplayName("of_最小長(1文字)のユーザー名でインスタンスが生成される")
+    void ofCreatesInstanceWithMinimumLengthUserName() {
+        String expectedUserName = "a";
 
-        @ParameterizedTest
-        @DisplayName("null/空文字の場合は例外がスローされる")
-        @NullAndEmptySource
-        void of_NullOrEmptyUserName_ThrowsException(String invalidValue) {
-            assertThatThrownBy(() -> UserName.of(invalidValue))
-                    .isInstanceOf(DomainLayerErrorException.class)
-                    .hasMessageContaining("ユーザー名は必須項目です");
-        }
+        UserName actualUserName = UserName.of(expectedUserName);
+
+        assertThat(actualUserName.value()).isEqualTo(expectedUserName);
+        assertThat(actualUserName.isAboveMinLength()).isTrue();
     }
 
-    @Nested
-    @DisplayName("異常系テスト: 長さ制約違反")
-    class LengthConstraintCases {
+    @Test
+    @DisplayName("of_最大長(255文字)のユーザー名でインスタンスが生成される")
+    void ofCreatesInstanceWithMaximumLengthUserName() {
+        String expectedUserName = "a".repeat(255);
 
-        @Test
-        @DisplayName("256文字（最大長超過）の場合は例外がスローされる")
-        void of_TooLongUserName_ThrowsException() {
-            String invalidValue = "あ".repeat(256);
+        UserName actualUserName = UserName.of(expectedUserName);
 
-            assertThatThrownBy(() -> UserName.of(invalidValue))
-                    .isInstanceOf(DomainLayerErrorException.class)
-                    .hasMessageContaining("1文字以上")
-                    .hasMessageContaining("255文字以下");
-        }
+        assertThat(actualUserName.value()).isEqualTo(expectedUserName);
+        assertThat(actualUserName.isBelowMaxLength()).isTrue();
     }
 
-    @Nested
-    @DisplayName("メソッドテスト")
-    class MethodTests {
+    @Test
+    @DisplayName("of_null値が渡された場合に例外がスローされる")
+    void ofThrowsExceptionWhenUserNameIsNull() {
+        assertThatThrownBy(() -> UserName.of(null))
+                .isInstanceOf(DomainLayerErrorException.class)
+                .hasMessageContaining("ユーザー名は必須項目です");
+    }
 
-        @Test
-        @DisplayName("value()はユーザー名の文字列を返す")
-        void value_ReturnsUserNameString() {
-            String expectedValue = "テストユーザー";
-            UserName userName = UserName.of(expectedValue);
+    @Test
+    @DisplayName("of_空文字列が渡された場合に例外がスローされる")
+    void ofThrowsExceptionWhenUserNameIsEmpty() {
+        String invalidUserName = "";
 
-            String actualValue = userName.value();
+        assertThatThrownBy(() -> UserName.of(invalidUserName))
+                .isInstanceOf(DomainLayerErrorException.class)
+                .hasMessageContaining("ユーザー名は必須項目です");
+    }
 
-            assertThat(actualValue).isEqualTo(expectedValue);
-        }
+    @Test
+    @DisplayName("of_最大長を超えるユーザー名の場合に例外がスローされる")
+    void ofThrowsExceptionWhenUserNameExceedsMaxLength() {
+        String invalidUserName = "a".repeat(256);
 
-        @Test
-        @DisplayName("isBelowMaxLength()は最大長以下の場合trueを返す")
-        void isBelowMaxLength_WhenBelowMax_ReturnsTrue() {
-            UserName userName = UserName.of("テストユーザー");
+        assertThatThrownBy(() -> UserName.of(invalidUserName))
+                .isInstanceOf(DomainLayerErrorException.class)
+                .hasMessageContaining("ユーザー名は1文字以上255文字以下である必要があります");
+    }
 
-            boolean actualResult = userName.isBelowMaxLength();
+    @Test
+    @DisplayName("value_設定されたユーザー名が正しく取得される")
+    void valueReturnsCorrectUserName() {
+        String expectedUserName = "testuser123";
 
-            assertThat(actualResult).isTrue();
-        }
+        UserName actualUserName = UserName.of(expectedUserName);
 
-        @Test
-        @DisplayName("isBelowMaxLength()は最大長ちょうどの場合trueを返す")
-        void isBelowMaxLength_WhenExactlyMax_ReturnsTrue() {
-            UserName userName = UserName.of("a".repeat(255));
+        assertThat(actualUserName.value()).isEqualTo(expectedUserName);
+    }
 
-            boolean actualResult = userName.isBelowMaxLength();
+    @Test
+    @DisplayName("isBelowMaxLength_最大長以下の場合にtrueを返す")
+    void isBelowMaxLengthReturnsTrueWhenUserNameIsBelowMaxLength() {
+        String validUserName = "testuser";
 
-            assertThat(actualResult).isTrue();
-        }
+        UserName actualUserName = UserName.of(validUserName);
 
-        @Test
-        @DisplayName("isAboveMinLength()は最小長以上の場合trueを返す")
-        void isAboveMinLength_WhenAboveMin_ReturnsTrue() {
-            UserName userName = UserName.of("テストユーザー");
+        assertThat(actualUserName.isBelowMaxLength()).isTrue();
+    }
 
-            boolean actualResult = userName.isAboveMinLength();
+    @Test
+    @DisplayName("isBelowMaxLength_最大長ちょうどの場合にtrueを返す")
+    void isBelowMaxLengthReturnsTrueWhenUserNameIsExactlyMaxLength() {
+        String validUserName = "a".repeat(255);
 
-            assertThat(actualResult).isTrue();
-        }
+        UserName actualUserName = UserName.of(validUserName);
 
-        @Test
-        @DisplayName("isAboveMinLength()は最小長ちょうどの場合trueを返す")
-        void isAboveMinLength_WhenExactlyMin_ReturnsTrue() {
-            UserName userName = UserName.of("a");
+        assertThat(actualUserName.isBelowMaxLength()).isTrue();
+    }
 
-            boolean actualResult = userName.isAboveMinLength();
+    @Test
+    @DisplayName("isAboveMinLength_最小長以上の場合にtrueを返す")
+    void isAboveMinLengthReturnsTrueWhenUserNameIsAboveMinLength() {
+        String validUserName = "testuser";
 
-            assertThat(actualResult).isTrue();
-        }
+        UserName actualUserName = UserName.of(validUserName);
+
+        assertThat(actualUserName.isAboveMinLength()).isTrue();
+    }
+
+    @Test
+    @DisplayName("isAboveMinLength_最小長ちょうどの場合にtrueを返す")
+    void isAboveMinLengthReturnsTrueWhenUserNameIsExactlyMinLength() {
+        String validUserName = "a";
+
+        UserName actualUserName = UserName.of(validUserName);
+
+        assertThat(actualUserName.isAboveMinLength()).isTrue();
+    }
+
+    @Test
+    @DisplayName("of_日本語のユーザー名でインスタンスが生成される")
+    void ofCreatesInstanceWithJapaneseUserName() {
+        String expectedUserName = "テストユーザー";
+
+        UserName actualUserName = UserName.of(expectedUserName);
+
+        assertThat(actualUserName.value()).isEqualTo(expectedUserName);
+    }
+
+    @Test
+    @DisplayName("of_特殊文字を含むユーザー名でインスタンスが生成される")
+    void ofCreatesInstanceWithSpecialCharactersUserName() {
+        String expectedUserName = "test_user-123";
+
+        UserName actualUserName = UserName.of(expectedUserName);
+
+        assertThat(actualUserName.value()).isEqualTo(expectedUserName);
+    }
+
+    @Test
+    @DisplayName("of_スペースを含むユーザー名でインスタンスが生成される")
+    void ofCreatesInstanceWithSpacesUserName() {
+        String expectedUserName = "test user";
+
+        UserName actualUserName = UserName.of(expectedUserName);
+
+        assertThat(actualUserName.value()).isEqualTo(expectedUserName);
     }
 }
