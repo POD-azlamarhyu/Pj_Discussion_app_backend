@@ -83,7 +83,7 @@ public class User {
             UserName.of(userName),
             Email.of(email),
             Password.of(password),
-            LoginId.of(""),
+            null,
             null,
             null,
             null,
