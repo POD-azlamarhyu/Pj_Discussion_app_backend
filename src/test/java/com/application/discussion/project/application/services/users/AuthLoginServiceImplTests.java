@@ -2,6 +2,7 @@ package com.application.discussion.project.application.services.users;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.Matchers.anything;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -57,13 +58,15 @@ public class AuthLoginServiceImplTests {
     private static final String TEST_USERNAME = "testuser";
     private static final UUID TEST_USER_ID = UUID.randomUUID();
     private static final Integer TEST_ROLE_ID = 1;
-    private static final String TEST_ROLE = "ROLE_USER";
-    private JWTAuthUserDetails mockUserDetails;
-    private ResponseCookie mockResponseCookie;
-    private Users mockUser;
-    private Roles mockRole;
-    private ResponseEntity<LoginResponse> mockResponseEntity;
-    private Set<Roles> roles;
+    protected static final String TEST_ROLE = "ROLE_USER";
+    protected JWTAuthUserDetails mockUserDetails;
+    protected ResponseCookie mockResponseCookie;
+    protected Users mockUser = new Users();
+    protected Roles mockRole = new Roles();
+    protected ResponseEntity<LoginResponse> mockResponseEntity;
+    protected Set<Roles> roles = new HashSet<Roles>();
+
+    protected  LoginRequest loginRequest;
 
 
     @Nested
@@ -78,7 +81,7 @@ public class AuthLoginServiceImplTests {
             mockUser.setPassword(TEST_PASSWORD);
             mockRole.setRoleId(TEST_ROLE_ID);
             mockRole.setRoleName(TEST_ROLE);
-            roles = Set.of(mockRole);
+            roles.add(mockRole);
             mockUserDetails = JWTAuthUserDetails.build(mockUser, roles);
 
             mockResponseCookie = ResponseCookie.from("jwt", "test-jwt-token")
@@ -108,8 +111,8 @@ public class AuthLoginServiceImplTests {
                 .thenReturn(mockAuthentication);
             when(mockAuthentication.isAuthenticated()).thenReturn(true);
             when(mockAuthentication.getPrincipal()).thenReturn(mockUserDetails);
-            when(mockJwtUtils.generateJwtCookie(mockUserDetails)).thenReturn(mockResponseCookie);
-            when(authLoginService.service(any(LoginRequest.class))).thenReturn(mockResponseEntity);
+            when(mockJwtUtils.generateJwtCookie(any(JWTAuthUserDetails.class))).thenReturn(mockResponseCookie);
+
 
             ResponseEntity<LoginResponse> actualResponse = authLoginService.service(loginRequest);
 
@@ -136,7 +139,6 @@ public class AuthLoginServiceImplTests {
             when(mockAuthentication.isAuthenticated()).thenReturn(true);
             when(mockAuthentication.getPrincipal()).thenReturn(mockUserDetails);
             when(mockJwtUtils.generateJwtCookie(mockUserDetails)).thenReturn(mockResponseCookie);
-            when(authLoginService.service(any(LoginRequest.class))).thenReturn(mockResponseEntity);
 
             ResponseEntity<LoginResponse> actualResponse = authLoginService.service(loginRequest);
 
@@ -148,7 +150,13 @@ public class AuthLoginServiceImplTests {
         @Test
         @DisplayName("複数のロールを持つユーザーのログインが成功する")
         void loginSuccessWithMultipleRoles() {
-            JWTAuthUserDetails multiRoleUserDetails = JWTAuthUserDetails.build(mockUser, roles);
+            Set<Roles> multiroles = new HashSet<Roles>();
+            Roles adminRole = new Roles();
+            adminRole.setRoleId(2);
+            adminRole.setRoleName("ROLE_ADMIN");
+            multiroles.add(mockRole);
+            multiroles.add(adminRole);
+            JWTAuthUserDetails multiRoleUserDetails = JWTAuthUserDetails.build(mockUser, multiroles);
 
             LoginRequest loginRequest = new LoginRequest(
                 TEST_EMAIL,
@@ -164,7 +172,8 @@ public class AuthLoginServiceImplTests {
             ResponseEntity<LoginResponse> actualResponse = authLoginService.service(loginRequest);
 
             assertThat(actualResponse.getBody()).isNotNull();
-            assertThat(actualResponse.getBody().getRoles()).containsExactly("ROLE_USER", "ROLE_ADMIN");
+            assertThat(actualResponse.getBody().getRoles()).size().isEqualTo(2);
+            assertThat(actualResponse.getBody().getRoles()).containsExactlyInAnyOrder("ROLE_USER", "ROLE_ADMIN");
         }
     }
 
@@ -226,9 +235,6 @@ public class AuthLoginServiceImplTests {
     @DisplayName("レスポンス検証テスト")
     class ResponseValidationTests {
 
-        private JWTAuthUserDetails mockUserDetails;
-        private ResponseCookie mockResponseCookie;
-
         @BeforeEach
         void setUp() {
             mockUser.setUserId(TEST_USER_ID);
@@ -237,15 +243,22 @@ public class AuthLoginServiceImplTests {
             mockUser.setPassword(TEST_PASSWORD);
             mockRole.setRoleId(TEST_ROLE_ID);
             mockRole.setRoleName(TEST_ROLE);
-            roles = Set.of(mockRole);
+            roles.add(mockRole);
             mockUserDetails = JWTAuthUserDetails.build(mockUser, roles);
 
             mockResponseCookie = ResponseCookie.from("jwt", "test-jwt-token")
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .path("/")
                 .maxAge(24 * 60 * 60)
                 .build();
+            mockResponseEntity = ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.SET_COOKIE, mockResponseCookie.toString())
+                .body(new LoginResponse(
+                    TEST_USER_ID,
+                    TEST_USERNAME,
+                    List.of(TEST_ROLE)
+                ));
         }
 
         @Test
