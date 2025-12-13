@@ -78,7 +78,7 @@ class PasswordTests {
     @Test
     @DisplayName("of_最大長を超えるパスワードの場合に例外がスローされる")
     void ofThrowsExceptionWhenPasswordExceedsMaxLength() {
-        String invalidPassword = "A" + "a".repeat(253) + "1";
+        String invalidPassword = "A" + "a".repeat(254) + "1";
 
         assertThatThrownBy(() -> Password.of(invalidPassword))
                 .isInstanceOf(DomainLayerErrorException.class)
