@@ -87,14 +87,19 @@ public class JWTAuthUserDetailsTests {
 
         JWTAuthUserDetails actualUserDetails = JWTAuthUserDetails.build(testUser, multipleRoles);
 
-        Collection<? extends GrantedAuthority> predictAuthorities = List.of(
+        List<SimpleGrantedAuthority> predictAuthorities = List.of(
             new SimpleGrantedAuthority(TEST_ROLE_NAME),
             new SimpleGrantedAuthority("ROLE_ADMIN")
         );
 
         Collection<? extends GrantedAuthority> actualAuthorities = actualUserDetails.getAuthorities();
         assertThat(actualAuthorities).hasSize(2);
-        assertThat(actualAuthorities).isEqualTo(predictAuthorities);
+        assertThat(actualAuthorities).hasSize(predictAuthorities.size());
+        assertThat(actualAuthorities.toArray())
+            .hasSize(2)
+            .containsExactlyInAnyOrder(
+                predictAuthorities.toArray()
+            );
     }
 
     @Test
