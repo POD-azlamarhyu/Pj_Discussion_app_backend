@@ -170,8 +170,8 @@ class EmailTests {
         @DisplayName("最大長（255文字）のメールアドレスでEmail値オブジェクトが生成できる")
         void createEmailWithMaxLength() {
             String localPart = "a".repeat(64);
-            String domainPart = "example.com";
-            String expectedEmail = localPart + "@" + "b".repeat(255 - localPart.length() - domainPart.length() - 2) + "." + domainPart;
+            String domainPart = "example.jp";
+            String expectedEmail = localPart + "." + "b".repeat(255 - localPart.length() - domainPart.length() - 2) + "@" + domainPart;
 
             Email actualEmail = Email.of(expectedEmail);
 
@@ -220,7 +220,7 @@ class EmailTests {
         void returnTrueWhenExactlyMaxLength() {
             String localPart = "a".repeat(64);
             String domainPart = "example.com";
-            String emailString = localPart + "@" + "b".repeat(255 - localPart.length() - domainPart.length() - 2) + "." + domainPart;
+            String emailString = localPart + "." + "b".repeat(255 - localPart.length() - domainPart.length() - 2) + "@" + domainPart;
             Email email = Email.of(emailString);
 
             boolean actual = email.isBelowMaxLength();
