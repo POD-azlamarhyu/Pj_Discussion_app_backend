@@ -75,7 +75,7 @@ public class JWTAuthUserDetailsServiceTests {
         UserDetails actualUserDetails = jwtAuthUserDetailsService.loadUserByUsername(TEST_EMAIL);
 
         assertThat(actualUserDetails).isNotNull();
-        assertThat(actualUserDetails.getUsername()).isEqualTo(TEST_EMAIL);
+        assertThat(actualUserDetails.getUsername()).isEqualTo(TEST_USERNAME);
         assertThat(actualUserDetails.getPassword()).isEqualTo(TEST_PASSWORD);
         assertThat(actualUserDetails.getAuthorities()).hasSize(1);
         verify(mockUsersRepository).findByEmailOrLoginId(TEST_EMAIL);
@@ -93,7 +93,7 @@ public class JWTAuthUserDetailsServiceTests {
         UserDetails actualUserDetails = jwtAuthUserDetailsService.loadUserByUsername(TEST_LOGIN_ID);
 
         assertThat(actualUserDetails).isNotNull();
-        assertThat(actualUserDetails.getUsername()).isEqualTo(TEST_EMAIL);
+        assertThat(actualUserDetails.getUsername()).isEqualTo(TEST_USERNAME);
         verify(mockUsersRepository).findByEmailOrLoginId(TEST_LOGIN_ID);
         verify(mockRolesRepository).findUserRolesById(TEST_USER_ID);
     }
@@ -108,7 +108,7 @@ public class JWTAuthUserDetailsServiceTests {
         assertThatThrownBy(() -> jwtAuthUserDetailsService.loadUserByUsername(nonExistentId))
             .isInstanceOf(ApplicationLayerException.class)
             .hasMessageContaining("ユーザーが見つかりません")
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.NOT_FOUND);
+            .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND);
 
         verify(mockUsersRepository).findByEmailOrLoginId(nonExistentId);
     }
