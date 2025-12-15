@@ -13,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.application.discussion.project.domain.entities.users.Role;
 import com.application.discussion.project.infrastructure.models.users.Roles;
 import com.application.discussion.project.infrastructure.models.users.Users;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -85,7 +86,7 @@ public class JWTAuthUserDetails implements UserDetails {
      * @param roles ユーザーの役割を含むRolesのセット
      * @return 構築されたJWTAuthUserDetailsオブジェクト
      */
-    public static JWTAuthUserDetails build(Users user, Set<Roles> roles){
+    public static JWTAuthUserDetails build(Users user, Set<Role> roles){
         logger.info("Building JWTAuthUserDetails for user: {}", user.getUsername());
         List<GrantedAuthority> authorities = roles.stream().map(role -> new SimpleGrantedAuthority(role.getRoleName())).collect(Collectors.toList());
 
