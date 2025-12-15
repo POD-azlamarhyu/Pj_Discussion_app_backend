@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
+import com.application.discussion.project.domain.entities.users.Role;
 import com.application.discussion.project.domain.repositories.users.RolesRepositoryInterface;
 import com.application.discussion.project.domain.repositories.users.UsersRepositoryInterface;
 import com.application.discussion.project.infrastructure.models.users.Roles;
@@ -48,7 +49,7 @@ public class JWTAuthUserDetailsService implements UserDetailsService {
                 HttpStatusCode.valueOf(404)
             ));
         
-        Set<Roles> roles = rolesRepository.findUserRolesById(user.getUserId());
+        Set<Role> roles = rolesRepository.findUserRolesById(user.getUserId());
         logger.info("User found: {}, Roles: {}", user.getUserId(), roles);
         return JWTAuthUserDetails.build(user, roles);
     }
