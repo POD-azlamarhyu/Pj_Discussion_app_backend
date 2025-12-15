@@ -44,7 +44,7 @@ public class DataFactory implements CommandLineRunner {
         this.discussionsDataSeeder.seed();
         this.roleDataSeeder.seed();
         this.userDataSeeder.seed();
-        this.userRoleDataSeeder.seed();
+        // this.userRoleDataSeeder.seed();
         logger.info("Data seeding completed.");
     }
 }
