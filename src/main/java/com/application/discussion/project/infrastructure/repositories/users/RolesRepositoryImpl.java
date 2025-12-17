@@ -11,8 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.application.discussion.project.domain.entities.users.Role;
 import com.application.discussion.project.domain.repositories.users.RolesRepositoryInterface;
-import com.application.discussion.project.infrastructure.models.users.Roles;
+import com.application.discussion.project.infrastructure.dtos.UsersRolesProjections;
 
 @Repository
 public class RolesRepositoryImpl implements RolesRepositoryInterface {
@@ -23,16 +24,22 @@ public class RolesRepositoryImpl implements RolesRepositoryInterface {
     private static final Logger logger = LoggerFactory.getLogger(RolesRepositoryImpl.class);
 
     @Override
-    public Set<Roles> findUserRolesById(UUID userId) {
+    public Set<Role> findUserRolesById(UUID userId) {
         logger.info("Fetching roles for user ID: {}", userId);
-        List<Object[]> roles = jpaUsersRolesRepository.findUserRolesByUUID(userId);
+        List<UsersRolesProjections> roles = jpaUsersRolesRepository.findUserRolesByUUID(userId);
 
         logger.info("Roles fetched: {}", roles);
-        Set<Roles> rolesSet = roles.stream()
-                            .map(role -> (Roles) role[0])
-                            .collect(Collectors.toCollection(HashSet::new));
         
-        return rolesSet;
+        return roles.stream()
+                .map(role -> {
+                    return Role.of(
+                        role.getRoleId(),
+                        role.getRoleName(),
+                        role.getCreatedAt(),
+                        role.getUpdatedAt(),
+                        role.getDeletedAt()
+                    );
+                })
+                .collect(Collectors.toCollection(HashSet::new));
     }
-
 }

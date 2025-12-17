@@ -53,4 +53,38 @@ public class Role {
     ) {
         return new Role(0, roleName, LocalDateTime.now(),null,null);
     }
+
+    /**
+     * 再構築メソッド：既存のRoleインスタンスを再構築する
+     * @param roleId    ロールID
+     * @param roleName  ロール名
+     * @param createdAt 作成日時
+     * @param updatedAt 更新日時
+     * @param deletedAt 削除日時
+     * @return 再構築されたRoleインスタンス
+     */
+    public static Role of(
+        Integer roleId,
+        String roleName,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt,
+        LocalDateTime deletedAt
+    ) {
+        return new Role(roleId, roleName, createdAt, updatedAt, deletedAt);
+    }
+
+    /**
+    * @return roleId
+    */
+    public Integer getRoleId() {
+        return roleId;
+    }
+
+    /**
+     * 
+     * @return roleName
+     */
+    public String getRoleName() {
+        return roleName;
+    }
 }

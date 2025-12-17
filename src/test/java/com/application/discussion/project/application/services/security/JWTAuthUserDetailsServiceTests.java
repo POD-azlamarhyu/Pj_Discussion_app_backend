@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
+import com.application.discussion.project.domain.entities.users.Role;
 import com.application.discussion.project.domain.repositories.users.RolesRepositoryInterface;
 import com.application.discussion.project.domain.repositories.users.UsersRepositoryInterface;
 import com.application.discussion.project.infrastructure.models.users.Roles;
@@ -36,6 +37,7 @@ public class JWTAuthUserDetailsServiceTests {
     private static final String TEST_PASSWORD = "encoded2Password";
     private static final String TEST_USERNAME = "Test User";
     private static final Integer TEST_ROLE_ID = 1;
+    private static final String TEST_ROLE_NAME = "ROLE_USER";
 
     @Mock
     private UsersRepositoryInterface mockUsersRepository;
@@ -47,7 +49,8 @@ public class JWTAuthUserDetailsServiceTests {
     private JWTAuthUserDetailsService jwtAuthUserDetailsService;
 
     private Users testUser;
-    private Set<Roles> testRoles;
+    private Set<Role> testRolesSet;
+    private Role testRole;
 
     @BeforeEach
     void setUp() {
@@ -58,10 +61,14 @@ public class JWTAuthUserDetailsServiceTests {
         testUser.setPassword(TEST_PASSWORD);
         testUser.setUsername(TEST_USERNAME);
 
-        Roles testRole = new Roles();
-        testRole.setRoleId(TEST_ROLE_ID);
-        testRole.setRoleName("ROLE_USER");
-        testRoles = Set.of(testRole);
+        testRole = Role.of(
+            TEST_ROLE_ID,
+            TEST_ROLE_NAME,
+            null,
+            null,
+            null
+        );
+        testRolesSet = Set.of(testRole);
     }
 
     @Test
@@ -70,7 +77,7 @@ public class JWTAuthUserDetailsServiceTests {
         when(mockUsersRepository.findByEmailOrLoginId(TEST_EMAIL))
             .thenReturn(Optional.of(testUser));
         when(mockRolesRepository.findUserRolesById(TEST_USER_ID))
-            .thenReturn(testRoles);
+            .thenReturn(testRolesSet);
 
         UserDetails actualUserDetails = jwtAuthUserDetailsService.loadUserByUsername(TEST_EMAIL);
 
@@ -88,7 +95,7 @@ public class JWTAuthUserDetailsServiceTests {
         when(mockUsersRepository.findByEmailOrLoginId(TEST_LOGIN_ID))
             .thenReturn(Optional.of(testUser));
         when(mockRolesRepository.findUserRolesById(TEST_USER_ID))
-            .thenReturn(testRoles);
+            .thenReturn(testRolesSet);
 
         UserDetails actualUserDetails = jwtAuthUserDetailsService.loadUserByUsername(TEST_LOGIN_ID);
 
@@ -116,10 +123,14 @@ public class JWTAuthUserDetailsServiceTests {
     @Test
     @DisplayName("複数のロールを持つユーザーを正常にロードできること")
     void loadUserByUsername_WithMultipleRoles_ReturnsUserDetailsWithAllRoles() {
-        Roles adminRole = new Roles();
-        adminRole.setRoleId(2);
-        adminRole.setRoleName("ROLE_ADMIN");
-        Set<Roles> multipleRoles = Set.of(testRoles.iterator().next(), adminRole);
+        Role adminRole = Role.of(
+                2, 
+                "ROLE_ADMIN", 
+                null,
+                null, 
+                null
+        );
+        Set<Role> multipleRoles = Set.of(testRole, adminRole);
 
         when(mockUsersRepository.findByEmailOrLoginId(TEST_EMAIL))
             .thenReturn(Optional.of(testUser));
@@ -136,7 +147,7 @@ public class JWTAuthUserDetailsServiceTests {
     @Test
     @DisplayName("ロールが空のユーザーを正常にロードできること")
     void loadUserByUsername_WithNoRoles_ReturnsUserDetailsWithEmptyAuthorities() {
-        Set<Roles> emptyRoles = Set.of();
+        Set<Role> emptyRoles = Set.of();
         when(mockUsersRepository.findByEmailOrLoginId(TEST_EMAIL))
             .thenReturn(Optional.of(testUser));
         when(mockRolesRepository.findUserRolesById(TEST_USER_ID))
