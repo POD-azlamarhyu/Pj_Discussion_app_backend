@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import com.application.discussion.project.infrastructure.models.users.Roles;
+import com.application.discussion.project.domain.entities.users.Role;
 import com.application.discussion.project.infrastructure.models.users.Users;
 
 @DisplayName("JWTAuthUserDetails単体テスト")
@@ -28,8 +28,8 @@ public class JWTAuthUserDetailsTests {
     private static final String TEST_ROLE_NAME = "ROLE_USER";
 
     private Users testUser;
-    private Set<Roles> testRoles;
-    private Roles testRole;
+    private Set<Role> testRoles;
+    private Role testRole;
 
     @BeforeEach
     void setUp() {
@@ -42,9 +42,13 @@ public class JWTAuthUserDetailsTests {
         testUser.setIsDeleted(false);
         testUser.setIsActive(true);
 
-        testRole = new Roles();
-        testRole.setRoleId(1);
-        testRole.setRoleName(TEST_ROLE_NAME);
+        testRole = Role.of(
+            1,
+            TEST_ROLE_NAME,
+            null,
+            null,
+            null
+        );
         testRoles = Set.of(testRole);
     }
 
@@ -80,10 +84,14 @@ public class JWTAuthUserDetailsTests {
     @Test
     @DisplayName("buildメソッドで複数のロールが正しく変換されること")
     void build_WithMultipleRoles_ConvertsAllRolesToAuthorities() {
-        Roles adminRole = new Roles();
-        adminRole.setRoleId(2);
-        adminRole.setRoleName("ROLE_ADMIN");
-        Set<Roles> multipleRoles = Set.of(testRole, adminRole);
+        Role adminRole = Role.of(
+                2, 
+                "ROLE_ADMIN", 
+                null,
+                null, 
+                null
+        );
+        Set<Role> multipleRoles = Set.of(testRole, adminRole);
 
         JWTAuthUserDetails actualUserDetails = JWTAuthUserDetails.build(testUser, multipleRoles);
 
@@ -105,7 +113,7 @@ public class JWTAuthUserDetailsTests {
     @Test
     @DisplayName("buildメソッドで空のロールセットでも正常に動作すること")
     void build_WithEmptyRoles_ReturnsUserDetailsWithEmptyAuthorities() {
-        Set<Roles> emptyRoles = Set.of();
+        Set<Role> emptyRoles = Set.of();
 
         JWTAuthUserDetails actualUserDetails = JWTAuthUserDetails.build(testUser, emptyRoles);
 
