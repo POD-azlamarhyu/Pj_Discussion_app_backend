@@ -17,7 +17,7 @@ public class RoleDataSeeder {
 
     private final List<String> roles = List.of(
         "ADMIN",
-        "PREMIUM",
+        "MODERATOR",
         "SUPER",
         "NORMAL",
         "GUEST"

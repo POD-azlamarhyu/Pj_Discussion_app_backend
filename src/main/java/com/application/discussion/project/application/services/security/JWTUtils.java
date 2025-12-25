@@ -26,6 +26,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * JWTトークンの生成、検証、抽出を行うユーティリティクラス
@@ -46,6 +47,10 @@ public class JWTUtils {
     private String jwtCookieName;
     @Value("${springboot.app.cookies.path}")
     private String jwtCookiesPath;
+    @Value("${springboot.app.cookies.httpOnly}")
+    private Boolean isCookieHttpOnly;
+    @Value("${springboot.app.cookies.secure}")
+    private Boolean isCookieSecure;
 
     /**
      * HTTPリクエストのAuthorizationヘッダーからJWTトークンを抽出する
@@ -206,5 +211,23 @@ public class JWTUtils {
             return Jwts.SIG.HS512.key().build();
         }
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    /**
+     * JWTトークンが格納されているCookieを削除する
+     * 
+     * @param response HTTPレスポンス
+     */
+    public ResponseCookie getClearJwtCookie() {
+        logger.info("Clearing JWT token cookie");
+        ResponseCookie cookie = ResponseCookie.from(jwtCookieName, "")
+                .path(jwtCookiesPath)
+                .maxAge(0)
+                .httpOnly(isCookieHttpOnly)
+                .secure(isCookieSecure)
+                .sameSite(SameSiteCookies.STRICT.name())
+                .build();
+        logger.debug("remove jwt token cookie: {}", jwtCookieName);
+        return cookie;
     }
 }

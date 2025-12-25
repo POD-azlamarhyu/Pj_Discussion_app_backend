@@ -19,6 +19,9 @@ import com.application.discussion.project.infrastructure.repositories.users.JpaU
 @Profile("dev")
 public class UserRoleDataSeeder {
     
+    private static final Logger logger = LoggerFactory.getLogger(UserRoleDataSeeder.class);
+    private static final String NORMAL_ROLE = "NORMAL";
+
     @Autowired
     private JpaUsersRepository jpaUsersRepository;
 
@@ -28,38 +31,66 @@ public class UserRoleDataSeeder {
     @Autowired
     private JpaUsersRolesRepository jpaUsersRolesRepository;
 
-    private static final Logger logger = LoggerFactory.getLogger(UserRoleDataSeeder.class);
-
     public void seed() {
+        logger.info("ユーザーロールのシード処理を開始します");
+
         List<Users> users = jpaUsersRepository.findAll();
         List<Roles> roles = jpaRolesRepository.findAll();
-        logger.info("Seeding user roles...");
+        
+        logger.info("データベースから{}人のユーザーと{}個のロールを取得しました", users.size(), roles.size());
+        logger.debug("取得したユーザー: {}", users);
+        logger.debug("取得したロール: {}", roles);
 
-        logger.info("Found {} users and {} roles in the database.", users.size(), roles.size());
-        logger.info("user available: {}", users);
-        logger.info("roles available: {}", roles);
-        String NORMAL_ROLE= "NORMAL";
+        if (roles.isEmpty()) {
+            logger.error("データベースにロールが存在しません。シード処理を中止します");
+            return;
+        }
+
         Roles normalRole = roles.stream()
-            .filter(role -> NORMAL_ROLE.equals(role.getRoleName()))
-            .findFirst()
-            .orElse(null);
-        /**
-         * * ユーザとロールの関連付けについて、すべてのユーザに対してNORMALロールを割り当てる処理
-         * ! 注意: 既存の関連付けがある場合、重複して割り当てられる可能性があります。
-         * ! 重複チェックをする必要がある
-         */
-        users.stream().map(user ->{
-            if (roles.isEmpty()) {
-                logger.error("No roles found in the database.");
-                return null;
-            }
-            UsersRoles userRole = new UsersRoles(null, user, normalRole, null, null, null);
-            return userRole;
-        }).forEach(userRole -> {
-            if (userRole != null) {
-                jpaUsersRolesRepository.save(userRole);
-            }
-        });
-        logger.info("User roles seeding completed.");
+                .filter(role -> NORMAL_ROLE.equals(role.getRoleName()))
+                .findFirst()
+                .orElse(null);
+
+        if (normalRole == null) {
+            logger.error("NORMALロールが見つかりません。シード処理を中止します");
+            return;
+        }
+
+        long assignedCount = users.stream()
+                .filter(user -> !hasRoleAssigned(user, normalRole))
+                .map(user -> createUserRole(user, normalRole))
+                .peek(userRole -> jpaUsersRolesRepository.save(userRole))
+                .count();
+
+        logger.info("ユーザーロールのシード処理が完了しました。{}件のロールを割り当てました", assignedCount);
+    }
+
+    /**
+     * ユーザーに指定されたロールが既に割り当てられているかチェックする
+     * 
+     * @param user 対象ユーザー
+     * @param role 対象ロール
+     * @return 既に割り当てられている場合true
+     */
+    private boolean hasRoleAssigned(Users user, Roles role) {
+        boolean exists = jpaUsersRolesRepository.existsByUsersAndRoles(user, role);
+        
+        if (exists) {
+            logger.debug("ユーザー[{}]には既にロール[{}]が割り当てられています。スキップします", user.getUserId(), role.getRoleName());
+        }
+        
+        return exists;
+    }
+
+    /**
+     * ユーザーロールエンティティを作成する
+     * 
+     * @param user 対象ユーザー
+     * @param role 対象ロール
+     * @return 作成されたUsersRolesエンティティ
+     */
+    private UsersRoles createUserRole(Users user, Roles role) {
+        logger.info("ユーザー[{}]にロール[{}]を割り当てます", user.getUserId(), role.getRoleName());
+        return new UsersRoles(null, user, role, null, null, null);
     }
 }
