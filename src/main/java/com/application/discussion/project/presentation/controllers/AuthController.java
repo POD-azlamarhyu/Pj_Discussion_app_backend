@@ -126,12 +126,10 @@ public class AuthController {
         }
     )
     @PostMapping("/logout")
-    public ResponseEntity<LogoutResponse> logout(
-            HttpServletRequest request,
-            HttpServletResponse response) {
+    public ResponseEntity<LogoutResponse> logout() {
         logger.info("ログアウトリクエストを受信しました");
         
-        LogoutResponseDTO logoutResponseDTO = authLogoutService.service(request, response);
+        LogoutResponseDTO logoutResponseDTO = authLogoutService.service();
         
         return ResponseEntity.status(HttpStatus.OK)
             .header("Set-Cookie", logoutResponseDTO.getJwtCookie().toString())
