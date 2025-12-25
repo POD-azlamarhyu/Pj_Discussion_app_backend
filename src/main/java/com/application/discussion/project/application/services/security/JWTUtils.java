@@ -36,7 +36,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JWTUtils {
     private static final Logger logger = LoggerFactory.getLogger(JWTUtils.class);
 
-    private static final Integer TOKEN_SECRET_LENGTH = 512;
+    private static final Integer TOKEN_SECRET_LENGTH = 128;
     private static final Integer TOKEN_SECRET_BYTE_LENGTH = TOKEN_SECRET_LENGTH / 8;
 
     @Value("${springboot.app.authentication.jwt.token.expiration}")
@@ -78,6 +78,8 @@ public class JWTUtils {
         logger.info("Extracting JWT from cookies");
         
         Cookie[] cookies = httpServletRequest.getCookies();
+
+        logger.debug("Cookies: {}",Arrays.toString(cookies));
         
         return Optional.ofNullable(cookies)
                 .stream()
@@ -205,6 +207,7 @@ public class JWTUtils {
     public Key getKey(){
         logger.info("Retrieving signing key for JWT token");
         byte[] keyBytes = Decoders.BASE64.decode(jwtTokenSecret);
+        logger.debug("Decoded JWT token secret, length: {} bytes", keyBytes.length);
 
         if (keyBytes.length < TOKEN_SECRET_BYTE_LENGTH){
             logger.error("The JWT token secret must be at least {} bits long", TOKEN_SECRET_LENGTH);
