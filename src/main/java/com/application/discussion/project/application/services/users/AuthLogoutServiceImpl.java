@@ -1,5 +1,6 @@
 package com.application.discussion.project.application.services.users;
 
+import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
 import com.application.discussion.project.application.dtos.users.LogoutResponse;
 
 
@@ -12,9 +13,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseCookie;
 
 import com.application.discussion.project.application.dtos.users.LogoutResponseDTO;
+import com.application.discussion.project.application.services.security.JWTAuthUserDetails;
 import com.application.discussion.project.application.services.security.JWTUtils;
 
 /**
@@ -38,21 +42,20 @@ public class AuthLogoutServiceImpl implements AuthLogoutService {
     @Override
     public LogoutResponseDTO service() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (Optional.ofNullable(authentication).isEmpty()){
+            logger.warn("ログアウト処理中に認証情報が見つかりません。");
+            throw new ApplicationLayerException("ログアウト処理中に認証情報が見つかりません。",HttpStatus.UNAUTHORIZED,HttpStatusCode.valueOf(401));
+        }
         
-        String username = Optional.ofNullable(authentication)
-                .map(Authentication::getName)
-                .orElse("不明なユーザ");
+        JWTAuthUserDetails user = (JWTAuthUserDetails) authentication.getPrincipal();
         
-        logger.info("ログアウト処理を開始します - ユーザ: {}", username);
+        logger.info("ログアウト処理を開始します - ユーザ: {}", user.toString());
 
         final ResponseCookie jwtCookie = jwtUtils.getClearJwtCookie();
         SecurityContextHolder.clearContext();
 
-        logger.info("ログアウト処理が完了しました - ユーザ: {}", username);
-        final LogoutResponse logoutResponse =  LogoutResponse.builder()
-            .message("ログアウトに成功しました")
-            .success(true)
-            .build();
+        logger.info("ログアウト処理が完了しました - ユーザ: {}", user.toString());
+        final LogoutResponse logoutResponse =  LogoutResponse.of("ログアウトに成功しました", true);
 
         final LogoutResponseDTO logoutResponseDTO = LogoutResponseDTO.of(logoutResponse, jwtCookie);
 
