@@ -42,4 +42,13 @@ public class LogoutResponseDTO {
     public ResponseCookie getJwtCookie() {
         return jwtCookie;
     }
+
+    /**
+     * toStringメソッド
+     * @return 文字列表現
+     */
+    @Override
+    public String toString(){
+        return "LogoutResponseDTO{logoutResponse=" + logoutResponse.toString() + ", jwtCookie=" + jwtCookie.toString() + "}";
+    }
 }
