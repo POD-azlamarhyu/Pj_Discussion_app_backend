@@ -183,7 +183,7 @@ public class JWTUtilsTests {
 
         String actualUserId = jwtUtils.getUserIdFromToken(token);
 
-        assertEquals(TEST_USER_ID, actualUserId);
+        assertEquals(TEST_USER_ID.toString(), actualUserId);
     }
 
     @Test
@@ -300,23 +300,36 @@ public class JWTUtilsTests {
     }
 
     @Test
-    @DisplayName("秘密鍵がちょうど128ビットの場合に正常に鍵を生成すること")
-    void getKeyReturnsValidKeyWhenSecretExactly128Bits() {
-        String exactLengthSecret = "AAAAAAAAAAAAAAAAAAAAAA==";
+    @DisplayName("秘密鍵がちょうど256ビットの場合に正常に鍵を生成すること")
+    void getKeyReturnsValidKeyWhenSecretExactly256Bits() {
+        String exactLengthSecret = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
         ReflectionTestUtils.setField(jwtUtils, "jwtTokenSecret", exactLengthSecret);
 
         Key actualKey = jwtUtils.getKey();
 
         assertNotNull(actualKey);
-        assertEquals("HmacSHA512", actualKey.getAlgorithm());
+        assertEquals("HmacSHA256", actualKey.getAlgorithm());
     }
 
     @Test
     @DisplayName("loginIdがnullの場合にemailがsubjectとして使用されること")
     void generateTokenUsesEmailWhenLoginIdIsNull() {
-        when(mockUserDetails.getLoginId()).thenReturn(null);
 
-        String token = jwtUtils.generateToken(mockUserDetails);
+        Users userWithNullLoginId = new Users();
+        userWithNullLoginId.setUserId(TEST_USER_ID);
+        userWithNullLoginId.setUsername(TEST_USERNAME);
+        userWithNullLoginId.setEmail(TEST_EMAIL);
+        userWithNullLoginId.setPassword(TEST_PASSWORD);
+        userWithNullLoginId.setLoginId(null);
+        userWithNullLoginId.setIsDeleted(TEST_IS_DELETED);
+        userWithNullLoginId.setIsActive(TEST_IS_ACTIVE);
+
+        JWTAuthUserDetails userDetailsWithNullLoginId = JWTAuthUserDetails.build(
+            userWithNullLoginId,
+            testRoles
+        );
+
+        String token = jwtUtils.generateToken(userDetailsWithNullLoginId);
         String actualSubject = jwtUtils.getEmailOrLoginId(token);
 
         assertEquals(TEST_EMAIL, actualSubject);
