@@ -25,6 +25,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -35,10 +36,11 @@ import com.application.discussion.project.application.dtos.users.LogoutResponse;
 import com.application.discussion.project.application.dtos.users.LogoutResponseDTO;
 import com.application.discussion.project.application.services.users.AuthLoginServiceInterface;
 import com.application.discussion.project.application.services.users.AuthLogoutService;
+import com.application.discussion.project.presentation.exceptions.PresentationLayerErrorException;
 import com.application.discussion.project.presentation.validations.AuthLoginRequestValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@WebMvcTest(AuthController.class)
+@RestAPIControllerTest
 @DisplayName("AuthController - MockMVC統合テスト")
 public class AuthControllerMockMvcTests {
 
@@ -138,7 +140,11 @@ public class AuthControllerMockMvcTests {
         
         try (MockedStatic<AuthLoginRequestValidation> mockedValidation = Mockito.mockStatic(AuthLoginRequestValidation.class)) {
             mockedValidation.when(() -> AuthLoginRequestValidation.validate(any(LoginRequest.class)))
-                .thenThrow(new IllegalArgumentException("メールアドレスまたはログインIDは必須です"));
+                .thenThrow(new PresentationLayerErrorException(
+                    "メールアドレスまたはログインIDは必須です",
+                    HttpStatus.BAD_REQUEST,
+                    HttpStatusCode.valueOf(400)
+                ));
 
             mockMvc.perform(post(LOGIN_ENDPOINT)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -154,7 +160,7 @@ public class AuthControllerMockMvcTests {
         
         try (MockedStatic<AuthLoginRequestValidation> mockedValidation = Mockito.mockStatic(AuthLoginRequestValidation.class)) {
             mockedValidation.when(() -> AuthLoginRequestValidation.validate(any(LoginRequest.class)))
-                .thenThrow(new IllegalArgumentException("パスワードは必須です"));
+                .thenThrow(new PresentationLayerErrorException("パスワードは必須です", HttpStatus.BAD_REQUEST, HttpStatusCode.valueOf(400)));
 
             mockMvc.perform(post(LOGIN_ENDPOINT)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -218,6 +224,7 @@ public class AuthControllerMockMvcTests {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("正常系: ログアウトが成功し200ステータスとCookie削除ヘッダーが返却されること")
     void logoutSuccessfullyShouldReturnOkWithClearCookie() throws Exception {
         when(authLogoutService.service()).thenReturn(mockLogoutResponseDTO);
@@ -234,6 +241,7 @@ public class AuthControllerMockMvcTests {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("正常系: ログアウト時にJWT Cookieが正しく削除されること")
     void logoutShouldClearJwtCookieCorrectly() throws Exception {
         when(authLogoutService.service()).thenReturn(mockLogoutResponseDTO);
@@ -247,6 +255,7 @@ public class AuthControllerMockMvcTests {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("異常系: 未認証状態でログアウト時に401エラーが返却されること")
     void logoutWithoutAuthenticationShouldReturnUnauthorized() throws Exception {
         when(authLogoutService.service())
@@ -262,6 +271,7 @@ public class AuthControllerMockMvcTests {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("異常系: ログアウト権限がない場合に403エラーが返却されること")
     void logoutWithoutPermissionShouldReturnForbidden() throws Exception {
         when(authLogoutService.service())
