@@ -130,6 +130,10 @@ public class JWTAuthUserDetails implements UserDetails {
         return username;
     }
 
+    /**
+     * メールアドレスを取得する
+     * @return メールアドレス
+     */
     public String getEmail(){
         return email;
     }
@@ -227,5 +231,23 @@ public class JWTAuthUserDetails implements UserDetails {
 
         JWTAuthUserDetails user = (JWTAuthUserDetails) object;
         return Objects.equals(userId, user.userId);
+    }
+
+    /**
+     * オブジェクトの文字列表現を取得する
+     * 
+     * @return オブジェクトの文字列表現
+     */
+    @Override
+    public String toString(){
+        return "JWTAuthUserDetails{"+
+            "userId="+userId+
+            ", username='"+username+'\''+
+            ", email='"+email+'\''+
+            ", loginId='"+loginId+'\''+
+            ", isDeleted="+isDeleted+
+            ", isActive="+isActive+
+            ", authorities="+authorities+
+            '}';
     }
 }
