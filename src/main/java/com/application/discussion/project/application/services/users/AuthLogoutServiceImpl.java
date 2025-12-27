@@ -44,10 +44,10 @@ public class AuthLogoutServiceImpl implements AuthLogoutService {
     public LogoutResponseDTO service() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
-        String username = Optional.ofNullable(authentication)
+        final String username = Optional.ofNullable(authentication)
             .map(Authentication::getName)
             .orElse(UNKNOWN_USER);
-        JWTAuthUserDetails userDetails = Optional.ofNullable(authentication)
+        final JWTAuthUserDetails userDetails = Optional.ofNullable(authentication)
             .filter(Authentication::isAuthenticated)
             .map(auth -> (JWTAuthUserDetails) auth.getPrincipal())
             .orElse(null);
