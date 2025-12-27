@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
+import com.application.discussion.project.domain.entities.users.Role;
+import com.application.discussion.project.infrastructure.models.users.Users;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -36,9 +39,14 @@ public class JWTUtilsTests {
     private static final String TEST_COOKIE_PATH = "/";
     private static final UUID TEST_USER_ID = UUID.randomUUID();
     private static final String TEST_LOGIN_ID = "testuser";
+    private static final String TEST_PASSWORD = "encoded4Password";
     private static final String TEST_EMAIL = "test@example.com";
     private static final String TEST_USERNAME = "Test User";
     private static final String BEARER_PREFIX = "Bearer ";
+    private static final String TEST_ROLE_NAME = "ROLE_USER";
+    private static final Boolean TEST_IS_ACTIVE = true;
+    private static final Boolean TEST_IS_DELETED = false;
+    private static final String TEST_ALGORITHM = "HmacSHA384";
     private static final Key SIGNING_KEY = Keys.hmacShaKeyFor(Decoders.BASE64.decode(TEST_JWT_SECRET));
 
     @InjectMocks
@@ -46,6 +54,10 @@ public class JWTUtilsTests {
 
     private JWTAuthUserDetails mockUserDetails;
     private HttpServletRequest mockRequest;
+
+    private Users testUser;
+    private Set<Role> testRoles;
+    private Role testRole;
 
     @BeforeEach
     void setUp() {
@@ -56,11 +68,25 @@ public class JWTUtilsTests {
         ReflectionTestUtils.setField(jwtUtils, "isCookieHttpOnly", true);
         ReflectionTestUtils.setField(jwtUtils, "isCookieSecure", false);
 
-        mockUserDetails = mock(JWTAuthUserDetails.class);
-        when(mockUserDetails.getUserId()).thenReturn(TEST_USER_ID);
-        when(mockUserDetails.getLoginId()).thenReturn(TEST_LOGIN_ID);
-        when(mockUserDetails.getEmail()).thenReturn(TEST_EMAIL);
-        when(mockUserDetails.getUsername()).thenReturn(TEST_USERNAME);
+        testUser = new Users();
+        testUser.setUserId(TEST_USER_ID);
+        testUser.setUsername(TEST_USERNAME);
+        testUser.setEmail(TEST_EMAIL);
+        testUser.setPassword(TEST_PASSWORD);
+        testUser.setLoginId(TEST_LOGIN_ID);
+        testUser.setIsDeleted(TEST_IS_DELETED);
+        testUser.setIsActive(TEST_IS_ACTIVE);
+
+        testRole = Role.of(
+            1,
+            TEST_ROLE_NAME,
+            null,
+            null,
+            null
+        );
+        testRoles = Set.of(testRole);
+
+        mockUserDetails = JWTAuthUserDetails.build(testUser, testRoles);
 
         mockRequest = mock(HttpServletRequest.class);
     }
@@ -181,7 +207,7 @@ public class JWTUtilsTests {
         );
 
         assertEquals("Invalid JWT token", exception.getMessage());
-        assertEquals(404, exception.getCode().value());
+        assertEquals(400, exception.getCode().value());
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
@@ -198,7 +224,7 @@ public class JWTUtilsTests {
         );
 
         assertEquals("JWT token is expired", exception.getMessage());
-        assertEquals(404, exception.getCode().value());
+        assertEquals(400, exception.getCode().value());
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
@@ -213,7 +239,7 @@ public class JWTUtilsTests {
         );
 
         assertEquals("JWT claims string is empty", exception.getMessage());
-        assertEquals(404, exception.getCode().value());
+        assertEquals(400, exception.getCode().value());
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
@@ -247,7 +273,7 @@ public class JWTUtilsTests {
         Key actualKey = jwtUtils.getKey();
 
         assertNotNull(actualKey);
-        assertEquals("HmacSHA512", actualKey.getAlgorithm());
+        assertEquals(TEST_ALGORITHM, actualKey.getAlgorithm());
     }
 
     @Test
@@ -309,7 +335,7 @@ public class JWTUtilsTests {
         );
 
         assertEquals("Unsupported JWT token: ", exception.getMessage());
-        assertEquals(404, exception.getCode().value());
+        assertEquals(400, exception.getCode().value());
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 }
