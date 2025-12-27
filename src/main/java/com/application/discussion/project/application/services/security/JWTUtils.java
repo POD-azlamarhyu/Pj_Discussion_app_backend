@@ -213,7 +213,9 @@ public class JWTUtils {
             logger.error("The JWT token secret must be at least {} bits long", TOKEN_SECRET_LENGTH);
             return Jwts.SIG.HS512.key().build();
         }
-        return Keys.hmacShaKeyFor(keyBytes);
+        Key key = Keys.hmacShaKeyFor(keyBytes);
+        logger.debug("Generated signing key using algorithm: {}", key.getAlgorithm());
+        return key;
     }
 
     /**
