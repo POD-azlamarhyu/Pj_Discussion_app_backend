@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
 import com.application.discussion.project.application.dtos.users.LogoutResponseDTO;
+import com.application.discussion.project.application.services.security.JWTAuthUserDetails;
 import com.application.discussion.project.application.services.security.JWTUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,6 +32,7 @@ public class AuthLogoutServiceImplTests {
     private static final String TEST_COOKIE_PATH = "/";
     private static final String EXPECTED_SUCCESS_MESSAGE = "ログアウトに成功しました";
     private static final String EXPECTED_ERROR_MESSAGE = "ログアウト処理中に認証情報が見つかりません。";
+    private static final String UNKNOWN_USER = "不明なユーザ";
 
     @Mock
     private JWTUtils mockJwtUtils;
@@ -40,6 +42,9 @@ public class AuthLogoutServiceImplTests {
 
     @Mock
     private SecurityContext mockSecurityContext;
+    
+    @Mock
+    private JWTAuthUserDetails mockUserDetails;
 
     @InjectMocks
     private AuthLogoutServiceImpl authLogoutService;
@@ -68,9 +73,10 @@ public class AuthLogoutServiceImplTests {
     @DisplayName("認証済みユーザーが正常にログアウトできること")
     void serviceSuccessfullyLogsOutAuthenticatedUser() {
         when(mockSecurityContext.getAuthentication()).thenReturn(mockAuthentication);
-        when(mockAuthentication.getName()).thenReturn(TEST_USERNAME);
-        when(mockAuthentication.isAuthenticated()).thenReturn(true);
         mockedSecurityContextHolder.when(SecurityContextHolder::getContext).thenReturn(mockSecurityContext);
+        when(mockAuthentication.isAuthenticated()).thenReturn(true);
+        when(mockAuthentication.getPrincipal()).thenReturn(mockUserDetails);
+        when(mockUserDetails.getUsername()).thenReturn(TEST_USERNAME);
         when(mockJwtUtils.getClearJwtCookie()).thenReturn(mockClearCookie);
 
         LogoutResponseDTO actualResponse = authLogoutService.service();
@@ -129,8 +135,9 @@ public class AuthLogoutServiceImplTests {
     @DisplayName("SecurityContextがクリアされること")
     void serviceSuccessfullyClearsSecurityContext() {
         when(mockSecurityContext.getAuthentication()).thenReturn(mockAuthentication);
-        when(mockAuthentication.getName()).thenReturn(TEST_USERNAME);
         when(mockAuthentication.isAuthenticated()).thenReturn(true);
+        when(mockAuthentication.getPrincipal()).thenReturn(mockUserDetails);
+        when(mockUserDetails.getUsername()).thenReturn(TEST_USERNAME);
         mockedSecurityContextHolder.when(SecurityContextHolder::getContext).thenReturn(mockSecurityContext);
         when(mockJwtUtils.getClearJwtCookie()).thenReturn(mockClearCookie);
 
@@ -143,8 +150,9 @@ public class AuthLogoutServiceImplTests {
     @DisplayName("JWTUtilsのgetClearJwtCookieが正しく呼び出されること")
     void serviceCallsGetClearJwtCookieCorrectly() {
         when(mockSecurityContext.getAuthentication()).thenReturn(mockAuthentication);
-        when(mockAuthentication.getName()).thenReturn(TEST_USERNAME);
         when(mockAuthentication.isAuthenticated()).thenReturn(true);
+        when(mockAuthentication.getPrincipal()).thenReturn(mockUserDetails);
+        when(mockUserDetails.getUsername()).thenReturn(TEST_USERNAME);
         mockedSecurityContextHolder.when(SecurityContextHolder::getContext).thenReturn(mockSecurityContext);
         when(mockJwtUtils.getClearJwtCookie()).thenReturn(mockClearCookie);
 
@@ -157,8 +165,9 @@ public class AuthLogoutServiceImplTests {
     @DisplayName("返されるLogoutResponseDTOのtoStringメソッドが正常に動作すること")
     void serviceReturnsValidLogoutResponseDTOWithToString() {
         when(mockSecurityContext.getAuthentication()).thenReturn(mockAuthentication);
-        when(mockAuthentication.getName()).thenReturn(TEST_USERNAME);
         when(mockAuthentication.isAuthenticated()).thenReturn(true);
+        when(mockAuthentication.getPrincipal()).thenReturn(mockUserDetails);
+        when(mockUserDetails.getUsername()).thenReturn(TEST_USERNAME);
         mockedSecurityContextHolder.when(SecurityContextHolder::getContext).thenReturn(mockSecurityContext);
         when(mockJwtUtils.getClearJwtCookie()).thenReturn(mockClearCookie);
 
@@ -175,22 +184,24 @@ public class AuthLogoutServiceImplTests {
     @DisplayName("認証情報からユーザー名が正しく取得されること")
     void serviceExtractsUsernameCorrectlyFromAuthentication() {
         when(mockSecurityContext.getAuthentication()).thenReturn(mockAuthentication);
-        when(mockAuthentication.getName()).thenReturn(TEST_USERNAME);
         when(mockAuthentication.isAuthenticated()).thenReturn(true);
+        when(mockAuthentication.getPrincipal()).thenReturn(mockUserDetails);
+        when(mockUserDetails.getUsername()).thenReturn(TEST_USERNAME);
         mockedSecurityContextHolder.when(SecurityContextHolder::getContext).thenReturn(mockSecurityContext);
         when(mockJwtUtils.getClearJwtCookie()).thenReturn(mockClearCookie);
 
         authLogoutService.service();
 
-        verify(mockAuthentication, times(1)).getName();
+        verify(mockUserDetails, times(1)).getUsername();
     }
 
     @Test
     @DisplayName("複数回ログアウト処理を実行しても正常に動作すること")
     void serviceWorksCorrectlyWhenCalledMultipleTimes() {
         when(mockSecurityContext.getAuthentication()).thenReturn(mockAuthentication);
-        when(mockAuthentication.getName()).thenReturn(TEST_USERNAME);
         when(mockAuthentication.isAuthenticated()).thenReturn(true);
+        when(mockAuthentication.getPrincipal()).thenReturn(mockUserDetails);
+        when(mockUserDetails.getUsername()).thenReturn(TEST_USERNAME);
         mockedSecurityContextHolder.when(SecurityContextHolder::getContext).thenReturn(mockSecurityContext);
         when(mockJwtUtils.getClearJwtCookie()).thenReturn(mockClearCookie);
 
@@ -202,5 +213,45 @@ public class AuthLogoutServiceImplTests {
         assertEquals(firstResponse.getLogoutResponse().getMessage(), secondResponse.getLogoutResponse().getMessage());
         verify(mockJwtUtils, times(2)).getClearJwtCookie();
         mockedSecurityContextHolder.verify(SecurityContextHolder::clearContext, times(2));
+    }
+
+    @Test
+    @DisplayName("PrincipalがJWTAuthUserDetails型でない場合に例外がスローされること")
+    void serviceThrowsExceptionWhenPrincipalIsNotJWTAuthUserDetails() {
+        when(mockSecurityContext.getAuthentication()).thenReturn(mockAuthentication);
+        when(mockAuthentication.getPrincipal()).thenReturn("anonymousUser");
+        when(mockAuthentication.isAuthenticated()).thenReturn(true);
+        mockedSecurityContextHolder.when(SecurityContextHolder::getContext).thenReturn(mockSecurityContext);
+
+        ApplicationLayerException exception = assertThrows(
+            ApplicationLayerException.class,
+            () -> authLogoutService.service()
+        );
+
+        assertEquals(EXPECTED_ERROR_MESSAGE, exception.getMessage());
+        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatus());
+        
+        verify(mockJwtUtils, never()).getClearJwtCookie();
+        mockedSecurityContextHolder.verify(SecurityContextHolder::clearContext, never());
+    }
+
+    @Test
+    @DisplayName("Principalがnullの場合に例外がスローされること")
+    void serviceThrowsExceptionWhenPrincipalIsNull() {
+        when(mockSecurityContext.getAuthentication()).thenReturn(mockAuthentication);
+        when(mockAuthentication.getPrincipal()).thenReturn(null);
+        when(mockAuthentication.isAuthenticated()).thenReturn(true);
+        mockedSecurityContextHolder.when(SecurityContextHolder::getContext).thenReturn(mockSecurityContext);
+
+        ApplicationLayerException exception = assertThrows(
+            ApplicationLayerException.class,
+            () -> authLogoutService.service()
+        );
+
+        assertEquals(EXPECTED_ERROR_MESSAGE, exception.getMessage());
+        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatus());
+        
+        verify(mockJwtUtils, never()).getClearJwtCookie();
+        mockedSecurityContextHolder.verify(SecurityContextHolder::clearContext, never());
     }
 }
