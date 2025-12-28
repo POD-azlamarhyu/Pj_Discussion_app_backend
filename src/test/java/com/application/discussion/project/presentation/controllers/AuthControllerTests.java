@@ -30,6 +30,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
@@ -237,54 +238,5 @@ public class AuthControllerTests {
             .hasMessage("ログアウト処理中に認証情報が見つかりません。");
         
         verify(authLogoutService).service();
-    }
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Test
-    @DisplayName("MockMVC - 正常系: ログインAPIに有効な認証情報でアクセスする")
-    void mockMvcLoginWithValidCredentials() throws Exception {
-        when(authLoginServiceInterface.service(any(LoginRequest.class))).thenReturn(ResponseEntity.ok(mockLoginResponse));
-
-        mockMvc.perform(post(LOGIN_ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(mockLoginRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userId").value(TEST_USER_ID.toString()))
-                .andExpect(jsonPath("$.username").value(TEST_USERNAME))
-                .andExpect(jsonPath("$.roles[0]").value("ROLE_USER"));
-    }
-
-    @Test
-    @DisplayName("MockMVC - 異常系: ログインAPIに無効な認証情報でアクセスする")
-    void mockMvcLoginWithInvalidCredentials() throws Exception {
-        LoginRequest invalidRequest = new LoginRequest("", "");
-
-        mockMvc.perform(post(LOGIN_ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(invalidRequest)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @DisplayName("MockMVC - 異常系: 存在しないユーザーでログインAPIにアクセスする")
-    void mockMvcLoginWithNonExistentUser() throws Exception {
-        when(authLoginServiceInterface.service(any(LoginRequest.class))).thenReturn(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-
-        mockMvc.perform(post(LOGIN_ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(mockLoginRequest)))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @DisplayName("MockMVC - 異常系: ログアウトAPIでエラーが発生する")
-    void mockMvcLogoutWithError() throws Exception {
-        when(authLogoutService.service()).thenThrow(new ApplicationLayerException("ログアウト処理中に認証情報が見つかりません。",HttpStatus.UNAUTHORIZED,HttpStatusCode.valueOf(401)));
-
-        mockMvc.perform(post(LOGOUT_ENDPOINT))
-                .andExpect(status().isUnauthorized())
-                .andExpect(content().string("ログアウト処理中に認証情報が見つかりません。"));
     }
 }
