@@ -3,6 +3,7 @@ package com.application.discussion.project.presentation.controllers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,7 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.application.discussion.project.application.dtos.users.LoginRequest;
 import com.application.discussion.project.application.dtos.users.LoginResponse;
+import com.application.discussion.project.application.dtos.users.LogoutResponse;
+import com.application.discussion.project.application.dtos.users.LogoutResponseDTO;
 import com.application.discussion.project.application.services.users.AuthLoginServiceInterface;
+import com.application.discussion.project.application.services.users.AuthLogoutService;
 import com.application.discussion.project.presentation.validations.AuthLoginRequestValidation;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,6 +24,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 
 @Tag(name="authentication",description = "Authentication API")
@@ -29,6 +35,9 @@ public class AuthController {
     
     @Autowired
     private AuthLoginServiceInterface AuthLoginServiceInterface;
+
+    @Autowired
+    private AuthLogoutService authLogoutService;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -88,28 +97,44 @@ public class AuthController {
         );
     }
     
-    @Operation(summary = "logout from application",tags = {"authentication"})
+    @Operation(
+        summary = "ユーザーログアウト",
+        description = "現在ログイン中のユーザーをログアウトさせます。" +
+        "セキュリティコンテキストをクリアし、CookieからJWTトークンを削除します。",
+        tags = {"authentication"}
+    )
     @ApiResponses(
         value = {
             @ApiResponse(
                 responseCode = "200",
-                description = "logout successful",
+                description = "ログアウト成功 - セッションとトークンが正常に削除されました",
                 content = @Content(
-                    schema = @Schema(implementation = ResponseEntity.class),
+                    schema = @Schema(implementation = LogoutResponse.class),
                     mediaType = "application/json"
                 )
             ),
-            @ApiResponse(responseCode = "401",description = "Not authorized",content = @Content),
-            @ApiResponse(responseCode = "403",description = "Forbidden",content = @Content),
             @ApiResponse(
-                responseCode = "404",
-                description = "Not Found",
+                responseCode = "401",
+                description = "未認証 - ログインしていないか、トークンが無効です",
+                content = @Content
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "アクセス禁止 - ログアウト権限がありません",
                 content = @Content
             )
         }
     )
     @PostMapping("/logout")
-    public void logout(){}
+    public ResponseEntity<LogoutResponse> logout() {
+        logger.info("ログアウトリクエストを受信しました");
+        
+        LogoutResponseDTO logoutResponseDTO = authLogoutService.service();
+        
+        return ResponseEntity.status(HttpStatus.OK)
+            .header("Set-Cookie", logoutResponseDTO.getJwtCookie().toString())
+            .body(logoutResponseDTO.getLogoutResponse());
+    }
     
     @Operation(summary = "refresh access token jwt",tags = {"authentication"})
     @ApiResponses(

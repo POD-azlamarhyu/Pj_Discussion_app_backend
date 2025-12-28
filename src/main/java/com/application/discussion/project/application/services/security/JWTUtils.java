@@ -4,6 +4,7 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -26,6 +27,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * JWTトークンの生成、検証、抽出を行うユーティリティクラス
@@ -35,7 +37,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public class JWTUtils {
     private static final Logger logger = LoggerFactory.getLogger(JWTUtils.class);
 
-    private static final Integer TOKEN_SECRET_LENGTH = 512;
+    private static final Integer TOKEN_SECRET_LENGTH = 256;
     private static final Integer TOKEN_SECRET_BYTE_LENGTH = TOKEN_SECRET_LENGTH / 8;
 
     @Value("${springboot.app.authentication.jwt.token.expiration}")
@@ -46,6 +48,10 @@ public class JWTUtils {
     private String jwtCookieName;
     @Value("${springboot.app.cookies.path}")
     private String jwtCookiesPath;
+    @Value("${springboot.app.cookies.httpOnly}")
+    private Boolean isCookieHttpOnly;
+    @Value("${springboot.app.cookies.secure}")
+    private Boolean isCookieSecure;
 
     /**
      * HTTPリクエストのAuthorizationヘッダーからJWTトークンを抽出する
@@ -73,6 +79,8 @@ public class JWTUtils {
         logger.info("Extracting JWT from cookies");
         
         Cookie[] cookies = httpServletRequest.getCookies();
+
+        logger.info("Cookies: {}",Arrays.toString(cookies));
         
         return Optional.ofNullable(cookies)
                 .stream()
@@ -92,6 +100,7 @@ public class JWTUtils {
      */
     public String generateToken(final JWTAuthUserDetails userDetails) {
         logger.info("Generating JWT token for user: {} {}", userDetails.getUsername(), userDetails.getEmail());
+        logger.info("create jwt token: user details={}", userDetails.toString());
         
         return Jwts.builder()
                 .subject(userDetails.getLoginId() != null ? userDetails.getLoginId() : userDetails.getEmail())
@@ -111,6 +120,7 @@ public class JWTUtils {
      * @return トークンのsubjectに設定されているメールアドレスまたはログインID
      */
     public String getEmailOrLoginId(final String token){
+        logger.info("Extracting email or login ID from JWT token");
         return Jwts.parser()
                 .verifyWith((SecretKey) getKey())
                 .build()
@@ -200,11 +210,32 @@ public class JWTUtils {
     public Key getKey(){
         logger.info("Retrieving signing key for JWT token");
         byte[] keyBytes = Decoders.BASE64.decode(jwtTokenSecret);
+        logger.info("Decoded JWT token secret, length: {} bytes", keyBytes.length);
 
         if (keyBytes.length < TOKEN_SECRET_BYTE_LENGTH){
             logger.error("The JWT token secret must be at least {} bits long", TOKEN_SECRET_LENGTH);
             return Jwts.SIG.HS512.key().build();
         }
-        return Keys.hmacShaKeyFor(keyBytes);
+        Key key = Keys.hmacShaKeyFor(keyBytes);
+        logger.info("Generated signing key using algorithm: {}", key.getAlgorithm());
+        return key;
+    }
+
+    /**
+     * JWTトークンが格納されているCookieを削除する
+     * 
+     * @param response HTTPレスポンス
+     */
+    public ResponseCookie getClearJwtCookie() {
+        logger.info("Clearing JWT token cookie");
+        ResponseCookie cookie = ResponseCookie.from(jwtCookieName, "")
+                .path(jwtCookiesPath)
+                .maxAge(0)
+                .httpOnly(isCookieHttpOnly)
+                .secure(isCookieSecure)
+                .sameSite(SameSiteCookies.STRICT.name())
+                .build();
+        logger.info("remove jwt token cookie: {}", jwtCookieName);
+        return cookie;
     }
 }
