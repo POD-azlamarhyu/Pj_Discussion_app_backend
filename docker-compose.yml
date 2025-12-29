@@ -58,7 +58,8 @@ services:
     tty: true
     volumes:
       - .:${LOCALDEV_WORKDIR}
-    command: ./gradlew clean bootRun
+      - gradle_cache:/home/${JAVA_CONTAINER_USER}/.gradle
+    command: ./gradlew clean bootRun --no-daemon
     ports:
       - "${API_PORT}:${API_PORT}"
       - "${DEBUG_PORT}:${DEBUG_PORT}"
@@ -75,3 +76,4 @@ services:
 volumes:
   dbdata:
   pgadmindata:
+  gradle_cache:
