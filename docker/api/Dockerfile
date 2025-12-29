@@ -7,5 +7,11 @@ ARG APP_NAME
 ARG BUILD_WORKDIR
 
 WORKDIR ${LOCALDEV_WORKDIR}
-RUN apt-get update && apt-get upgrade -y
+RUN adduser -D ${JAVA_CONTAINER_USER} && \
+    chown -R ${JAVA_CONTAINER_USER} ${LOCALDEV_WORKDIR}
+USER ${JAVA_CONTAINER_USER_ID}
+
+COPY gradlew build.gradle setting.gradle ${LOCALDEV_WORKDIR}/
+COPY gradle ${LOCALDEV_WORKDIR}/gradle
+
 EXPOSE ${API_PORT}
