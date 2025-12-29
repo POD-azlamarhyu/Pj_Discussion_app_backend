@@ -8,10 +8,12 @@ ARG BUILD_WORKDIR
 
 WORKDIR ${LOCALDEV_WORKDIR}
 RUN adduser -D ${JAVA_CONTAINER_USER} && \
-    chown -R ${JAVA_CONTAINER_USER} ${LOCALDEV_WORKDIR}
-USER ${JAVA_CONTAINER_USER_ID}
+    chown -R ${JAVA_CONTAINER_USER} .${LOCALDEV_WORKDIR}/
+USER ${JAVA_CONTAINER_USER}
 
-COPY gradlew build.gradle setting.gradle ${LOCALDEV_WORKDIR}/
-COPY gradle ${LOCALDEV_WORKDIR}/gradle
+COPY gradlew build.gradle setting.gradle .${LOCALDEV_WORKDIR}/
+COPY gradle .${LOCALDEV_WORKDIR}/gradle
+
+RUN ./gradlew dependencies --no-daemon || true
 
 EXPOSE ${API_PORT}
