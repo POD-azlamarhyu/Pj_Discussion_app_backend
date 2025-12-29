@@ -59,7 +59,8 @@ services:
     volumes:
       - .:${LOCALDEV_WORKDIR}
       - gradle_cache:/home/${JAVA_CONTAINER_USER}/.gradle
-    command: ./gradlew clean bootRun --no-daemon
+    user: "${JAVA_CONTAINER_USER_ID}:${JAVA_CONTAINER_USER_ID}"
+    command: ./gradlew bootRun --no-daemon
     ports:
       - "${API_PORT}:${API_PORT}"
       - "${DEBUG_PORT}:${DEBUG_PORT}"
@@ -72,6 +73,7 @@ services:
       - db
     links:
       - db
+    restart: no
 
 volumes:
   dbdata:
