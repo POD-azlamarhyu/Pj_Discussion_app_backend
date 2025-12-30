@@ -6,13 +6,20 @@ ARG JAVA_CONTAINER_USER_ID
 ARG APP_NAME
 ARG BUILD_WORKDIR
 
-WORKDIR ${LOCALDEV_WORKDIR}
-RUN adduser -D ${JAVA_CONTAINER_USER} && \
-    chown -R ${JAVA_CONTAINER_USER} .${LOCALDEV_WORKDIR}/
-USER ${JAVA_CONTAINER_USER}
+RUN if ! getent group ${JAVA_CONTAINER_USER_ID} > /dev/null 2>&1; then \
+        groupadd -g ${JAVA_CONTAINER_USER_ID} ${JAVA_CONTAINER_USER}; \
+    fi && \
+    if ! id -u ${JAVA_CONTAINER_USER_ID} > /dev/null 2>&1; then \ 
+        useradd -u ${JAVA_CONTAINER_USER_ID} -g ${JAVA_CONTAINER_USER} -m ${JAVA_CONTAINER_USER}; \
+    fi && \
+    useradd -g ${JAVA_CONTAINER_USER_ID} -m ${JAVA_CONTAINER_USER}
 
-COPY gradlew build.gradle setting.gradle .${LOCALDEV_WORKDIR}/
-COPY gradle .${LOCALDEV_WORKDIR}/gradle
+WORKDIR ${LOCALDEV_WORKDIR}
+
+COPY --chown=${JAVA_CONTAINER_USER_ID}:${JAVA_CONTAINER_USER_ID} gradlew build.gradle settings.gradle ./
+COPY --chown=${JAVA_CONTAINER_USER_ID}:${JAVA_CONTAINER_USER_ID} gradle ./gradle
+
+USER ${JAVA_CONTAINER_USER_ID}
 
 RUN ./gradlew dependencies --no-daemon || true
 
