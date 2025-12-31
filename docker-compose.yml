@@ -18,6 +18,8 @@ services:
       - POSTGRES_DB=${POSTGRE_DB}
       - POSTGRES_USER=${POSTGRE_ADMIN}
       - POSTGRES_PASSWORD=${POSTGRE_PW}
+    networks:
+      - local-app-network
 
   pgadmin:
     build: 
@@ -39,11 +41,13 @@ services:
       - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
     depends_on:
       - db
+    networks:
+      - local-app-network
 
   java:
     build:
       context: .
-      dockerfile: ./docker/api/Dockerfile
+      dockerfile: ./docker/java/Dockerfile
       args:
         - API_PORT=${API_PORT}
         - LOCALDEV_WORKDIR=${LOCALDEV_WORKDIR}
@@ -52,15 +56,14 @@ services:
         - JAVA_CONTAINER_USER=${JAVA_CONTAINER_USER}
         - APP_NAME=${APP_NAME}
         - JAVA_CONTAINER_USER_ID=${JAVA_CONTAINER_USER_ID}
+        - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
     container_name: pj2024_api
     env_file:
       - .env
     tty: true
     volumes:
-      - .:${LOCALDEV_WORKDIR}
       - gradle_cache:/home/${JAVA_CONTAINER_USER}/.gradle
     user: "${JAVA_CONTAINER_USER_ID}:${JAVA_CONTAINER_USER_ID}"
-    command: ./gradlew bootRun --no-daemon
     ports:
       - "${API_PORT}:${API_PORT}"
       - "${DEBUG_PORT}:${DEBUG_PORT}"
@@ -74,6 +77,12 @@ services:
     links:
       - db
     restart: no
+    networks:
+      - local-app-network
+
+networks:
+  local-app-network:
+    driver: bridge
 
 volumes:
   dbdata:
