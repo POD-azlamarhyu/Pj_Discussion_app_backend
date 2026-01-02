@@ -55,6 +55,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
             request.getEmail(),
             request.getPassword()
         );
+        logger.info("New user instance created: userId={}, userName={}", newUser.getUserId(), newUser.getUserName());
         final Password hashedPassword = Password.reBuildHashed(
             passwordEncoder.encode(newUser.getPassword().value())
         );
@@ -67,10 +68,10 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
             logger.error("Password hashing failed for user: {}", userEntityWithHashPassword.getLoginId());
             throw new ApplicationLayerException("不明なエラーが発生しました", HttpStatus.INTERNAL_SERVER_ERROR, HttpStatusCode.valueOf(500));
         }
-
+        logger.info("Saving new user to the repository: {}", userEntityWithHashPassword.toString());
         final User savedUser = usersRepositoryInterface.save(userEntityWithHashPassword);
         
-        logger.info("ユーザー登録が完了しました: userId={}", savedUser.getUserId());
+        logger.info("Complete user registration: userId={}", savedUser.toString());
 
         return SignUpResponse.of(
             savedUser.getUserId().toString(),
