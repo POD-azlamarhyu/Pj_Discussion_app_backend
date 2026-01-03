@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+
+import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
 
 
 public class Role {
@@ -33,7 +36,8 @@ public class Role {
     ) {
         logger.info("Creating Role with ID: {}, Name: {}", roleId, roleName);
         if (roleId == null) {
-            throw new IllegalArgumentException("Role ID cannot be null");
+            logger.error("Failed to create Role: roleId is null");
+            throw new DomainLayerErrorException("エラーが発生しました",HttpStatus.INTERNAL_SERVER_ERROR,HttpStatus.valueOf(500));
         }
         this.roleId = roleId;
         this.roleName = roleName;
