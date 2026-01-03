@@ -1,6 +1,7 @@
 package com.application.discussion.project.domain.entities.users;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ public class Role {
         LocalDateTime deletedAt
     ) {
         logger.info("Creating Role with ID: {}, Name: {}", roleId, roleName);
-        if (roleId == null) {
+        if (Objects.isNull(roleId)) {
             logger.error("Failed to create Role: roleId is null");
             throw new DomainLayerErrorException("エラーが発生しました",HttpStatus.INTERNAL_SERVER_ERROR,HttpStatus.valueOf(500));
         }
