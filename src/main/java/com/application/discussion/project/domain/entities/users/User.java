@@ -43,7 +43,6 @@ public class User {
      * @param isActive  Indicates if the user is active.
      * @param isDeleted Indicates if the user is deleted.
      */
-
     private User(
         UUID userId,
         UserName userName,
@@ -286,5 +285,29 @@ public class User {
      */
     public Boolean getIsDeleted() {
         return isDeleted;
+    }
+
+    /**
+     * オブジェクトの文字列表現を返す
+     * @return オブジェクトの文字列表現
+     */
+    @Override
+    public String toString() {
+        String toStringLoginId = Objects.nonNull(this.loginId) ? this.loginId.value() : "null";
+        String toStringUpdatedAt = Objects.nonNull(this.updatedAt) ? this.updatedAt.toString() : "null";
+        String toStringDeletedAt = Objects.nonNull(this.deletedAt) ? this.deletedAt.toString() : "null";
+        
+        return "User{" +
+            "userId=" + this.userId.toString() +
+            ", userName=" + this.userName.value() +
+            ", email=" + this.email.value() +
+            ", password=************" +
+            ", loginId=" + toStringLoginId +
+            ", createdAt=" + this.createdAt +
+            ", updatedAt=" + toStringUpdatedAt +
+            ", deletedAt=" + toStringDeletedAt +
+            ", isActive=" + isActive +
+            ", isDeleted=" + isDeleted +
+            '}';
     }
 }
