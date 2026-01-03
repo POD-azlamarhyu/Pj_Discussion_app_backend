@@ -39,8 +39,8 @@ public class UserRegistrationDomainServiceImpl implements UserRegistrationDomain
             logger.error("Email duplication detected: email={}", email.value());
             throw new DomainLayerErrorException(
                 "このメールアドレスは既に登録されています",
-                HttpStatus.BAD_REQUEST,
-                HttpStatusCode.valueOf(400)
+                HttpStatus.CONFLICT,
+                HttpStatusCode.valueOf(409)
             );
         }
         
