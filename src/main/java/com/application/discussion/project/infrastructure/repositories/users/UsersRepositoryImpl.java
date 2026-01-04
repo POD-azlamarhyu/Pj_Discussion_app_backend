@@ -101,6 +101,7 @@ public class UsersRepositoryImpl implements UsersRepositoryInterface{
         usersModel.setLoginId(userEntity.getLoginId().value());
         usersModel.setEmail(userEntity.getEmail().value());
         usersModel.setPassword(userEntity.getPassword().value());
+        usersModel.setUsername(userEntity.getUserName().value());
         usersModel.setCreatedAt(userEntity.getCreatedAt());
         usersModel.setUpdatedAt(userEntity.getUpdatedAt());
         usersModel.setDeletedAt(userEntity.getDeletedAt());
