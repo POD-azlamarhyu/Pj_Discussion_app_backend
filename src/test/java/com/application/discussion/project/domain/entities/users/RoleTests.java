@@ -1,10 +1,11 @@
 package com.application.discussion.project.domain.entities.users;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
 import com.application.discussion.project.domain.valueobjects.users.RoleAdmin;
 import com.application.discussion.project.domain.valueobjects.users.RoleNormalUser;
 import com.application.discussion.project.domain.valueobjects.users.RoleType;
@@ -12,42 +13,40 @@ import com.application.discussion.project.domain.valueobjects.users.RoleType;
 @DisplayName("Roleドメインエンティティのテスト")
 class RoleTests {
 
-    private static final String VALID_ROLE_NAME = "ADMIN";
+    private static final String ADMIN_ROLE_VALUE = "ADMIN";
+    private static final String USER_ROLE_VALUE = "USER";
+    private static final String EMPTY_ROLE_VALUE = "";
+
     private final RoleType adminRole = RoleAdmin.create();
-    private final RoleType NormalRole = RoleNormalUser.create();
+    private final RoleType normalRole = RoleNormalUser.create();
 
     @Test
-    @DisplayName("createメソッドは有効な入力でRoleインスタンスを返す")
-    void create_ShouldReturnRole_WhenValidRoleName() {
-        Role actualRole = Role.create(adminRole.getRoleValue(),adminRole);
+    @DisplayName("create_有効なロール値でRoleインスタンスが生成される")
+    void createReturnsRoleInstanceWhenValidRoleValue() {
+        Role actualRole = Role.create(ADMIN_ROLE_VALUE, adminRole);
 
         assertThat(actualRole).isNotNull();
     }
 
     @Test
-    @DisplayName("createメソッドは'USER'のロール名でRoleインスタンスを返す")
-    void create_ShouldReturnRole_WhenRoleNameIsUser() {
-
-        Role actualRole = Role.create(NormalRole.getRoleValue(),NormalRole);
-
-        assertThat(actualRole).isNotNull();
-    }
-
-    @Test
-    @DisplayName("createメソッドは空のロール名でRoleインスタンスを返す")
-    void create_ShouldReturnRole_WhenRoleNameIsEmpty() {
-        String emptyRoleName = "";
-
-        Role actualRole = Role.create(emptyRoleName,NormalRole);
+    @DisplayName("create_USER ロール値でRoleインスタンスが生成される")
+    void createReturnsRoleInstanceWhenRoleValueIsUser() {
+        Role actualRole = Role.create(USER_ROLE_VALUE, normalRole);
 
         assertThat(actualRole).isNotNull();
     }
 
     @Test
-    @DisplayName("createメソッドはnullのロール名でRoleインスタンスを返す")
-    void create_ShouldReturnRole_WhenRoleNameIsNull() {
-        Role actualRole = Role.create(null,NormalRole);
+    @DisplayName("create_空のロール値の場合に例外がスローされる")
+    void createThrowsExceptionWhenRoleValueIsEmpty() {
+        assertThatThrownBy(() -> Role.create(EMPTY_ROLE_VALUE, normalRole))
+                .isInstanceOf(DomainLayerErrorException.class);
+    }
 
-        assertThat(actualRole).isNotNull();
+    @Test
+    @DisplayName("create_nullのロール値の場合に例外がスローされる")
+    void createThrowsExceptionWhenRoleValueIsNull() {
+        assertThatThrownBy(() -> Role.create(null, normalRole))
+                .isInstanceOf(DomainLayerErrorException.class);
     }
 }
