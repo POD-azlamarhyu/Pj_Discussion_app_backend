@@ -21,6 +21,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
 import com.application.discussion.project.domain.entities.users.Role;
+import com.application.discussion.project.domain.valueobjects.users.RoleNormalUser;
 import com.application.discussion.project.infrastructure.models.users.Users;
 
 import io.jsonwebtoken.Jwts;
@@ -82,7 +83,8 @@ public class JWTUtilsTests {
             TEST_ROLE_NAME,
             null,
             null,
-            null
+            null,
+            RoleNormalUser.create()
         );
         testRoles = Set.of(testRole);
 
