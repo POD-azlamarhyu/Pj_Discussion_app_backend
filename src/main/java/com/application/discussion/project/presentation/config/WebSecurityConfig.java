@@ -69,7 +69,8 @@ public class WebSecurityConfig {
                 "/configuration/**",
                 "/webjars/**",
                 "/api-docs/**",
-                "/v1/auth/login"
+                "/v1/auth/login",
+                "/v1/users/signup"
             ).permitAll()
             .anyRequest().authenticated()
             );

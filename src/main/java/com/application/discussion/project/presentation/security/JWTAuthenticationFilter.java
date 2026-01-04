@@ -28,6 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     private final AntPathRequestMatcher requestMatcher = new AntPathRequestMatcher("/v1/auth/login","POST");
+    private final AntPathRequestMatcher signupMatcher = new AntPathRequestMatcher("/v1/users/signup","POST");
 
     private static final List<String> PUBLIC_PATHS = Arrays.asList(
         "/v3/api-docs/**",
@@ -45,8 +46,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         "/configuration",
         "/webjars",
         "/api-docs",
-        "/maintopics",
-        "/v1/auth/login"
+        "/maintopics"
     );
 
     private static final Logger logger = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
@@ -66,6 +66,12 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         String requestURI=httpServletRequest.getRequestURI();
         logger.debug("called for URI : {}",requestURI);
 
+        if (requestMatcher.matches(httpServletRequest) || signupMatcher.matches(httpServletRequest)) {
+            logger.debug("Skipping JWT authentication for login request: {}", requestURI);
+            filterChain.doFilter(httpServletRequest, httpServletResponse);
+            return;
+        }
+
         /**
          * * パブリックパスの場合は認証をスキップする
          * * 例: Swagger UIやログインエンドポイント
@@ -75,12 +81,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
          */
         if (isPublicPath(requestURI)) {
             logger.debug("Skipping JWT authentication for public path: {}", requestURI);
-            filterChain.doFilter(httpServletRequest, httpServletResponse);
-            return;
-        }
-
-        if (requestMatcher.matches(httpServletRequest)) {
-            logger.debug("Skipping JWT authentication for login request: {}", requestURI);
             filterChain.doFilter(httpServletRequest, httpServletResponse);
             return;
         }
@@ -107,6 +107,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(httpServletRequest, httpServletResponse);
+        logger.info("JWT authentication completed for user: {} with ID: {}", emailOrLoginId, userId);
         return;
     }
 

@@ -88,7 +88,7 @@ public class JWTAuthUserDetails implements UserDetails {
      */
     public static JWTAuthUserDetails build(Users user, Set<Role> roles){
         logger.info("Building JWTAuthUserDetails for user: {}", user.getUsername());
-        List<GrantedAuthority> authorities = roles.stream().map(role -> new SimpleGrantedAuthority(role.getRoleName())).collect(Collectors.toList());
+        List<GrantedAuthority> authorities = roles.stream().map(role -> new SimpleGrantedAuthority(role.getRoleName().getValue())).collect(Collectors.toList());
 
         logger.info("Authorities assigned: {}", authorities);
         return new JWTAuthUserDetails(

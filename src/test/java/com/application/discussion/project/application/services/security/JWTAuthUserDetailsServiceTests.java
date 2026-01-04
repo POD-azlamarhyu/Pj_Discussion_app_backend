@@ -24,6 +24,8 @@ import com.application.discussion.project.application.dtos.exceptions.Applicatio
 import com.application.discussion.project.domain.entities.users.Role;
 import com.application.discussion.project.domain.repositories.users.RolesRepositoryInterface;
 import com.application.discussion.project.domain.repositories.users.UsersRepositoryInterface;
+import com.application.discussion.project.domain.valueobjects.users.RoleAdmin;
+import com.application.discussion.project.domain.valueobjects.users.RoleNormalUser;
 import com.application.discussion.project.infrastructure.models.users.Roles;
 import com.application.discussion.project.infrastructure.models.users.Users;
 
@@ -66,7 +68,8 @@ public class JWTAuthUserDetailsServiceTests {
             TEST_ROLE_NAME,
             null,
             null,
-            null
+            null,
+            RoleNormalUser.create()
         );
         testRolesSet = Set.of(testRole);
     }
@@ -124,11 +127,12 @@ public class JWTAuthUserDetailsServiceTests {
     @DisplayName("複数のロールを持つユーザーを正常にロードできること")
     void loadUserByUsername_WithMultipleRoles_ReturnsUserDetailsWithAllRoles() {
         Role adminRole = Role.of(
-                2, 
-                "ROLE_ADMIN", 
-                null,
-                null, 
-                null
+            2, 
+            "ROLE_ADMIN", 
+            null,
+            null, 
+            null,
+            RoleAdmin.create()
         );
         Set<Role> multipleRoles = Set.of(testRole, adminRole);
 

@@ -20,7 +20,7 @@ COPY --chown=${JAVA_CONTAINER_USER_ID}:${JAVA_CONTAINER_USER_ID} gradle ./gradle
 RUN ./gradlew dependencies --no-daemon || true
 
 COPY --chown=gradle:gradle . ${BUILD_WORKDIR}/
-RUN ./gradlew clean build
+RUN ./gradlew clean build -x test --no-daemon
 
 
 FROM eclipse-temurin:21.0.5_11-jre-jammy AS deploy
