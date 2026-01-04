@@ -16,6 +16,7 @@ class EmailTests {
     private static final String VALID_SUBDOMAIN_EMAIL = "user@mail.example.com";
     private static final String VALID_MIN_LENGTH_EMAIL = "a@b.jp";
     private static final String ERROR_MESSAGE = "メールアドレスの形式が正しくありません";
+    private static final String ERROR_MESSAGE_EMPTY = "メールアドレスが空です";
 
     @Test
     @DisplayName("有効なメールアドレス（.jp）でEmail値オブジェクトが生成できる")
@@ -56,7 +57,7 @@ class EmailTests {
 
         assertThatThrownBy(() -> Email.of(invalidEmail))
             .isInstanceOf(DomainLayerErrorException.class)
-            .hasMessage(ERROR_MESSAGE);
+            .hasMessage(ERROR_MESSAGE_EMPTY);
     }
 
     @Test
@@ -66,7 +67,7 @@ class EmailTests {
 
         assertThatThrownBy(() -> Email.of(invalidEmail))
             .isInstanceOf(DomainLayerErrorException.class)
-            .hasMessage(ERROR_MESSAGE);
+            .hasMessage(ERROR_MESSAGE_EMPTY);
     }
 
     @Test
@@ -76,7 +77,7 @@ class EmailTests {
 
         assertThatThrownBy(() -> Email.of(invalidEmail))
             .isInstanceOf(DomainLayerErrorException.class)
-            .hasMessage(ERROR_MESSAGE);
+            .hasMessage(ERROR_MESSAGE_EMPTY);
     }
 
     @Test
