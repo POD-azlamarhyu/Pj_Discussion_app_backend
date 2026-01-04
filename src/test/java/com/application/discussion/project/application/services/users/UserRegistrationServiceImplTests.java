@@ -27,8 +27,10 @@ import com.application.discussion.project.application.dtos.users.SignUpRequest;
 import com.application.discussion.project.application.dtos.users.SignUpResponse;
 import com.application.discussion.project.domain.entities.users.User;
 import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
+import com.application.discussion.project.domain.repositories.users.RolesRepositoryInterface;
 import com.application.discussion.project.domain.repositories.users.UsersRepositoryInterface;
-import com.application.discussion.project.domain.services.users.UserRegistrationDomainServiceImpl;
+import com.application.discussion.project.domain.services.users.RoleRegistrationDomainService;
+import com.application.discussion.project.domain.services.users.UserRegistrationDomainService;
 import com.application.discussion.project.domain.valueobjects.users.Email;
 
 @DisplayName("UserRegistrationServiceImpl アプリケーションサービスのテスト")
@@ -36,7 +38,7 @@ import com.application.discussion.project.domain.valueobjects.users.Email;
 class UserRegistrationServiceImplTests {
 
     private static final String TEST_EMAIL = "test@example.com";
-    private static final String TEST_PASSWORD = "password123";
+    private static final String TEST_PASSWORD = "pAssword1234Q";
     private static final String TEST_USERNAME = "testuser";
     private static final String TEST_HASHED_PASSWORD = "$2a$10$hashedpassword";
     private static final String TEST_LOGIN_ID = "login-123";
@@ -50,7 +52,13 @@ class UserRegistrationServiceImplTests {
     private PasswordEncoder mockPasswordEncoder;
 
     @Mock
-    private UserRegistrationDomainServiceImpl mockUserRegistrationDomainService;
+    private UserRegistrationDomainService mockUserRegistrationDomainService;
+
+    @Mock
+    private RoleRegistrationDomainService mockRoleRegistrationDomainService;
+
+    @Mock
+    private RolesRepositoryInterface mockRolesRepository;
 
     @InjectMocks
     private UserRegistrationServiceImpl userRegistrationService;
