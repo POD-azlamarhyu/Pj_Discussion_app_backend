@@ -69,7 +69,7 @@ public class Password {
      * @param password パスワードの文字列
      * @return Password パスワードの値オブジェクト
      */
-    public static Password of(String password) {
+    public static Password of(final String password) {
         logger.info("Factory method called to create Password value object");
         return new Password(password, Boolean.FALSE);
     }
@@ -80,9 +80,9 @@ public class Password {
      * @param password パスワードの文字列
      * @return Password パスワードの値オブジェクト
      */
-    public static Password reBuild(String password) {
+    public static Password reBuild(final String password) {
         logger.info("Rebuilding Password value object without validation");
-        return new Password(HASHED_PASSWORD, Boolean.TRUE);
+        return new Password(password, Boolean.TRUE);
     }
 
     /**
@@ -91,7 +91,7 @@ public class Password {
      * @param hashedPassword ハッシュ化されたパスワードの文字列
      * @return Password パスワードの値オブジェクト
      */
-    public static Password reBuildHashed(String hashedPassword) {
+    public static Password reBuildHashed(final String hashedPassword) {
         logger.info("Rebuilding Password value object with hashed password");
         return new Password(hashedPassword, Boolean.TRUE);
     }
@@ -136,11 +136,8 @@ public class Password {
             logger.info("Password is null or empty, returning false");
             return false;
         }
-        
-        if (!this.password.matches(BCRYPT_PATTERN)){
-            logger.info("Password does not match BCrypt pattern, returning false");
-            return false;
-        }
+
+        logger.debug("Comparing raw password with hashed password using PasswordEncoder {}, {}",rawPassword, this.password);
 
         Boolean result = passwordEncoder.matches(rawPassword, this.password);
         
