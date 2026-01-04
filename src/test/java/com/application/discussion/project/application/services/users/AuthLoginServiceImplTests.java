@@ -37,6 +37,8 @@ import com.application.discussion.project.application.dtos.users.LoginResponse;
 import com.application.discussion.project.application.services.security.JWTAuthUserDetails;
 import com.application.discussion.project.application.services.security.JWTUtils;
 import com.application.discussion.project.domain.entities.users.Role;
+import com.application.discussion.project.domain.valueobjects.users.RoleNormalUser;
+import com.application.discussion.project.domain.valueobjects.users.RoleType;
 import com.application.discussion.project.infrastructure.models.users.Roles;
 import com.application.discussion.project.infrastructure.models.users.Users;
 
@@ -68,6 +70,7 @@ public class AuthLoginServiceImplTests {
     protected Role mockRole;
     protected ResponseEntity<LoginResponse> mockResponseEntity;
     protected Set<Role> roles = new HashSet<>();
+    protected RoleType roleType = RoleNormalUser.create();
 
     protected  LoginRequest loginRequest;
 
@@ -88,7 +91,8 @@ public class AuthLoginServiceImplTests {
                 TEST_ROLE, 
                 null, 
                 null, 
-                null
+                null,
+                roleType
             );
 
             roles.add(mockRole);
@@ -173,7 +177,8 @@ public class AuthLoginServiceImplTests {
                 "ROLE_ADMIN", 
                 null,
                 null, 
-                null
+                null,
+                roleType
             );
 
             multiRoles.add(mockRole);
@@ -269,7 +274,8 @@ public class AuthLoginServiceImplTests {
                 TEST_EMAIL, 
                 null, 
                 null, 
-                null
+                null,
+                roleType
             );
             roles.add(mockRole);
             mockUserDetails = JWTAuthUserDetails.build(mockUser, roles);
