@@ -57,7 +57,7 @@ class UserTests {
     void create_ShouldThrowException_WhenEmailIsNull() {
         assertThatThrownBy(() -> User.create(VALID_USER_NAME, null, VALID_PASSWORD))
             .isInstanceOf(DomainLayerErrorException.class)
-            .hasMessage("メールアドレスの形式が正しくありません");
+            .hasMessage("メールアドレスが空です");
     }
 
     @Test
