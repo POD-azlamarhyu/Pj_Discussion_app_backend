@@ -59,7 +59,7 @@ public class Email {
         if(StringUtils.isBlank(email)) {
             logger.error("Email address is blank");
             throw new DomainLayerErrorException(
-                "メールアドレスの形式が正しくありません", 
+                "メールアドレスが空です", 
                 HttpStatus.BAD_REQUEST, 
                 HttpStatusCode.valueOf(400)
             );
