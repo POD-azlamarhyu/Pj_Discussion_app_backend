@@ -15,6 +15,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.application.discussion.project.domain.entities.users.Role;
+import com.application.discussion.project.domain.valueobjects.users.RoleAdmin;
+import com.application.discussion.project.domain.valueobjects.users.RoleNormalUser;
+import com.application.discussion.project.domain.valueobjects.users.RoleType;
 import com.application.discussion.project.infrastructure.models.users.Users;
 
 @DisplayName("JWTAuthUserDetails単体テスト")
@@ -26,7 +29,8 @@ public class JWTAuthUserDetailsTests {
     private static final String TEST_PASSWORD = "encoded4Password";
     private static final String TEST_LOGIN_ID = "testuser";
     private static final String TEST_ROLE_NAME = "ROLE_USER";
-
+    
+    private RoleType testRoleType;
     private Users testUser;
     private Set<Role> testRoles;
     private Role testRole;
@@ -42,12 +46,15 @@ public class JWTAuthUserDetailsTests {
         testUser.setIsDeleted(false);
         testUser.setIsActive(true);
 
+        testRoleType = RoleNormalUser.create();
+
         testRole = Role.of(
             1,
             TEST_ROLE_NAME,
             null,
             null,
-            null
+            null,
+            testRoleType
         );
         testRoles = Set.of(testRole);
     }
@@ -89,7 +96,8 @@ public class JWTAuthUserDetailsTests {
                 "ROLE_ADMIN", 
                 null,
                 null, 
-                null
+                null,
+                RoleAdmin.create()
         );
         Set<Role> multipleRoles = Set.of(testRole, adminRole);
 
