@@ -222,7 +222,7 @@ class UserTests {
 
         assertThat(actual.getUserId()).isEqualTo(VALID_USER_ID);
         assertThat(actual.getPassword().value()).isEqualTo(VALID_HASHED_PASSWORD);
-        assertThat(actual.getLoginId()).isNull();
+        assertThat(actual.getLoginId().value()).isNull();
     }
 
     @Test
