@@ -151,7 +151,7 @@ public class User {
         final Boolean isActive,
         final Boolean isDeleted
     ) {
-        logger.info("Rebuilding User with userId: {}, username: {}", userId.toString(), userName);
+        logger.info("Rebuilding User with userId: {}, username: {}", userId, userName);
         return new User(
             userId,
             UserName.reBuild(userName),
@@ -193,12 +193,12 @@ public class User {
      */
     public User reBuildWithHashedPassword(final Password hashedPassword) {
         logger.info("Rebuilding User with hashed password for userId: {}", this.userId.toString());
-        return User.reBuild(
+        return new User(
             this.userId,
-            this.userName.value(),
-            this.email.value(),
-            this.loginId != null ? this.loginId.value() : null,
-            hashedPassword.value(),
+            this.userName,
+            this.email,
+            hashedPassword,
+            this.loginId,
             this.createdAt,
             this.updatedAt,
             this.deletedAt,
