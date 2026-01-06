@@ -50,7 +50,7 @@ public class Password {
      */
     private void validate(String password) {
         logger.info("Validating password");
-        if (password == null || password.isEmpty()) {
+        if (StringUtils.isBlank(password) || StringUtils.isEmpty(password)) {
             logger.error("Password validation failed: password is null or empty");
             throw new DomainLayerErrorException("パスワードは必須項目です",HttpStatus.BAD_REQUEST , HttpStatusCode.valueOf(400));
         }
