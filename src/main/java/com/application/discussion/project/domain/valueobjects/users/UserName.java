@@ -1,5 +1,7 @@
 package com.application.discussion.project.domain.valueobjects.users;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
 
 import org.slf4j.Logger;
@@ -45,7 +47,7 @@ public class UserName {
      */
     private void validate(final String userName) {
         logger.info("Validating UserName: {}", userName);
-        if (userName == null || userName.isEmpty()) {
+        if (StringUtils.isBlank(userName) || StringUtils.isEmpty(userName)) {
             logger.error("Validation failed: UserName is null or empty");
             throw new DomainLayerErrorException("ユーザー名は必須項目です",HttpStatus.BAD_REQUEST , HttpStatusCode.valueOf(400));
         }
