@@ -56,7 +56,7 @@ public class Email {
      */
     private void validate(String email){
         logger.info("Validating email address: {}", email);
-        if(StringUtils.isBlank(email)) {
+        if(StringUtils.isBlank(email) || StringUtils.isEmpty(email)) {
             logger.error("Email address is blank");
             throw new DomainLayerErrorException(
                 "メールアドレスが空です", 
