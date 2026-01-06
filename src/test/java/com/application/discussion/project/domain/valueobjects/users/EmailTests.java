@@ -194,4 +194,114 @@ class EmailTests {
 
         assertThat(actual).isTrue();
     }
+
+    @Test
+    @DisplayName("reBuild()で有効なメールアドレスからEmail値オブジェクトを再構築できる")
+    public void reBuildWithValidEmailReturnsEmail() {
+        Email actualEmail = Email.reBuild(VALID_JP_EMAIL);
+
+        assertThat(actualEmail).isNotNull();
+        assertThat(actualEmail.value()).isEqualTo(VALID_JP_EMAIL);
+    }
+
+    @Test
+    @DisplayName("reBuild()でバリデーションがスキップされnullでもEmail値オブジェクトが生成できる")
+    public void reBuildSkipsValidationWithNullValue() {
+        Email actualEmail = Email.reBuild(null);
+
+        assertThat(actualEmail).isNotNull();
+        assertThat(actualEmail.value()).isNull();
+    }
+
+    @Test
+    @DisplayName("reBuild()でバリデーションがスキップされ空文字でもEmail値オブジェクトが生成できる")
+    public void reBuildSkipsValidationWithEmptyString() {
+        String emptyEmail = "";
+
+        Email actualEmail = Email.reBuild(emptyEmail);
+
+        assertThat(actualEmail).isNotNull();
+        assertThat(actualEmail.value()).isEqualTo(emptyEmail);
+    }
+
+    @Test
+    @DisplayName("reBuild()でバリデーションがスキップされ不正な形式でもEmail値オブジェクトが生成できる")
+    public void reBuildSkipsValidationWithInvalidFormat() {
+        String invalidEmail = "invalid-email";
+
+        Email actualEmail = Email.reBuild(invalidEmail);
+
+        assertThat(actualEmail).isNotNull();
+        assertThat(actualEmail.value()).isEqualTo(invalidEmail);
+    }
+
+    @Test
+    @DisplayName("reBuild()でバリデーションがスキップされ最大長を超えてもEmail値オブジェクトが生成できる")
+    public void reBuildSkipsValidationWithExceedingMaxLength() {
+        String tooLongEmail = "a".repeat(256) + "@example.com";
+
+        Email actualEmail = Email.reBuild(tooLongEmail);
+
+        assertThat(actualEmail).isNotNull();
+        assertThat(actualEmail.value()).isEqualTo(tooLongEmail);
+    }
+
+    @Test
+    @DisplayName("reBuild()でバリデーションがスキップされ不正なドメインでもEmail値オブジェクトが生成できる")
+    public void reBuildSkipsValidationWithInvalidDomain() {
+        String invalidDomainEmail = "test@example.net";
+
+        Email actualEmail = Email.reBuild(invalidDomainEmail);
+
+        assertThat(actualEmail).isNotNull();
+        assertThat(actualEmail.value()).isEqualTo(invalidDomainEmail);
+    }
+
+    @Test
+    @DisplayName("toString()がメールアドレスの文字列表現を返す")
+    public void toStringReturnsEmailString() {
+        Email actualEmail = Email.of(VALID_JP_EMAIL);
+
+        String actualToString = actualEmail.toString();
+
+        assertThat(actualToString).isEqualTo(VALID_JP_EMAIL);
+    }
+
+    @Test
+    @DisplayName("toString()とvalue()が同じ値を返す")
+    public void toStringAndValueReturnSameValue() {
+        Email actualEmail = Email.of(VALID_COM_EMAIL);
+
+        assertThat(actualEmail.toString()).isEqualTo(actualEmail.value());
+    }
+
+    @Test
+    @DisplayName("toString()が特殊文字を含むメールアドレスを正しく返す")
+    public void toStringReturnsEmailWithSpecialCharacters() {
+        Email actualEmail = Email.of(VALID_SPECIAL_CHAR_EMAIL);
+
+        String actualToString = actualEmail.toString();
+
+        assertThat(actualToString).isEqualTo(VALID_SPECIAL_CHAR_EMAIL);
+    }
+
+    @Test
+    @DisplayName("value()が正しいメールアドレスの値を返す")
+    public void valueReturnsCorrectEmailValue() {
+        Email actualEmail = Email.of(VALID_SUBDOMAIN_EMAIL);
+
+        String actualValue = actualEmail.value();
+
+        assertThat(actualValue).isEqualTo(VALID_SUBDOMAIN_EMAIL);
+    }
+
+    @Test
+    @DisplayName("value()とtoString()が一貫性を持つ")
+    public void valueAndToStringAreConsistent() {
+        Email actualEmail = Email.of(VALID_MIN_LENGTH_EMAIL);
+
+        assertThat(actualEmail.value())
+                .isEqualTo(actualEmail.toString())
+                .isEqualTo(VALID_MIN_LENGTH_EMAIL);
+    }
 }
