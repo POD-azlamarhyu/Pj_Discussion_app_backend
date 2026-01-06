@@ -159,4 +159,150 @@ class LoginIdTests {
 
         assertThat(actualLoginId.isAboveMinLength()).isTrue();
     }
+
+    @Test
+    @DisplayName("reBuild()で有効なログインIDから値オブジェクトを再構築できる")
+    public void reBuildWithValidLoginIdReturnsLoginId() {
+        LoginId actualLoginId = LoginId.reBuild(VALID_LOGIN_ID);
+
+        assertThat(actualLoginId).isNotNull();
+        assertThat(actualLoginId.value()).isEqualTo(VALID_LOGIN_ID);
+    }
+
+    @Test
+    @DisplayName("reBuild()でバリデーションがスキップされnullでも値オブジェクトが生成できる")
+    public void reBuildSkipsValidationWithNullValue() {
+        LoginId actualLoginId = LoginId.reBuild(null);
+
+        assertThat(actualLoginId).isNotNull();
+        assertThat(actualLoginId.value()).isNull();
+    }
+
+    @Test
+    @DisplayName("reBuild()でバリデーションがスキップされ空文字でも値オブジェクトが生成できる")
+    public void reBuildSkipsValidationWithEmptyString() {
+        String emptyLoginId = "";
+
+        LoginId actualLoginId = LoginId.reBuild(emptyLoginId);
+
+        assertThat(actualLoginId).isNotNull();
+        assertThat(actualLoginId.value()).isEqualTo(emptyLoginId);
+    }
+
+    @Test
+    @DisplayName("reBuild()でバリデーションがスキップされ7文字以下でも値オブジェクトが生成できる")
+    public void reBuildSkipsValidationWithTooShortLength() {
+        String tooShortLoginId = "test123";
+
+        LoginId actualLoginId = LoginId.reBuild(tooShortLoginId);
+
+        assertThat(actualLoginId).isNotNull();
+        assertThat(actualLoginId.value()).isEqualTo(tooShortLoginId);
+    }
+
+    @Test
+    @DisplayName("reBuild()でバリデーションがスキップされ256文字以上でも値オブジェクトが生成できる")
+    public void reBuildSkipsValidationWithTooLongLength() {
+        String tooLongLoginId = "a".repeat(256);
+
+        LoginId actualLoginId = LoginId.reBuild(tooLongLoginId);
+
+        assertThat(actualLoginId).isNotNull();
+        assertThat(actualLoginId.value()).isEqualTo(tooLongLoginId);
+    }
+
+    @Test
+    @DisplayName("reBuild()でバリデーションがスキップされ不正な文字でも値オブジェクトが生成できる")
+    public void reBuildSkipsValidationWithInvalidCharacters() {
+        String invalidLoginId = "test@user#123";
+
+        LoginId actualLoginId = LoginId.reBuild(invalidLoginId);
+
+        assertThat(actualLoginId).isNotNull();
+        assertThat(actualLoginId.value()).isEqualTo(invalidLoginId);
+    }
+
+    @Test
+    @DisplayName("reBuild()でバリデーションがスキップされ日本語でも値オブジェクトが生成できる")
+    public void reBuildSkipsValidationWithJapaneseCharacters() {
+        String japaneseLoginId = "テストユーザー";
+
+        LoginId actualLoginId = LoginId.reBuild(japaneseLoginId);
+
+        assertThat(actualLoginId).isNotNull();
+        assertThat(actualLoginId.value()).isEqualTo(japaneseLoginId);
+    }
+
+    @Test
+    @DisplayName("toString()がログインIDの文字列表現を返す")
+    public void toStringReturnsLoginIdString() {
+        LoginId actualLoginId = LoginId.of(VALID_LOGIN_ID);
+
+        String actualToString = actualLoginId.toString();
+
+        assertThat(actualToString).isEqualTo(VALID_LOGIN_ID);
+    }
+
+    @Test
+    @DisplayName("toString()とvalue()が同じ値を返す")
+    public void toStringAndValueReturnSameValue() {
+        LoginId actualLoginId = LoginId.of(VALID_LOGIN_ID);
+
+        assertThat(actualLoginId.toString()).isEqualTo(actualLoginId.value());
+    }
+
+    @Test
+    @DisplayName("toString()が特殊文字を含むログインIDを正しく返す")
+    public void toStringReturnsLoginIdWithSpecialCharacters() {
+        String loginIdWithSpecialChars = "test.user_123-abc";
+        LoginId actualLoginId = LoginId.of(loginIdWithSpecialChars);
+
+        String actualToString = actualLoginId.toString();
+
+        assertThat(actualToString).isEqualTo(loginIdWithSpecialChars);
+    }
+
+    @Test
+    @DisplayName("toString()が最小長のログインIDを正しく返す")
+    public void toStringReturnsMinLengthLoginId() {
+        LoginId actualLoginId = LoginId.of(MIN_LENGTH_LOGIN_ID);
+
+        String actualToString = actualLoginId.toString();
+
+        assertThat(actualToString)
+                .isEqualTo(MIN_LENGTH_LOGIN_ID)
+                .hasSize(8);
+    }
+
+    @Test
+    @DisplayName("toString()が最大長のログインIDを正しく返す")
+    public void toStringReturnsMaxLengthLoginId() {
+        LoginId actualLoginId = LoginId.of(MAX_LENGTH_LOGIN_ID);
+
+        String actualToString = actualLoginId.toString();
+
+        assertThat(actualToString)
+                .isEqualTo(MAX_LENGTH_LOGIN_ID)
+                .hasSize(255);
+    }
+
+    @Test
+    @DisplayName("value()が正しいログインIDの値を返す")
+    public void valueReturnsCorrectLoginIdValue() {
+        LoginId actualLoginId = LoginId.of(VALID_LOGIN_ID);
+
+        String actualValue = actualLoginId.value();
+
+        assertThat(actualValue).isEqualTo(VALID_LOGIN_ID);
+    }
+
+    @Test
+    @DisplayName("value()とtoString()が一貫性を持つ")
+    public void valueAndToStringAreConsistent() {
+        LoginId actualLoginId = LoginId.of(VALID_LOGIN_ID);
+
+        assertThat(actualLoginId.value())
+                .isEqualTo(actualLoginId.toString())
+                .isEqualTo(VALID_LOGIN_ID);
+    }
 }
