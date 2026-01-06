@@ -1,6 +1,7 @@
 package com.application.discussion.project.domain.valueobjects.users;
 
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,23 +9,37 @@ import com.application.discussion.project.domain.exceptions.DomainLayerErrorExce
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class Password {
     private final String password;
     private final static Integer maxLength = 255;
     private final static Integer minLength = 10;
     private final static String pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{10,255}$";
+    private final static String HASHED_PASSWORD = "*******************";
+    private final static String BCRYPT_PATTERN = "^\\$2[ayb]\\$.{56}$";
 
     private static final Logger logger = LoggerFactory.getLogger(Password.class);
+
+    /**
+     * デフォルトコンストラクタ（使用禁止）
+     */
+    private Password() {
+        this.password = "";
+    }
 
     /**
      * パスワード値オブジェクトを生成する
      * @param password
      */
-    private Password(String password) {
+    private Password(String password, Boolean isSkipValidation) {
         logger.info("Creating Password value object with password {}: ",password != null ? "********" : null);
-        this.validate(password);
+        if (!isSkipValidation) {
+            logger.info("Validating password during Password object creation {}",isSkipValidation);
+            validate(password);
+        }
         this.password = password;
+        logger.info("Password value object created successfully {}",password != null ? "********" : null);
     }
 
     /**
@@ -35,7 +50,7 @@ public class Password {
      */
     private void validate(String password) {
         logger.info("Validating password");
-        if (password == null || password.isEmpty()) {
+        if (StringUtils.isBlank(password) || StringUtils.isEmpty(password)) {
             logger.error("Password validation failed: password is null or empty");
             throw new DomainLayerErrorException("パスワードは必須項目です",HttpStatus.BAD_REQUEST , HttpStatusCode.valueOf(400));
         }
@@ -54,10 +69,33 @@ public class Password {
      * @param password パスワードの文字列
      * @return Password パスワードの値オブジェクト
      */
-    public static Password of(String password) {
+    public static Password of(final String password) {
         logger.info("Factory method called to create Password value object");
-        return new Password(password);
+        return new Password(password, Boolean.FALSE);
     }
+
+    /**
+     * バリデーションをスキップしてパスワード値オブジェクトを再構築するファクトリメソッド
+     * 
+     * @param password パスワードの文字列
+     * @return Password パスワードの値オブジェクト
+     */
+    public static Password reBuild(final String password) {
+        logger.info("Rebuilding Password value object without validation");
+        return new Password(password, Boolean.TRUE);
+    }
+
+    /**
+     * ハッシュ化されたパスワード値オブジェクトを再構築するファクトリメソッド
+     * 
+     * @param hashedPassword ハッシュ化されたパスワードの文字列
+     * @return Password パスワードの値オブジェクト
+     */
+    public static Password reBuildHashed(final String hashedPassword) {
+        logger.info("Rebuilding Password value object with hashed password");
+        return new Password(hashedPassword, Boolean.TRUE);
+    }
+
     /**
      * パスワードの文字列を取得する
      * 
@@ -82,5 +120,29 @@ public class Password {
      */
     public boolean isAboveMinLength() {
         return this.password.length() >= minLength;
+    }
+
+    /**
+     * パスワードがハッシュ化されているかを判定する
+     * BCryptのパターン、またはマスク文字列に一致する場合はハッシュ化されていると判定する
+     * 
+     * @param password 検証対象のパスワード文字列
+     * @return boolean ハッシュ化されている場合はtrue、そうでなければfalse
+     */
+    public Boolean isHashed(String rawPassword, PasswordEncoder passwordEncoder) {
+        logger.info("Checking if password is hashed");
+        
+        if (StringUtils.isBlank(this.password) || StringUtils.isBlank(rawPassword)) {
+            logger.info("Password is null or empty, returning false");
+            return false;
+        }
+
+        logger.debug("Comparing raw password with hashed password using PasswordEncoder {}, {}",rawPassword, this.password);
+
+        Boolean result = passwordEncoder.matches(rawPassword, this.password);
+        
+        logger.info("Password hashed check result: {}", result);
+        
+        return result;
     }
 }

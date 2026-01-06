@@ -1,11 +1,15 @@
 package com.application.discussion.project.domain.valueobjects.users;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+
+import com.application.discussion.project.domain.entities.users.User;
 
 public class UserName {
     private final String userName;
@@ -15,13 +19,24 @@ public class UserName {
     private static final Logger logger = LoggerFactory.getLogger(UserName.class);
 
     /**
+     * デフォルトコンストラクタ（使用禁止）
+     */
+    private UserName() {
+        this.userName = "";
+    }
+
+    /**
      * ユーザー名値オブジェクトを生成する
      * @param userName
      */
-    private UserName(final String userName) {
+    private UserName(final String userName, Boolean isSkipValidation) {
         logger.info("Creating UserName with value: {}", userName);
-        this.validate(userName);
+        if (!isSkipValidation) {
+            logger.info("Validating UserName during creation: {}", isSkipValidation);
+            validate(userName);
+        }
         this.userName = userName;
+        logger.info("UserName created successfully with value: {}", this.userName);
     }
 
     /**
@@ -32,7 +47,7 @@ public class UserName {
      */
     private void validate(final String userName) {
         logger.info("Validating UserName: {}", userName);
-        if (userName == null || userName.isEmpty()) {
+        if (StringUtils.isBlank(userName) || StringUtils.isEmpty(userName)) {
             logger.error("Validation failed: UserName is null or empty");
             throw new DomainLayerErrorException("ユーザー名は必須項目です",HttpStatus.BAD_REQUEST , HttpStatusCode.valueOf(400));
         }
@@ -50,7 +65,18 @@ public class UserName {
      */
     public static UserName of(final String userName) {
         logger.info("Factory method called to create UserName with value: {}", userName);
-        return new UserName(userName);
+        return new UserName(userName,Boolean.FALSE);
+    }
+
+    /**
+     * ユーザー名値オブジェクトを再構築するメソッド
+     * 
+     * @param userName ユーザー名の文字列
+     * @return UserName ユーザー名の値オブジェクト
+     */
+    public static UserName reBuild(final String userName) {
+        logger.info("ReBuild method called to create UserName with value: {}", userName);
+        return new UserName(userName, Boolean.TRUE);
     }
 
     /**
@@ -78,5 +104,15 @@ public class UserName {
      */
     public boolean isAboveMinLength() {
         return this.userName.length() >= minLength;
+    }
+
+    /**
+     * ユーザー名の文字列表現を返す
+     * 
+     * @return ユーザー名文字列
+     */
+    @Override
+    public String toString() {
+        return this.userName;
     }
 }

@@ -25,11 +25,27 @@ public class Email {
     private static final Pattern EMAIL_DOMAIN_PATTERN = Pattern.compile(EMAIL_DOMAIN_REGEX);
 
     private static final Logger logger = LoggerFactory.getLogger(Email.class);
+
+    /**
+     * デフォルトコンストラクタ（使用禁止）
+     */
+    private Email() {
+        this.email = "";
+    }
     
-    private Email(String email){
+    /**
+     * メールアドレス値オブジェクトのプライベートコンストラクタ
+     * 
+     * @param email メールアドレス文字列
+     */
+    private Email(String email, Boolean isSkipValidation) {
         logger.info("Creating Email value object with email: {}", email);
-        this.validate(email);
+        if(!isSkipValidation) {
+            logger.info("Validating email address during Email value object creation {}",isSkipValidation);
+            validate(email);
+        }
         this.email = email;
+        logger.info("Email value object created successfully with email: {}", this.email);
     }
 
     /**
@@ -40,10 +56,10 @@ public class Email {
      */
     private void validate(String email){
         logger.info("Validating email address: {}", email);
-        if(StringUtils.isBlank(email)) {
+        if(StringUtils.isBlank(email) || StringUtils.isEmpty(email)) {
             logger.error("Email address is blank");
             throw new DomainLayerErrorException(
-                "メールアドレスの形式が正しくありません", 
+                "メールアドレスが空です", 
                 HttpStatus.BAD_REQUEST, 
                 HttpStatusCode.valueOf(400)
             );
@@ -76,7 +92,19 @@ public class Email {
      * @return Email値オブジェクト
      */
     public static Email of(String email) {
-        return new Email(email);
+        logger.info("Creating Email value object using of() with email: {}", email);
+        return new Email(email, Boolean.FALSE);
+    }
+
+    /**
+     * メールアドレス値オブジェクトを再構築する
+     * 
+     * @param email メールアドレス文字列
+     * @return Email値オブジェクト
+     */
+    public static Email reBuild(String email) {
+        logger.info("Rebuilding Email value object with email: {}", email);
+        return new Email(email, Boolean.TRUE);
     }
 
     /**
@@ -95,5 +123,15 @@ public class Email {
      */
     public boolean isBelowMaxLength(){
         return this.email.length() <= MAX_LENGTH;
+    }
+
+    /**
+     * メールアドレスの文字列表現を返す
+     * 
+     * @return メールアドレス文字列
+     */
+    @Override
+    public String toString() {
+        return this.email;
     }
 }

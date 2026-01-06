@@ -17,13 +17,24 @@ public class LoginId {
     private static final Logger logger = LoggerFactory.getLogger(LoginId.class);
 
     /**
+     * デフォルトコンストラクタ（使用禁止）
+     */
+    private LoginId() {
+        this.loginId = "";
+    }
+
+    /**
      * ログインID値オブジェクトを生成する
      * @param loginId
      */
-    private LoginId(final String loginId) {
+    private LoginId(final String loginId, Boolean isSkipValidation) {
         logger.info("Creating LoginId with value: {}", loginId);
-        this.validate(loginId);
+        if (!isSkipValidation) {
+            logger.info("Validating LoginId during creation: {}", isSkipValidation);
+            validate(loginId);
+        }
         this.loginId = loginId;
+        logger.info("LoginId created successfully with value: {}", this.loginId);
     }
     /**
      * ログインIDの妥当性を検証する
@@ -54,8 +65,20 @@ public class LoginId {
      */
     public static LoginId of(String loginId) {
         logger.info("Factory method called to create LoginId with value: {}", loginId);
-        return new LoginId(loginId);
+        return new LoginId(loginId, Boolean.FALSE);
     }
+
+    /**
+     * ログインID値オブジェクトを再構築するメソッド
+     * 
+     * @param loginId ログインIDの文字列
+     * @return LoginId ログインIDの値オブジェクト
+     */
+    public static LoginId reBuild(String loginId) {
+        logger.info("ReBuild method called to create LoginId with value: {}", loginId);
+        return new LoginId(loginId, Boolean.TRUE);
+    }
+
     /**
      * ログインIDの文字列を取得する
      * 
@@ -81,4 +104,13 @@ public class LoginId {
         return this.loginId.length() >= minLength;
     }
 
+    /**
+     * ログインIDの文字列表現を返す
+     * 
+     * @return ログインID文字列
+     */
+    @Override
+    public String toString() {
+        return this.loginId;
+    }
 }
