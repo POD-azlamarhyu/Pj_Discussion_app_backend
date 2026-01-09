@@ -48,7 +48,7 @@ public class UserAuthenticationDomainServiceImplTests {
     private static final Long TEST_USER_ID = 1L;
     private static final String TEST_LOGIN_ID = "testuser";
     private static final String TEST_EMAIL = "test@example.com";
-    private static final String TEST_PASSWORD = "password123";
+    private static final String TEST_PASSWORD = "pAssworD12345";
 
     private User mockUser;
     private LocalDateTime testDateTime;
