@@ -88,8 +88,8 @@ public class UserAuthenticationDomainServiceImplTests {
 
             assertNotNull(actualResult);
             assertEquals(TEST_USER_UUID, actualResult.getUserId());
-            assertEquals(TEST_USERNAME, actualResult.getUserName());
-            assertEquals(TEST_EMAIL, actualResult.getEmail());
+            assertEquals(TEST_USERNAME, actualResult.getUserName().value());
+            assertEquals(TEST_EMAIL, actualResult.getEmail().value());
             verify(usersRepository, times(1)).findById(TEST_USER_UUID);
         }
     }
