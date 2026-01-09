@@ -1,6 +1,7 @@
 package com.application.discussion.project.domain.repositories.users;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import com.application.discussion.project.domain.entities.users.User;
 import com.application.discussion.project.domain.valueobjects.users.Email;
@@ -15,4 +16,6 @@ public interface UsersRepositoryInterface {
     Boolean existsByEmail(Email email);
 
     User save(User user);
+
+    Optional<User> findById(UUID userId);
 }

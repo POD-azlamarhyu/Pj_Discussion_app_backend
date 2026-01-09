@@ -2,6 +2,7 @@ package com.application.discussion.project.domain.repositories;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.application.discussion.project.domain.entities.topics.Maintopic;
 import com.application.discussion.project.infrastructure.models.topics.Maintopics;
@@ -11,7 +12,7 @@ public interface MaintopicRepository {
 
     Maintopic findMaintopicById(Long maintopicId);
 
-    Maintopic createMaintopic(Maintopic maintopic);
+    Maintopic createMaintopic(Maintopic maintopic, UUID userId);
 
     Maintopics findModelById(Long maintopicId);
 

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,7 @@ public class MaintopicDetailServiceImplTest {
             1L, 
             "日本の政治体制の危うさについて", 
             "日本の政治体制について議論する場所", 
+            UUID.randomUUID(),
             LocalDateTime.of(2025, 12, 31, 10, 10, 10), 
             LocalDateTime.of(2025, 12, 31, 10, 20, 10), 
             false, 
@@ -55,6 +57,7 @@ public class MaintopicDetailServiceImplTest {
             2L, 
             "Sample Topic 2", 
             "Description for Sample Topic 2", 
+            UUID.randomUUID(),
             LocalDateTime.of(2025, 12, 31, 10, 10, 10), 
             LocalDateTime.of(2025, 12, 31, 10, 20, 10), 
             false, 

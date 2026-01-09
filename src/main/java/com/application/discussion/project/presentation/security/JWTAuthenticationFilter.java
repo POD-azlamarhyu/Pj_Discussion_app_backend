@@ -45,8 +45,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         "/swagger-resources",
         "/configuration",
         "/webjars",
-        "/api-docs",
-        "/maintopics"
+        "/api-docs"
     );
 
     private static final Logger logger = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
@@ -63,6 +62,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             final HttpServletResponse httpServletResponse,
             final FilterChain filterChain
     ) throws ServletException, IOException {
+        logger.info("JWTAuthenticationFilter is processing the request...");
         String requestURI=httpServletRequest.getRequestURI();
         logger.debug("called for URI : {}",requestURI);
 

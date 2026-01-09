@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.application.discussion.project.domain.exceptions.BadRequestException;
+import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
 
 public class TitleTests {
     private Title title;
@@ -38,19 +38,19 @@ public class TitleTests {
     @Test
     void testCreateTopicMinLengthFailure(){
         final String value = "AI";
-        assertThrows(BadRequestException.class,() -> {Title.of(value);});
+        assertThrows(DomainLayerErrorException.class,() -> {Title.of(value);});
     }
 
     @Test
     void testCreateTopicMaxLengthFailure(){
         String value = "F".repeat(101);
-        assertThrows(BadRequestException.class,() -> {Title.of(value);});
+        assertThrows(DomainLayerErrorException.class,() -> {Title.of(value);});
     }
 
     @Test
     void testCreateTopicNull(){
         final String value = null;
-        assertThrows(BadRequestException.class, () -> {Title.of(value);});
+        assertThrows(DomainLayerErrorException.class, () -> {Title.of(value);});
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.application.discussion.project.infrastructure.repositories.topics;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import com.application.discussion.project.domain.entities.topics.Maintopic;
 import com.application.discussion.project.domain.repositories.MaintopicRepository;
 import com.application.discussion.project.infrastructure.exceptions.ResourceNotFoundException;
 import com.application.discussion.project.infrastructure.models.topics.Maintopics;
+import com.application.discussion.project.infrastructure.models.users.Users;
 
 @Repository
 public class MaintopicRepositoryImpl implements MaintopicRepository {
@@ -32,6 +34,7 @@ public class MaintopicRepositoryImpl implements MaintopicRepository {
                         entity.getId(),
                         entity.getTitle(),
                         entity.getDescription(),
+                        entity.getUsers().getUserId(),
                         entity.getCreatedAt(),
                         entity.getUpdatedAt(),
                         entity.getIsDeleted(),
@@ -57,6 +60,7 @@ public class MaintopicRepositoryImpl implements MaintopicRepository {
                         entity.getId(),
                         entity.getTitle(),
                         entity.getDescription(),
+                        entity.getUsers().getUserId(),
                         entity.getCreatedAt(),
                         entity.getUpdatedAt(),
                         entity.getIsDeleted(),
@@ -66,11 +70,14 @@ public class MaintopicRepositoryImpl implements MaintopicRepository {
     }
 
     @Override
-    public Maintopic createMaintopic(Maintopic maintopic) {
+    public Maintopic createMaintopic(Maintopic maintopic, UUID userId) {
         logger.info("Creating new maintopic with title: {}", maintopic.getTitle());
         Maintopics entity = new Maintopics();
+        Users users = new Users();
+        users.setUserId(userId);
         entity.setTitle(maintopic.getTitle());
         entity.setDescription(maintopic.getDescription());
+        entity.setUsers(users);
         entity.setCreatedAt(maintopic.getCreatedAt());
         entity.setUpdatedAt(maintopic.getUpdatedAt());
         entity.setIsDeleted(maintopic.getIsDeleted());
@@ -83,6 +90,7 @@ public class MaintopicRepositoryImpl implements MaintopicRepository {
             savedEntity.getId(),
             savedEntity.getTitle(),
             savedEntity.getDescription(),
+            savedEntity.getUsers().getUserId(),
             savedEntity.getCreatedAt(),
             savedEntity.getUpdatedAt(),
             savedEntity.getIsDeleted(),
@@ -116,6 +124,7 @@ public class MaintopicRepositoryImpl implements MaintopicRepository {
             updatedEntity.getId(),
             updatedEntity.getTitle(),
             updatedEntity.getDescription(),
+            updatedEntity.getUsers().getUserId(),
             updatedEntity.getCreatedAt(),
             updatedEntity.getUpdatedAt(),
             updatedEntity.getIsDeleted(),

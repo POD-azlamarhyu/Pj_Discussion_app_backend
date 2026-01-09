@@ -9,12 +9,19 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import org.springframework.http.MediaType;
+
+import com.application.discussion.project.application.dtos.exceptions.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 @Component
 public class JWTAuthEntryPoint implements AuthenticationEntryPoint {
@@ -34,11 +41,12 @@ public class JWTAuthEntryPoint implements AuthenticationEntryPoint {
         httpServletResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
         httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
-        body.put("error", "Unauthorized");
-        body.put("message", authenticationException.getMessage());
+        ErrorResponse errorResponse = ErrorResponse.of(
+            "認証に失敗しました。",
+            HttpStatusCode.valueOf(401).value(),
+            HttpStatus.UNAUTHORIZED.name()
+        );
 
-        objectMapper.writeValue(httpServletResponse.getOutputStream(), body);
+        objectMapper.writeValue(httpServletResponse.getOutputStream(), errorResponse);
     }
 }

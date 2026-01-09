@@ -1,8 +1,13 @@
 package com.application.discussion.project.domain.valueobjects.topics;
 
+import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.application.discussion.project.domain.exceptions.BadRequestException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+
+import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
 
 public class Description {
     private final String value;
@@ -12,13 +17,13 @@ public class Description {
     private static final Logger logger = LoggerFactory.getLogger(Description.class);
 
     private Description(String value){
-        if (value == null || value.isBlank()) {
+        if (Objects.isNull(value) || StringUtils.isBlank(value)) {
             logger.error("Description cannot be null or empty: {}", value);
-            throw new BadRequestException("説明が空です", "Bad_Request");
+            throw new DomainLayerErrorException("説明は必須項目です", HttpStatus.BAD_REQUEST, HttpStatusCode.valueOf(400));
         }
         if (value.length() < MIN_LENGTH || value.length() > MAX_LENGTH) {
             logger.error("Description must be between {} and {} characters: {}", MIN_LENGTH, MAX_LENGTH, value);
-            throw new BadRequestException("説明の文字数は " + MIN_LENGTH + " と " + MAX_LENGTH + " の間でなければなりません", "Bad_Request");
+            throw new DomainLayerErrorException("説明の文字数は " + MIN_LENGTH + " と " + MAX_LENGTH + " の間でなければなりません", HttpStatus.BAD_REQUEST, HttpStatusCode.valueOf(400));
         }
         this.value = value;
     }

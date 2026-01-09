@@ -5,11 +5,15 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.application.discussion.project.infrastructure.models.users.Users;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Builder;
 
@@ -29,6 +33,10 @@ public class Maintopics {
 
     @Column(name = "description", length = 500)
     private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false,referencedColumnName="user_id")
+    private Users users;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
@@ -52,7 +60,8 @@ public class Maintopics {
     public Maintopics(
         Long id, 
         String title, 
-        String description, 
+        String description,
+        Users user,
         LocalDateTime createdAt, 
         LocalDateTime updatedAt, 
         Boolean isDeleted, 
@@ -61,6 +70,7 @@ public class Maintopics {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.users = user;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.isDeleted = isDeleted;
@@ -90,6 +100,22 @@ public class Maintopics {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    /**
+     * 
+     * @return Users ユーザーエンティティ
+     */
+    public Users getUsers() {
+        return this.users;
+    }
+
+    /**
+     * 
+     * @param users ユーザーエンティティ
+     */
+    public void setUsers(Users users) {
+        this.users = users;
     }
 
     public LocalDateTime getCreatedAt() {

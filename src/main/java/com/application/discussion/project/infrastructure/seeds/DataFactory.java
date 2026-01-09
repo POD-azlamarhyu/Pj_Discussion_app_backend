@@ -40,11 +40,11 @@ public class DataFactory implements CommandLineRunner {
     @Override
     public void run(String... args) {
         logger.info("Seeding initial data...");
-        this.maintopicDataSeeder.seed();
-        this.discussionsDataSeeder.seed();
         this.roleDataSeeder.seed();
         this.userDataSeeder.seed();
-        // this.userRoleDataSeeder.seed();
+        this.userRoleDataSeeder.seed();
+        this.maintopicDataSeeder.seed();
+        this.discussionsDataSeeder.seed();
         logger.info("Data seeding completed.");
     }
 }
