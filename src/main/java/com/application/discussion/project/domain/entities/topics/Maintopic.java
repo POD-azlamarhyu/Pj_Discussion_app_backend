@@ -1,11 +1,16 @@
 package com.application.discussion.project.domain.entities.topics;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 import com.application.discussion.project.domain.exceptions.BadRequestException;
+import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
 import com.application.discussion.project.domain.valueobjects.topics.Description;
 import com.application.discussion.project.domain.valueobjects.topics.Title;
 
@@ -18,6 +23,7 @@ public class Maintopic {
     private final Long maintopicId;
     private final String title;
     private final String description;
+    private final UUID userId;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
     private final Boolean isDeleted;
@@ -28,15 +34,21 @@ public class Maintopic {
     public Maintopic(
         Long maintopicId, 
         String title, 
-        String description, 
+        String description,
+        UUID userId,
         LocalDateTime createdAt, 
         LocalDateTime updatedAt,
         Boolean isDeleted,
         Boolean isClosed
     ) {
+        if (Objects.isNull(maintopicId)) {
+            logger.error("Maintopic ID cannot be null. When creating a new maintopic, use the create method instead.");
+            throw new DomainLayerErrorException("不明なエラーが発生しました", HttpStatus.INTERNAL_SERVER_ERROR, HttpStatusCode.valueOf(500));
+        }
         this.maintopicId = maintopicId;
         this.title = title;
         this.description = description;
+        this.userId = userId;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.isDeleted = isDeleted;
@@ -47,22 +59,25 @@ public class Maintopic {
     public static Maintopic of(
         Long maintopicId, 
         String title, 
-        String description, 
+        String description,
+        UUID userId,
         LocalDateTime createdAt, 
         LocalDateTime updatedAt,
         Boolean isDeleted,
         Boolean isClosed
     ) {
-        return new Maintopic(maintopicId, title, description, createdAt, updatedAt, isDeleted, isClosed);
+        return new Maintopic(maintopicId, title, description, userId, createdAt, updatedAt, isDeleted, isClosed);
     }
     public static Maintopic create(
         Title title,
-        Description description
+        Description description,
+        UUID userId
     ){
         return new Maintopic(
-            null,
+            Long.valueOf(0),
             title.getValue(),
             description.getValue(),
+            userId,
             null,
             null,
             false,
@@ -107,22 +122,23 @@ public class Maintopic {
         logger.info("Updating maintopic ID: {} with new title and description", this.maintopicId);
         if (title.isEmpty() && description.isEmpty()) {
             logger.error("Attempted to update maintopic with empty title and description");
-            throw new BadRequestException("タイトルと説明の両方が空です", "Bad_Request");
+            throw new DomainLayerErrorException("タイトルと説明の両方が空です", HttpStatus.BAD_REQUEST, HttpStatusCode.valueOf(400));
         }
 
         if (title.equals(this.title)) {
             logger.error("Attempted to update maintopic with unchanged title",this.title);
-            throw new BadRequestException("既存のタイトルと同じ内容です", "Bad_Request");
+            throw new DomainLayerErrorException("既存のタイトルと同じ内容です", HttpStatus.BAD_REQUEST, HttpStatusCode.valueOf(400));
         }
         if (description.equals(this.description)) {
             logger.error("Attempted to update maintopic with unchanged description",this.description);
-            throw new BadRequestException("既存の説明と同じ内容です", "Bad_Request");
+            throw new DomainLayerErrorException("既存の説明と同じ内容です", HttpStatus.BAD_REQUEST, HttpStatusCode.valueOf(400));
         }
         
         return new Maintopic(
             this.maintopicId,
             title.getValue(),
             description.getValue(),
+            this.userId,
             this.createdAt,
             LocalDateTime.now(),
             this.isDeleted,
