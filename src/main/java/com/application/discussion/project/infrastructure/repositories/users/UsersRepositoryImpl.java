@@ -2,6 +2,7 @@ package com.application.discussion.project.infrastructure.repositories.users;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +58,19 @@ public class UsersRepositoryImpl implements UsersRepositoryInterface{
         logger.info("User saved successfully with id: {}", savedUser.getUserId());
         
         return mapToDomainEntity(savedUser);
+    }
+
+    /**
+     * IDでUserドメインエンティティを検索する
+     * @param userId 検索するユーザーのUUID
+     * @return UserドメインエンティティのOptional
+     */
+    @Override
+    public Optional<User> findById(final UUID userId) {
+        logger.info("Finding user by ID: {}", userId);
+        Optional<Users> usersModelOpt = jpaUsersRepository.findById(userId);
+        logger.info("User found: {}", usersModelOpt.isPresent());
+        return usersModelOpt.map(this::mapToDomainEntity);
     }
 
     /**
