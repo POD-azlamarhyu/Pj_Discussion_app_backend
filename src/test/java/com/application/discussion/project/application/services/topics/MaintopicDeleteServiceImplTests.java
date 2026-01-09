@@ -1,6 +1,7 @@
 package com.application.discussion.project.application.services.topics;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
 import com.application.discussion.project.application.dtos.topics.MaintopicDeleteResponse;
@@ -42,6 +43,7 @@ public class MaintopicDeleteServiceImplTests {
     private static final LocalDateTime UPDATED_AT = LocalDateTime.now();
     private static final Boolean IS_DELETED = false;
     private static final Boolean IS_CLOSED = false;
+    private static final UUID TEST_UUID = UUID.randomUUID();
 
     @Mock
     private MaintopicRepositoryImpl maintopicRepository;
@@ -58,6 +60,7 @@ public class MaintopicDeleteServiceImplTests {
             VALID_TOPIC_ID, 
             EXISTING_TOPIC_TITLE, 
             EXISTING_TOPIC_DESCRIPTION, 
+            TEST_UUID,
             CREATED_AT, 
             UPDATED_AT, 
             IS_DELETED, 
