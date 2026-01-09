@@ -80,7 +80,7 @@ public class UserAuthenticationDomainServiceImplTests {
             User actualResult = userAuthenticationDomainService.getAuthenticatedUser();
 
             assertNotNull(actualResult);
-            assertEquals(TEST_USER_ID, actualResult.getUserId());
+            assertEquals(TEST_USER_UUID, actualResult.getUserId());
             assertEquals(TEST_LOGIN_ID, actualResult.getLoginId());
             assertEquals(TEST_EMAIL, actualResult.getEmail());
             verify(usersRepository, times(1)).findById(TEST_USER_UUID);
