@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,6 +68,7 @@ public class MaintopicUpdateServiceImplTests {
             maintopicId,
             EXISTING_TITLE,
             EXISTING_DESCRIPTION,
+            null,
             createdDateTime,
             null,
             false,
@@ -85,6 +87,7 @@ public class MaintopicUpdateServiceImplTests {
             maintopicId,
             UPDATE_TITLE,
             UPDATE_DESCRIPTION,
+            UUID.randomUUID(),
             createdDateTime,
             updatedDateTime,
             false,
@@ -226,6 +229,7 @@ public class MaintopicUpdateServiceImplTests {
             maintopicId,
             UPDATE_TITLE+"設定確認タイトル",
             UPDATE_DESCRIPTION+"設定確認説明",
+            UUID.randomUUID(),
             createdDateTime,
             updatedDateTime,
             false,
