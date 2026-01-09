@@ -2,10 +2,9 @@ package com.application.discussion.project.domain.valueobjects.topics;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.BeforeEach;
 
-import com.application.discussion.project.domain.exceptions.BadRequestException;
+import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
 
 class DescriptionTests {
     private Description testDescription;
@@ -50,14 +49,14 @@ class DescriptionTests {
 
     @Test
     void nullDescriptionThrowException() {
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(DomainLayerErrorException.class, () -> {
             Description.of(null);
         });
     }
 
     @Test
     void emptyDescriptionThrowException() {
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(DomainLayerErrorException.class, () -> {
             Description.of("");
         });
     }
@@ -65,7 +64,7 @@ class DescriptionTests {
     @Test
     void tooLongDescriptionThrowException() {
         String value = "a".repeat(501);
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(DomainLayerErrorException.class, () -> {
             Description.of(value);
         });
     }
