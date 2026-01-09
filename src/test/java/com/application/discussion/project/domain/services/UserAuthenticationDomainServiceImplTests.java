@@ -1,19 +1,26 @@
 package com.application.discussion.project.domain.services;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -46,7 +53,7 @@ public class UserAuthenticationDomainServiceImplTests {
 
     private static final UUID TEST_USER_UUID = UUID.randomUUID();
     private static final Long TEST_USER_ID = 1L;
-    private static final String TEST_LOGIN_ID = "testuser";
+    private static final String TEST_USERNAME = "testuser";
     private static final String TEST_EMAIL = "test@example.com";
     private static final String TEST_PASSWORD = "pAssworD12345";
 
@@ -58,7 +65,7 @@ public class UserAuthenticationDomainServiceImplTests {
         testDateTime = LocalDateTime.now();
         mockUser = User.of(
             TEST_USER_UUID,
-            TEST_LOGIN_ID,
+            TEST_USERNAME,
             TEST_EMAIL,
             TEST_PASSWORD,
             testDateTime,
@@ -81,7 +88,7 @@ public class UserAuthenticationDomainServiceImplTests {
 
             assertNotNull(actualResult);
             assertEquals(TEST_USER_UUID, actualResult.getUserId());
-            assertEquals(TEST_LOGIN_ID, actualResult.getLoginId());
+            assertEquals(TEST_USERNAME, actualResult.getUserName());
             assertEquals(TEST_EMAIL, actualResult.getEmail());
             verify(usersRepository, times(1)).findById(TEST_USER_UUID);
         }
