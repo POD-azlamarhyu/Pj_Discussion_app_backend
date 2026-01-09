@@ -5,13 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.time.LocalDateTime;
-
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.application.discussion.project.domain.exceptions.BadRequestException;
+import com.application.discussion.project.domain.exceptions.DomainLayerErrorException;
 import com.application.discussion.project.domain.valueobjects.topics.Description;
 import com.application.discussion.project.domain.valueobjects.topics.Title;
 
@@ -27,9 +26,10 @@ public class MaintopicTests {
     @BeforeEach
     void setUp(){
         testMaintopic = Maintopic.of(
-            1L, 
+            1L,
             "Sample Title", 
             "Sample Description", 
+            UUID.randomUUID(),
             LocalDateTime.of(2026, 7, 10, 12, 0, 0), 
             LocalDateTime.of(2026, 7, 10, 12, 0, 0),
             false, 
@@ -44,7 +44,8 @@ public class MaintopicTests {
     void testMaintopicCreation(){
         final Maintopic maintopic = Maintopic.create(
             Title.of("New Title"),
-            Description.of("New Description")
+            Description.of("New Description"),
+            UUID.randomUUID()
         );
 
         assertNotNull(maintopic);
@@ -59,6 +60,7 @@ public class MaintopicTests {
             99L,
             "Test Title",
             "Test Description",
+            UUID.randomUUID(),
             LocalDateTime.now(),
             LocalDateTime.now(),
             false,
@@ -129,7 +131,7 @@ public class MaintopicTests {
     @Test
     void testUpdateNullMaintopicFailure() throws Exception {
         assertNotNull(testMaintopic);
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(DomainLayerErrorException.class, () -> {
             testMaintopic.update(
                 Title.of(""), 
                 Description.of("")
@@ -141,10 +143,11 @@ public class MaintopicTests {
     void testUpdateSameMaintopicFailture(){
         final Maintopic maintopic = Maintopic.create(
             Title.of(ALTERNATE_TITLE_TEXT),
-            Description.of(ALTERNATE_DESCRIPTION_TEXT)
+            Description.of(ALTERNATE_DESCRIPTION_TEXT),
+            UUID.randomUUID()
         );
         assertNotNull(maintopic);
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(DomainLayerErrorException.class, () -> {
             maintopic.update(
                 Title.of(ALTERNATE_TITLE_TEXT),
                 Description.of(ALTERNATE_DESCRIPTION_TEXT)
