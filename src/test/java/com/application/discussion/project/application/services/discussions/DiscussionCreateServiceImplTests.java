@@ -2,6 +2,7 @@ package com.application.discussion.project.application.services.discussions;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -51,6 +52,7 @@ public class DiscussionCreateServiceImplTests {
     private final String title = "ディスカッションのタイトル";
     private final Long discussionId = 10L;
     private final Integer stringRepeatCount = 10;
+    private final UUID VALID_USER_ID = UUID.randomUUID();
     private final LocalDateTime discussionCreatedAt = LocalDateTime.of(2023, 10, 1, 12, 0);
     private final LocalDateTime discussionUpdatedAt = LocalDateTime.of(2023, 10, 1, 12, 0);
     private final LocalDateTime discussionDeletedAt = null;
@@ -71,6 +73,7 @@ public class DiscussionCreateServiceImplTests {
             discussionId,
             testParagraph.getValue(),
             maintopicId,
+            VALID_USER_ID,
             discussionCreatedAt,
             discussionUpdatedAt,
             discussionDeletedAt
@@ -82,7 +85,7 @@ public class DiscussionCreateServiceImplTests {
     void serviceSuccessTest() {
         
         when(maintopicRepository.findModelById(maintopicId)).thenReturn(maintopicEntity);
-        when(discussionRepository.createDiscussion(any(Discussions.class))).thenReturn(createdDiscussion);
+        when(discussionRepository.createDiscussion(any(Discussion.class))).thenReturn(createdDiscussion);
 
         DiscussionCreateResponse response = discussionCreateService.service(maintopicId, discussionCreateRequest);
 
@@ -92,7 +95,7 @@ public class DiscussionCreateServiceImplTests {
         assertEquals(maintopicId, response.getMaintopicId());
 
         verify(maintopicRepository, times(mockWantedNumber)).findModelById(maintopicId);
-        verify(discussionRepository, times(mockWantedNumber)).createDiscussion(any(Discussions.class));
+        verify(discussionRepository, times(mockWantedNumber)).createDiscussion(any(Discussion.class));
     }
 
     @Test
@@ -108,7 +111,7 @@ public class DiscussionCreateServiceImplTests {
         });
 
         verify(maintopicRepository, times(mockWantedNumber)).findModelById(maintopicId);
-        verify(discussionRepository, never()).createDiscussion(any(Discussions.class));
+        verify(discussionRepository, never()).createDiscussion(any(Discussion.class));
     }
 
     @Test
@@ -116,7 +119,7 @@ public class DiscussionCreateServiceImplTests {
     void serviceWithRepositoryExceptionTest() {
 
         when(maintopicRepository.findModelById(maintopicId)).thenReturn(maintopicEntity);
-        when(discussionRepository.createDiscussion(any(Discussions.class)))
+        when(discussionRepository.createDiscussion(any(Discussion.class)))
             .thenThrow(new RuntimeException("データベース接続エラー"));
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -125,7 +128,7 @@ public class DiscussionCreateServiceImplTests {
 
         assertEquals("データベース接続エラー", exception.getMessage());
         verify(maintopicRepository, times(1)).findModelById(maintopicId);
-        verify(discussionRepository, times(1)).createDiscussion(any(Discussions.class));
+        verify(discussionRepository, times(1)).createDiscussion(any(Discussion.class));
     }
 
     @Test
@@ -141,13 +144,14 @@ public class DiscussionCreateServiceImplTests {
             discussionId,
             anotherParagraph,
             differentMaintopicId,
+            VALID_USER_ID,
             discussionCreatedAt,
             discussionUpdatedAt,
             discussionDeletedAt
         );
 
         when(maintopicRepository.findModelById(differentMaintopicId)).thenReturn(differentMaintopicEntity);
-        when(discussionRepository.createDiscussion(any(Discussions.class))).thenReturn(differentCreatedDiscussion);
+        when(discussionRepository.createDiscussion(any(Discussion.class))).thenReturn(differentCreatedDiscussion);
 
         DiscussionCreateResponse response = discussionCreateService.service(differentMaintopicId, discussionCreateRequest);
 
@@ -157,7 +161,7 @@ public class DiscussionCreateServiceImplTests {
         assertEquals(differentMaintopicId, response.getMaintopicId());
 
         verify(maintopicRepository, times(mockWantedNumber)).findModelById(differentMaintopicId);
-        verify(discussionRepository, times(mockWantedNumber)).createDiscussion(any(Discussions.class));
+        verify(discussionRepository, times(mockWantedNumber)).createDiscussion(any(Discussion.class));
     }
 
     @Test
@@ -171,13 +175,14 @@ public class DiscussionCreateServiceImplTests {
             discussionId,
             longRequest.getParagraph(),
             maintopicId,
+            VALID_USER_ID,
             discussionCreatedAt,
             discussionUpdatedAt,
             discussionDeletedAt
         );
 
         when(maintopicRepository.findModelById(maintopicId)).thenReturn(maintopicEntity);
-        when(discussionRepository.createDiscussion(any(Discussions.class))).thenReturn(longCreatedDiscussion);
+        when(discussionRepository.createDiscussion(any(Discussion.class))).thenReturn(longCreatedDiscussion);
 
         final DiscussionCreateResponse response = discussionCreateService.service(maintopicId, longRequest);
 
@@ -187,7 +192,7 @@ public class DiscussionCreateServiceImplTests {
         assertEquals(maintopicId, response.getMaintopicId());
 
         verify(maintopicRepository, times(mockWantedNumber)).findModelById(maintopicId);
-        verify(discussionRepository, times(mockWantedNumber)).createDiscussion(any(Discussions.class));
+        verify(discussionRepository, times(mockWantedNumber)).createDiscussion(any(Discussion.class));
     }
 
     @Test
@@ -195,13 +200,13 @@ public class DiscussionCreateServiceImplTests {
     void serviceWithCorrectEntitySetupTest() {
 
         when(maintopicRepository.findModelById(maintopicId)).thenReturn(maintopicEntity);
-        when(discussionRepository.createDiscussion(any(Discussions.class))).thenReturn(createdDiscussion);
+        when(discussionRepository.createDiscussion(any(Discussion.class))).thenReturn(createdDiscussion);
 
         discussionCreateService.service(maintopicId, discussionCreateRequest);
 
         verify(discussionRepository).createDiscussion(argThat(discussions -> {
             return discussions.getParagraph().equals(discussionCreateRequest.getParagraph()) &&
-                   discussions.getMaintopic().equals(maintopicEntity);
+                    discussions.getMaintopicId().equals(maintopicEntity.getId());
         }));
     }
 }
