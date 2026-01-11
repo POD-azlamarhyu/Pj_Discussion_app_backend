@@ -20,5 +20,5 @@ public interface MaintopicRepository {
 
     public void deleteMaintopic(Long maintopicId);
 
-    public Boolean existsMaintopic(Long maintopicId);
+    Boolean existsMaintopic(Long maintopicId);
 }

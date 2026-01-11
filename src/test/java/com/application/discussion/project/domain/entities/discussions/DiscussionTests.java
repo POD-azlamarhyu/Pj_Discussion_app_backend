@@ -3,6 +3,7 @@ package com.application.discussion.project.domain.entities.discussions;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ public class DiscussionTests {
     private static final String MIN_LENGTH_TEXT = "最小文字";
     private static final Long VALID_DISCUSSION_ID = 1L;
     private static final Long VALID_MAINTOPIC_ID = 100L;
+    private static final UUID VALID_USER_ID = UUID.randomUUID();
     private static final LocalDateTime VALID_CREATED_AT = LocalDateTime.of(2024, 1, 1, 10, 0, 0);
     private static final LocalDateTime VALID_UPDATED_AT = LocalDateTime.of(2024, 1, 2, 15, 30, 0);
     private static final LocalDateTime VALID_DELETED_AT = LocalDateTime.of(2024, 1, 3, 20, 45, 0);
@@ -33,6 +35,7 @@ public class DiscussionTests {
             VALID_DISCUSSION_ID,
             VALID_PARAGRAPH_TEXT,
             VALID_MAINTOPIC_ID,
+            VALID_USER_ID,
             VALID_CREATED_AT,
             VALID_UPDATED_AT,
             VALID_DELETED_AT
@@ -52,7 +55,7 @@ public class DiscussionTests {
     void createNewDiscussionTest() {
         Paragraph paragraph = Paragraph.of(VALID_PARAGRAPH_TEXT);
         
-        Discussion discussion = Discussion.create(paragraph, VALID_MAINTOPIC_ID);
+        Discussion discussion = Discussion.create(paragraph, VALID_MAINTOPIC_ID,VALID_USER_ID);
 
         assertNotNull(discussion);
         assertEquals(Long.valueOf(0), discussion.getDiscussionId());
@@ -72,6 +75,7 @@ public class DiscussionTests {
             VALID_DISCUSSION_ID,
             paragraph,
             VALID_MAINTOPIC_ID,
+            VALID_USER_ID,
             VALID_CREATED_AT,
             VALID_UPDATED_AT,
             VALID_DELETED_AT
@@ -93,6 +97,7 @@ public class DiscussionTests {
             VALID_DISCUSSION_ID,
             MIN_LENGTH_TEXT,
             VALID_MAINTOPIC_ID,
+            VALID_USER_ID,
             VALID_CREATED_AT,
             VALID_UPDATED_AT,
             VALID_DELETED_AT
@@ -109,6 +114,7 @@ public class DiscussionTests {
             VALID_DISCUSSION_ID,
             LONG_PARAGRAPH_TEXT,
             VALID_MAINTOPIC_ID,
+            VALID_USER_ID,
             VALID_CREATED_AT,
             VALID_UPDATED_AT,
             VALID_DELETED_AT
@@ -127,6 +133,7 @@ public class DiscussionTests {
                 VALID_DISCUSSION_ID,
                 null,
                 VALID_MAINTOPIC_ID,
+                VALID_USER_ID,
                 VALID_CREATED_AT,
                 VALID_UPDATED_AT,
                 VALID_DELETED_AT
@@ -143,6 +150,7 @@ public class DiscussionTests {
                 VALID_DISCUSSION_ID,
                 "",
                 VALID_MAINTOPIC_ID,
+                VALID_USER_ID,
                 VALID_CREATED_AT,
                 VALID_UPDATED_AT,
                 VALID_DELETED_AT
@@ -160,6 +168,7 @@ public class DiscussionTests {
                 VALID_DISCUSSION_ID,
                 whitespaceOnly,
                 VALID_MAINTOPIC_ID,
+                VALID_USER_ID,
                 VALID_CREATED_AT,
                 VALID_UPDATED_AT,
                 VALID_DELETED_AT
@@ -178,6 +187,7 @@ public class DiscussionTests {
                 VALID_DISCUSSION_ID,
                 tooShort,
                 VALID_MAINTOPIC_ID,
+                VALID_USER_ID,
                 VALID_CREATED_AT,
                 VALID_UPDATED_AT,
                 VALID_DELETED_AT
@@ -196,6 +206,7 @@ public class DiscussionTests {
                 VALID_DISCUSSION_ID,
                 tooLong,
                 VALID_MAINTOPIC_ID,
+                VALID_USER_ID,
                 VALID_CREATED_AT,
                 VALID_UPDATED_AT,
                 VALID_DELETED_AT
@@ -208,7 +219,7 @@ public class DiscussionTests {
     void throwExceptionForNullParagraphInCreateTest() {
         assertThrows(
             DomainLayerErrorException.class,
-            () -> Discussion.create(null, VALID_MAINTOPIC_ID)
+            () -> Discussion.create(null, VALID_MAINTOPIC_ID, VALID_USER_ID)
         );
     }
 
@@ -222,6 +233,7 @@ public class DiscussionTests {
             VALID_DISCUSSION_ID,
             paragraphWithHtml,
             VALID_MAINTOPIC_ID,
+            VALID_USER_ID,
             VALID_CREATED_AT,
             VALID_UPDATED_AT,
             VALID_DELETED_AT
@@ -240,6 +252,7 @@ public class DiscussionTests {
             VALID_DISCUSSION_ID,
             paragraphWithSpaces,
             VALID_MAINTOPIC_ID,
+            VALID_USER_ID,
             VALID_CREATED_AT,
             VALID_UPDATED_AT,
             VALID_DELETED_AT
@@ -255,6 +268,7 @@ public class DiscussionTests {
             VALID_DISCUSSION_ID,
             VALID_PARAGRAPH_TEXT,
             VALID_MAINTOPIC_ID,
+            VALID_USER_ID,
             VALID_CREATED_AT,
             VALID_UPDATED_AT,
             VALID_DELETED_AT
@@ -270,6 +284,7 @@ public class DiscussionTests {
             VALID_DISCUSSION_ID,
             VALID_PARAGRAPH_TEXT,
             VALID_MAINTOPIC_ID,
+            VALID_USER_ID,
             VALID_CREATED_AT,
             VALID_UPDATED_AT,
             VALID_DELETED_AT
@@ -285,6 +300,7 @@ public class DiscussionTests {
             VALID_DISCUSSION_ID,
             VALID_PARAGRAPH_TEXT,
             VALID_MAINTOPIC_ID,
+            VALID_USER_ID,
             VALID_CREATED_AT,
             VALID_UPDATED_AT,
             VALID_DELETED_AT
@@ -300,6 +316,7 @@ public class DiscussionTests {
             VALID_DISCUSSION_ID,
             VALID_PARAGRAPH_TEXT,
             VALID_MAINTOPIC_ID,
+            VALID_USER_ID,
             VALID_CREATED_AT,
             VALID_UPDATED_AT,
             VALID_DELETED_AT
@@ -315,6 +332,7 @@ public class DiscussionTests {
             VALID_DISCUSSION_ID,
             VALID_PARAGRAPH_TEXT,
             VALID_MAINTOPIC_ID,
+            VALID_USER_ID,
             VALID_CREATED_AT,
             VALID_UPDATED_AT,
             VALID_DELETED_AT
@@ -330,6 +348,7 @@ public class DiscussionTests {
             VALID_DISCUSSION_ID,
             VALID_PARAGRAPH_TEXT,
             VALID_MAINTOPIC_ID,
+            VALID_USER_ID,
             VALID_CREATED_AT,
             VALID_UPDATED_AT,
             VALID_DELETED_AT
@@ -347,6 +366,7 @@ public class DiscussionTests {
             VALID_DISCUSSION_ID,
             exactThreeChars,
             VALID_MAINTOPIC_ID,
+            VALID_USER_ID,
             VALID_CREATED_AT,
             VALID_UPDATED_AT,
             VALID_DELETED_AT
@@ -364,6 +384,7 @@ public class DiscussionTests {
             VALID_DISCUSSION_ID,
             exactTwoThousandChars,
             VALID_MAINTOPIC_ID,
+            VALID_USER_ID,
             VALID_CREATED_AT,
             VALID_UPDATED_AT,
             VALID_DELETED_AT
@@ -379,6 +400,7 @@ public class DiscussionTests {
             0L,
             VALID_PARAGRAPH_TEXT,
             VALID_MAINTOPIC_ID,
+            VALID_USER_ID,
             VALID_CREATED_AT,
             VALID_UPDATED_AT,
             VALID_DELETED_AT
@@ -394,6 +416,7 @@ public class DiscussionTests {
             VALID_DISCUSSION_ID,
             VALID_PARAGRAPH_TEXT,
             0L,
+            VALID_USER_ID,
             VALID_CREATED_AT,
             VALID_UPDATED_AT,
             VALID_DELETED_AT

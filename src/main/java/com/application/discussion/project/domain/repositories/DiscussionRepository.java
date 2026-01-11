@@ -1,7 +1,6 @@
 package com.application.discussion.project.domain.repositories;
 
 import com.application.discussion.project.domain.entities.discussions.Discussion;
-import com.application.discussion.project.infrastructure.models.discussions.Discussions;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
@@ -20,7 +19,7 @@ public interface DiscussionRepository {
      * @param discussion 保存するディスカッションエンティティ
      * @return 保存されたディスカッションエンティティ（IDや日時が設定済み）
      */
-    Discussion createDiscussion(Discussions discussions);
+    Discussion createDiscussion(Discussion discussion);
     
     /**
      * 指定されたIDのディスカッションを取得する

@@ -1,6 +1,8 @@
 package com.application.discussion.project.domain.entities.discussions;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +24,13 @@ public class Discussion {
     private final Long discussionId;
     private final Paragraph paragraph;
     private final Long maintopicId;
-
     /**
      * TODO: 議論を投稿したのが誰かを示すユーザーID
      * 現時点ではUserモデルが存在しないため，コメントアウトで対応．
      * 将来的にUserモデルが実装された際に，コメントアウトを解除して使用する
+     * * UPDATE: Userモデル実装したので、userIdを追加。
      */
-    // private Long userId;
+    private final UUID userId;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
     private final LocalDateTime deletedAt;
@@ -49,11 +51,13 @@ public class Discussion {
         Long discussionId,
         Paragraph paragraph,
         Long maintopicId,
+        UUID userId,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         LocalDateTime deletedAt
         
     ) {
+        logger.info("Initializing Discussion entity with discussionId: {}, maintopicId: {}, userId: {}", discussionId, maintopicId, userId);
         if (paragraph == null){
             throw new DomainLayerErrorException(
                 "Paragraph must not be null when creating a Discussion.",
@@ -69,12 +73,26 @@ public class Discussion {
                 HttpStatusCode.valueOf(400)
             );
         }
+
+        if (Objects.isNull(userId)) {
+            logger.error("UserId is null when creating a Discussion. This is not allowed.");
+            throw new DomainLayerErrorException(
+                "不正な操作です",
+                HttpStatus.BAD_REQUEST,
+                HttpStatusCode.valueOf(400)
+            );
+        }
+        logger.info("All required fields are valid. Proceeding with Discussion entity creation.");
+
         this.discussionId = discussionId;
         this.paragraph = paragraph;
         this.createdAt = createdAt;
+        this.userId = userId;
         this.maintopicId = maintopicId;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
+
+        logger.info("Discussion entity created successfully with ID: {}", this.discussionId);
     }
 
     /**
@@ -92,6 +110,7 @@ public class Discussion {
         Long discussionId,
         String paragraph,
         Long maintopicId,
+        UUID userId,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         LocalDateTime deletedAt
@@ -100,6 +119,7 @@ public class Discussion {
             discussionId, 
             Paragraph.of(paragraph),
             maintopicId,
+            userId,
             createdAt, 
             updatedAt, 
             deletedAt
@@ -116,15 +136,16 @@ public class Discussion {
      */
     public static Discussion create(
         final Paragraph paragraph,
-        final Long maintopicId
+        final Long maintopicId,
+        final UUID userId
     ){  
-        logger.info("Creating new Discussion with paragraph: {}", paragraph);
-
+        logger.info("Creating new Discussion with paragraph: {} user: {}", paragraph, userId);
         
         return new Discussion(
             Long.valueOf(0),
             paragraph,
             maintopicId,
+            userId,
             LocalDateTime.MIN,
             LocalDateTime.MIN,
             LocalDateTime.MIN
@@ -183,5 +204,14 @@ public class Discussion {
      */
     public LocalDateTime getDeletedAt() {
         return this.deletedAt;
+    }
+
+    /**
+     * ディスカッションを投稿したユーザーのIDを取得する
+     * 
+     * @return ユーザーの一意識別子
+     */
+    public UUID getUserId() {
+        return this.userId;
     }
 }
