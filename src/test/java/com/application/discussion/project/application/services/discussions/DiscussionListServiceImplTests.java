@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,6 +40,7 @@ class DiscussionListServiceImplTests {
     private Long maintopicId;
     private Pageable pageable;
     private List<Discussion> discussions;
+    private UUID VALID_USER_ID = UUID.randomUUID();
 
     @BeforeEach
     void setUp() {
@@ -133,7 +135,7 @@ class DiscussionListServiceImplTests {
     }
 
     private Discussion createDiscussion(Long id, String paragraph, Long maintopicId, LocalDateTime dateTime) {
-        Discussion discussion = Discussion.of(maintopicId, paragraph, maintopicId, dateTime, dateTime, dateTime);
+        Discussion discussion = Discussion.of(maintopicId, paragraph, maintopicId, VALID_USER_ID, dateTime, dateTime, dateTime);
         return discussion;
     }
 }
