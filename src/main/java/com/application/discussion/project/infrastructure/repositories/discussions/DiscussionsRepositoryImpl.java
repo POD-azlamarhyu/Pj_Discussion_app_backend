@@ -2,6 +2,7 @@ package com.application.discussion.project.infrastructure.repositories.discussio
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -13,6 +14,10 @@ import com.application.discussion.project.infrastructure.models.discussions.Disc
 import java.util.List;
 import java.util.Optional;
 
+import com.application.discussion.project.domain.entities.users.User;
+import com.application.discussion.project.infrastructure.models.topics.Maintopics;
+import com.application.discussion.project.infrastructure.models.users.Users;
+
 /**
  * ディスカッションリポジトリの実装クラス
  * ドメイン層のDiscussionRepositoryインターフェイスを実装し、
@@ -20,19 +25,11 @@ import java.util.Optional;
  */
 @Repository
 public class DiscussionsRepositoryImpl implements DiscussionRepository {
-    private final JpaDiscussionsRepository jpaDiscussionsRepository;
+
+    @Autowired
+    private JpaDiscussionsRepository jpaDiscussionsRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(DiscussionsRepositoryImpl.class);
-
-    /**
-     * コンストラクタ
-     * 
-     * @param jpaDiscussionsRepository JPA用のディスカッションリポジトリ
-     */
-    public DiscussionsRepositoryImpl(JpaDiscussionsRepository jpaDiscussionsRepository) {
-        this.jpaDiscussionsRepository = jpaDiscussionsRepository;
-    }
-
     /**
      * FIXME: このメソッドには、例外処理を追加する必要があります。
      *       例えば、データベース接続エラーやデータ整合性エラーなどのシナリオを考慮してください。
@@ -48,14 +45,28 @@ public class DiscussionsRepositoryImpl implements DiscussionRepository {
      * @return 保存されたディスカッションドメインエンティティ（IDや日時が設定済み）
      */
     @Override
-    public Discussion createDiscussion(final Discussions discussions) {
-        logger.info("Creating discussion with paragraph: {}", discussions.getParagraph());
-        final Discussions savedEntity = jpaDiscussionsRepository.save(discussions);
+    public Discussion createDiscussion(final Discussion discussion) {
+        logger.info("Creating discussion with paragraph: {}", discussion.getParagraph());
+        
+        Discussions entity = new Discussions();
+        entity.setParagraph(discussion.getParagraph());
+        Users user = new Users();
+        user.setUserId(discussion.getUserId());
+        entity.setUser(user);
+        Maintopics maintopic = new Maintopics();
+        maintopic.setId(discussion.getMaintopicId());
+        entity.setMaintopic(maintopic);
+        
+        logger.info("Saving discussion entity to database for maintopicId: {}", discussion.getMaintopicId());
+
+        final Discussions savedEntity = jpaDiscussionsRepository.save(entity);
+
         logger.info("Discussion created with ID: {}", savedEntity.getId());
         return Discussion.of(
             savedEntity.getId(),
             savedEntity.getParagraph(),
             savedEntity.getMaintopic().getId(),
+            savedEntity.getUser().getUserId(),
             savedEntity.getCreatedAt(),
             savedEntity.getUpdatedAt(),
             savedEntity.getDeletedAt()
@@ -80,6 +91,7 @@ public class DiscussionsRepositoryImpl implements DiscussionRepository {
                     entity.getId(),
                     entity.getParagraph(),
                     entity.getMaintopic().getId(),
+                    entity.getUser().getUserId(),
                     entity.getCreatedAt(),
                     entity.getUpdatedAt(),
                     entity.getDeletedAt()
@@ -105,6 +117,7 @@ public class DiscussionsRepositoryImpl implements DiscussionRepository {
                 entity.getId(),
                 entity.getParagraph(),
                 entity.getMaintopic().getId(),
+                entity.getUser().getUserId(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt(),
                 entity.getDeletedAt()
@@ -130,6 +143,7 @@ public class DiscussionsRepositoryImpl implements DiscussionRepository {
             entity.getId(),
             entity.getParagraph(),
             entity.getMaintopic().getId(),
+            entity.getUser().getUserId(),
             entity.getCreatedAt(),
             entity.getUpdatedAt(),
             entity.getDeletedAt()
