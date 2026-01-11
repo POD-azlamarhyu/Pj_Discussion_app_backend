@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.application.discussion.project.infrastructure.models.topics.Maintopics;
+import com.application.discussion.project.infrastructure.models.users.Users;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,6 +40,10 @@ public class Discussions {
     @JoinColumn(name="maintopic_id", nullable=false)
     private Maintopics maintopic;
 
+    @ManyToOne
+    @JoinColumn(name="user_id", nullable=false, referencedColumnName="user_id")
+    private Users user;
+
     @Column(name="created_at", nullable=false, updatable=false)
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -70,6 +75,7 @@ public class Discussions {
         Long id,
         String paragraph,
         Maintopics maintopic,
+        Users user,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         LocalDateTime deletedAt
@@ -77,6 +83,7 @@ public class Discussions {
         this.id = id;
         this.paragraph = paragraph;
         this.maintopic = maintopic;
+        this.user = user;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
@@ -188,5 +195,23 @@ public class Discussions {
      */
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    /**
+     * ディスカッションを投稿したユーザーを取得する
+     * 
+     * @return ユーザーエンティティ
+     */
+    public Users getUser() {
+        return user;
+    }
+
+    /**
+     * ディスカッションを投稿したユーザーを設定する
+     * 
+     * @param user 設定するユーザーエンティティ
+     */
+    public void setUser(Users user) {
+        this.user = user;
     }
 }
