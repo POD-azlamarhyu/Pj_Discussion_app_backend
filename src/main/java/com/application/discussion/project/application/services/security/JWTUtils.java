@@ -195,7 +195,7 @@ public class JWTUtils {
         return ResponseCookie.from(jwtCookieName, jwt)
                 .httpOnly(true)
                 .secure(false)
-                .sameSite(SameSiteCookies.STRICT.name())
+                .sameSite(SameSiteCookies.NONE.name())
                 .path(jwtCookiesPath)
                 .maxAge(jwtTokenExpirationMs / 1000)
                 .build();

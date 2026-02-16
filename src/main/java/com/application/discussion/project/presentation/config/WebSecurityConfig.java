@@ -14,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 import com.application.discussion.project.application.services.security.JWTAuthUserDetailsService;
 import com.application.discussion.project.presentation.security.JWTAuthEntryPoint;
@@ -32,6 +33,9 @@ public class WebSecurityConfig {
 
     @Autowired
     private JWTAuthUserDetailsService jwtAuthUserDetailsService;
+
+    @Autowired
+    private CorsConfigurationSource corsConfigurationSource;
 
 
     @Bean
@@ -74,7 +78,8 @@ public class WebSecurityConfig {
             ).permitAll()
             .anyRequest().authenticated()
             );
-
+        httpSecurity.formLogin(form -> form.disable());
+        httpSecurity.cors(cors -> cors.configurationSource(corsConfigurationSource));
         httpSecurity.authenticationProvider(daoAuthenticationProvider());
         
         httpSecurity.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
