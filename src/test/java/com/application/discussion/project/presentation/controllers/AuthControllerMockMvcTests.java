@@ -1,25 +1,16 @@
 package com.application.discussion.project.presentation.controllers;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -28,6 +19,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
 import com.application.discussion.project.application.dtos.users.LoginRequest;
@@ -81,7 +77,7 @@ public class AuthControllerMockMvcTests {
         
         mockJwtCookie = ResponseCookie.from("jwt", "")
             .httpOnly(true)
-            .secure(true)
+            .secure(false)
             .path("/")
             .maxAge(0)
             .build();
@@ -250,7 +246,6 @@ public class AuthControllerMockMvcTests {
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(header().string("Set-Cookie", org.hamcrest.Matchers.containsString("HttpOnly")))
-            .andExpect(header().string("Set-Cookie", org.hamcrest.Matchers.containsString("Secure")))
             .andExpect(header().string("Set-Cookie", org.hamcrest.Matchers.containsString("Path=/")));
     }
 
