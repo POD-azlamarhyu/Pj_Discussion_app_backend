@@ -1,23 +1,28 @@
 package com.application.discussion.project.application.dtos.topics;
 
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class MaintopicCreateResponseTests {
 
     private final Long id = 1L;
     private final String title = "テストタイトル";
     private final String description = "テスト説明";
-    private final String createdAt = "2023-12-01T10:00:00";
+    private final LocalDateTime createdAt = LocalDateTime.of(2023, 12, 1, 10, 0, 0);
 
     @Test
     void testCreateInstanceSuccessfully() {
 
         MaintopicCreateResponse response = new MaintopicCreateResponse(
-                id,
-                title,
-                description,
-                createdAt);
+            id,
+            title,
+            description,
+            createdAt
+        );
 
         // Assert
         assertNotNull(response);
@@ -52,7 +57,7 @@ public class MaintopicCreateResponseTests {
             expectedId,
             "title",
             "desc",
-            "date"
+            createdAt
         );
 
         assertEquals(expectedId, response.getId());
@@ -89,7 +94,7 @@ public class MaintopicCreateResponseTests {
     @Test
     void testReturnCorrectCreatedAt() {
 
-        String expectedCreatedAt = "2023-12-01T10:00:00";
+        LocalDateTime expectedCreatedAt = LocalDateTime.of(2023, 12, 1, 10, 0, 0);
         MaintopicCreateResponse response = new MaintopicCreateResponse(
             1L, 
             "title", 
@@ -132,7 +137,7 @@ public class MaintopicCreateResponseTests {
 
     @Test
     void testSetDescriptionCorrectly() {
-        MaintopicCreateResponse response = new MaintopicCreateResponse(1L, "title", "desc", "date");
+        MaintopicCreateResponse response = new MaintopicCreateResponse(1L, "title", "desc", createdAt);
         String newDescription = "新しい説明";
 
         response.setDescription(newDescription);
@@ -142,8 +147,8 @@ public class MaintopicCreateResponseTests {
 
     @Test
     void testSetCreatedAtCorrectly() {
-        MaintopicCreateResponse response = new MaintopicCreateResponse(1L, "title", "desc", "date");
-        String newCreatedAt = "2023-12-02T15:30:00";
+        MaintopicCreateResponse response = new MaintopicCreateResponse(1L, "title", "desc", createdAt);
+        LocalDateTime newCreatedAt = LocalDateTime.of(2024, 1, 1, 12, 0, 0);
 
         response.setCreatedAt(newCreatedAt);
 
@@ -152,7 +157,7 @@ public class MaintopicCreateResponseTests {
 
     @Test
     void testSetNullValuesWithSetters() {
-        MaintopicCreateResponse response = new MaintopicCreateResponse(1L, "title", "desc", "date");
+        MaintopicCreateResponse response = new MaintopicCreateResponse(1L, "title", "desc", createdAt);
 
         response.setId(null);
         response.setTitle(null);

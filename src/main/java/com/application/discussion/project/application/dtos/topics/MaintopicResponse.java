@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Builder;
 
 @Builder
@@ -12,9 +15,13 @@ public class MaintopicResponse {
     private Long maintopicId;
     private String title;
     private String description;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
+    @JsonProperty("isDeleted")
     private Boolean isDeleted;
+    @JsonProperty("isClosed")
     private Boolean isClosed;
 
     private static final Logger logger = LoggerFactory.getLogger(MaintopicListResponse.class);

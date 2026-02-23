@@ -54,8 +54,8 @@ public class MaintopicUpdateServiceImpl implements MaintopicUpdateService {
                 updatedMaintopic.getMaintopicId(),
                 updatedMaintopic.getTitle(),
                 updatedMaintopic.getDescription(),
-                updatedMaintopic.getCreatedAt().toString(),
-                updatedMaintopic.getUpdatedAt().toString()
+                updatedMaintopic.getCreatedAt(),
+                updatedMaintopic.getUpdatedAt()
             );
         } catch (Exception e) {
             logger.error("Error occurred while updating maintopic with ID: {}", id, e);
