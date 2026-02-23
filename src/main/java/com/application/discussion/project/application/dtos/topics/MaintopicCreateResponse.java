@@ -1,5 +1,9 @@
 package com.application.discussion.project.application.dtos.topics;
 
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Builder;
 
 @Builder
@@ -7,13 +11,14 @@ public class MaintopicCreateResponse {
     private Long id;
     private String title;
     private String description;
-    private String createdAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
 
     public MaintopicCreateResponse(
         Long id, 
         String title,
         String description, 
-        String createdAt
+        LocalDateTime createdAt
     ) {
         this.id = id;
         this.title = title;
@@ -45,11 +50,11 @@ public class MaintopicCreateResponse {
         this.description = description;
     }
 
-    public String getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(String createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 }
