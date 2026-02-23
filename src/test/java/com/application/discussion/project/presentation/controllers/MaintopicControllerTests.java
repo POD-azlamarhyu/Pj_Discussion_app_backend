@@ -7,8 +7,16 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -17,17 +25,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
 import com.application.discussion.project.application.dtos.exceptions.InternalServerErrorException;
@@ -126,7 +127,7 @@ public class MaintopicControllerTests {
 			4L,
 			testCreateRequestTitle,
 			testCreateRequestDescription,
-			LocalDateTime.now().toString()
+			LocalDateTime.now()
 		);
         testMaintopicUpdateRequest = new MaintopicUpdateRequest(
             testUpdateRequestTitle,
@@ -136,8 +137,8 @@ public class MaintopicControllerTests {
             1L,
             testUpdateRequestTitle,
             testUpdateRequestDescription,
-            testCreatedAt.toString(),
-			testUpdatedAt.toString()
+            testCreatedAt,
+			testUpdatedAt
         );
         testMaintopicDeleteResponse = new MaintopicDeleteResponse();
     }
