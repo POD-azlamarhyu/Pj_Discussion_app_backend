@@ -1,17 +1,21 @@
 package com.application.discussion.project.application.services.topics;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -20,7 +24,6 @@ import com.application.discussion.project.application.dtos.topics.MaintopicUpdat
 import com.application.discussion.project.application.dtos.topics.MaintopicUpdateResponse;
 import com.application.discussion.project.domain.entities.topics.Maintopic;
 import com.application.discussion.project.domain.exceptions.BadRequestException;
-
 import com.application.discussion.project.domain.valueobjects.topics.Description;
 import com.application.discussion.project.domain.valueobjects.topics.Title;
 import com.application.discussion.project.infrastructure.exceptions.ResourceNotFoundException;
@@ -110,8 +113,8 @@ public class MaintopicUpdateServiceImplTests {
         assertEquals(maintopicId, response.getId());
         assertEquals(UPDATE_TITLE, response.getTitle());
         assertEquals(UPDATE_DESCRIPTION, response.getDescription());
-        assertEquals(createdDateTime.toString(), response.getCreatedAt());
-        assertEquals(updatedDateTime.toString(), response.getUpdatedAt());
+        assertEquals(createdDateTime, response.getCreatedAt());
+        assertEquals(updatedDateTime, response.getUpdatedAt());
 
         verify(maintopicRepository, times(1)).findModelById(maintopicId);
         verify(maintopicRepository, times(1)).findMaintopicById(maintopicId);
@@ -245,7 +248,7 @@ public class MaintopicUpdateServiceImplTests {
 
         assertEquals(UPDATE_TITLE+"設定確認タイトル", maintopicUpdateResponse.getTitle());
         assertEquals(UPDATE_DESCRIPTION+"設定確認説明", maintopicUpdateResponse.getDescription());
-        assertEquals(createdDateTime.toString(), maintopicUpdateResponse.getCreatedAt());
-        assertEquals(updatedDateTime.toString(), maintopicUpdateResponse.getUpdatedAt());
+        assertEquals(createdDateTime, maintopicUpdateResponse.getCreatedAt());
+        assertEquals(updatedDateTime, maintopicUpdateResponse.getUpdatedAt());
     }
 }
