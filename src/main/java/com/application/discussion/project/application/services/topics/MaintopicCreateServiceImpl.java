@@ -45,7 +45,7 @@ public class MaintopicCreateServiceImpl implements MaintopicCreateService {
                 savedMaintopic.getMaintopicId(),
                 savedMaintopic.getTitle(),
                 savedMaintopic.getDescription(),
-                savedMaintopic.getCreatedAt().toString()
+                savedMaintopic.getCreatedAt()
             );
         }catch (ApplicationLayerException e){
             logger.error("Error creating maintopic: {}", e.getMessage());
