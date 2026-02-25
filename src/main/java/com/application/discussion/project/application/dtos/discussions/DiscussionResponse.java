@@ -3,6 +3,8 @@ package com.application.discussion.project.application.dtos.discussions;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 /**
  * 議論詳細のレスポンス
  */
@@ -19,13 +21,28 @@ public class DiscussionResponse {
     private Long maintopicId;
 
     @Schema(description = "作成日時", example = "2024-01-15T10:30:00")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
     @Schema(description = "更新日時", example = "2024-01-15T15:45:00")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    private DiscussionResponse(Long discussionId, String paragraph, Long maintopicId,
-                              LocalDateTime createdAt, LocalDateTime updatedAt) {
+    /**
+     * コンストラクタ
+     * @param discussionId
+     * @param paragraph
+     * @param maintopicId
+     * @param createdAt
+     * @param updatedAt
+     */
+    private DiscussionResponse(
+        Long discussionId, 
+        String paragraph, 
+        Long maintopicId,
+        LocalDateTime createdAt, 
+        LocalDateTime updatedAt
+    ) {
         this.discussionId = discussionId;
         this.paragraph = paragraph;
         this.maintopicId = maintopicId;
@@ -33,6 +50,15 @@ public class DiscussionResponse {
         this.updatedAt = updatedAt;
     }
 
+    /**
+     * ファクトリーメソッド
+     * @param discussionId
+     * @param paragraph
+     * @param maintopicId
+     * @param createdAt
+     * @param updatedAt
+     * @return
+     */
     public static DiscussionResponse of(
         Long discussionId, String paragraph, Long maintopicId,
         LocalDateTime createdAt, LocalDateTime updatedAt

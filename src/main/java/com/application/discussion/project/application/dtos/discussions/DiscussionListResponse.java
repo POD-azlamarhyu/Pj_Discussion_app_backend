@@ -25,6 +25,14 @@ public class DiscussionListResponse {
     @Schema(description = "総ページ数", example = "3")
     private Integer totalPages;
 
+    /**
+     * コンストラクタ
+     * @param discussions
+     * @param totalCount
+     * @param currentPage
+     * @param pageSize
+     * @param totalPages
+     */
     private DiscussionListResponse(List<DiscussionResponse> discussions, Integer totalCount, Integer currentPage, Integer pageSize, Integer totalPages) {
         this.discussions = discussions;
         this.totalCount = totalCount;
@@ -35,6 +43,15 @@ public class DiscussionListResponse {
 
     public DiscussionListResponse() {}
 
+    /**
+     * ファクトリーメソッド
+     * @param discussions
+     * @param totalCount
+     * @param currentPage
+     * @param pageSize
+     * @param totalPages
+     * @return
+     */
     public static DiscussionListResponse of(List<DiscussionResponse> discussions, Integer totalCount, Integer currentPage, Integer pageSize, Integer totalPages) {
         return new DiscussionListResponse(discussions, totalCount, currentPage, pageSize, totalPages);
     }
