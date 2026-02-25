@@ -37,7 +37,10 @@ public class RolesRepositoryImpl implements RolesRepositoryInterface {
         List<UsersRolesProjections> roles = jpaUsersRolesRepository.findUserRolesByUUID(userId);
 
         logger.info("Roles fetched: {}", roles);
-        
+        /**
+         * ! ここでエラーの原因になっている。Roleインスタンス生成時にRoleTypeがnullになっているため、RoleクラスのコンストラクタでNullPointerExceptionが発生している。
+         * ! これを解決するためには、RoleクラスのコンストラクタでRoleTypeがnullの場合の処理を追加するか、ここでRoleTypeを適切に設定する必要がある。
+         */
         return roles.stream()
                 .map(role -> {
                     return Role.of(
