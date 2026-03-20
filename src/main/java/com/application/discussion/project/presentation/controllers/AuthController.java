@@ -5,15 +5,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.application.discussion.project.application.dtos.users.AuthCheckResponse;
 import com.application.discussion.project.application.dtos.users.LoginRequest;
 import com.application.discussion.project.application.dtos.users.LoginResponse;
 import com.application.discussion.project.application.dtos.users.LogoutResponse;
 import com.application.discussion.project.application.dtos.users.LogoutResponseDTO;
+import com.application.discussion.project.application.services.users.AuthCheckService;
 import com.application.discussion.project.application.services.users.AuthLoginServiceInterface;
 import com.application.discussion.project.application.services.users.AuthLogoutService;
 import com.application.discussion.project.presentation.validations.AuthLoginRequestValidation;
@@ -24,8 +27,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 
 @Tag(name="authentication",description = "Authentication API")
@@ -38,6 +39,9 @@ public class AuthController {
 
     @Autowired
     private AuthLogoutService authLogoutService;
+
+    @Autowired
+    private AuthCheckService authCheckService;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -150,5 +154,34 @@ public class AuthController {
     @PostMapping("/refresh")
     public void refresh(){
 
+    }
+
+    @Operation(
+        summary = "認証状態確認",
+        description = "HttpOnly Cookieに格納されたJWTトークンを利用して認証状態を確認し、認証済みユーザー情報を返却します。",
+        tags = {"authentication"}
+    )
+    @ApiResponses(
+        value = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "認証成功 - 認証済みユーザー情報を返却",
+                content = @Content(
+                    schema = @Schema(implementation = AuthCheckResponse.class),
+                    mediaType = "application/json"
+                )
+            ),
+            @ApiResponse(
+                responseCode = "401",
+                description = "認証失敗 - JWTトークンが無効または未設定",
+                content = @Content
+            )
+        }
+    )
+    @GetMapping("/check")
+    public ResponseEntity<AuthCheckResponse> checkAuth() {
+        logger.info("認証状態確認リクエストを受信しました");
+        AuthCheckResponse authCheckResponse = authCheckService.service();
+        return ResponseEntity.status(HttpStatus.OK).body(authCheckResponse);
     }
 }
