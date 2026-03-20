@@ -3,6 +3,7 @@ package com.application.discussion.project.presentation.config;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -14,12 +15,14 @@ public class WebConfig {
     @Value("${springboot.app.cors.allowed-url:http://localhost:3031}")
     private String allowedOrigins;
 
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin(allowedOrigins);
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","PATCH"));
         configuration.setAllowCredentials(true);
+        configuration.setExposedHeaders(Arrays.asList("Set-Cookie"));
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
