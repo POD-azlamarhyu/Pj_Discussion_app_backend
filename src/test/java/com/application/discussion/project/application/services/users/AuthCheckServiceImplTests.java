@@ -156,7 +156,7 @@ public class AuthCheckServiceImplTests {
 
         authCheckService.service();
 
-        verify(mockUserDetails, times(2)).getUsername();
+        verify(mockUserDetails, times(1)).getUserId();
     }
 
     @Test
