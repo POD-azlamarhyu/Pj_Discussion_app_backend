@@ -6,9 +6,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import com.application.discussion.project.infrastructure.seeds.topics.MaintopicDataSeeder;
 import com.application.discussion.project.infrastructure.seeds.discussions.DiscussionDataSeeder;
-
+import com.application.discussion.project.infrastructure.seeds.topics.MaintopicDataSeeder;
 import com.application.discussion.project.infrastructure.seeds.users.RoleDataSeeder;
 import com.application.discussion.project.infrastructure.seeds.users.UserDataSeeder;
 import com.application.discussion.project.infrastructure.seeds.users.UserRoleDataSeeder;
