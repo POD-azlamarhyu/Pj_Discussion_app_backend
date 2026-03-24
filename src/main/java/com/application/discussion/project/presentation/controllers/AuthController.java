@@ -178,10 +178,11 @@ public class AuthController {
             )
         }
     )
-    @GetMapping("/check")
+    @GetMapping("/verify")
     public ResponseEntity<AuthCheckResponse> checkAuth() {
-        logger.info("認証状態確認リクエストを受信しました");
+        logger.info("received request to check authentication status");
         AuthCheckResponse authCheckResponse = authCheckService.service();
+        logger.info("checked verify token");
         return ResponseEntity.status(HttpStatus.OK).body(authCheckResponse);
     }
 }

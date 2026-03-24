@@ -26,6 +26,7 @@ public class AuthCheckServiceImpl implements AuthCheckService {
 
     @Override
     public AuthCheckResponse service() {
+        logger.info("AuthCheckServiceImpl: Starting authentication check");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (Objects.isNull(authentication) || !authentication.isAuthenticated()) {
@@ -49,7 +50,7 @@ public class AuthCheckServiceImpl implements AuthCheckService {
         }
 
         JWTAuthUserDetails userDetails = (JWTAuthUserDetails) principal;
-        logger.info("認証状態確認成功: userId={}, username={}", userDetails.getUserId(), userDetails.getUsername());
+        logger.info("succeeded authentication: userId={}, username={}", userDetails.getUserId(), userDetails.getUsername());
 
         return AuthCheckResponse.of(
             userDetails.getUsername(),
