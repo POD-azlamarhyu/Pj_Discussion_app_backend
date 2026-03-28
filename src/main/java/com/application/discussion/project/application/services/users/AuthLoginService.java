@@ -80,6 +80,7 @@ public class AuthLoginService implements AuthLoginServiceInterface {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         final JWTAuthUserDetails userDetails = (JWTAuthUserDetails) authentication.getPrincipal();
+        logger.info("Authenticated user {}",userDetails.getUserId());
         final String accessToken = jwtUtils.generateToken(userDetails);
 
         final String refreshTokenStr = jwtUtils.generateRefreshToken(userDetails);
@@ -89,6 +90,7 @@ public class AuthLoginService implements AuthLoginServiceInterface {
             ZoneId.systemDefault()
         );
         final RefreshToken refreshToken = RefreshToken.create(userDetails.getUserId(), tokenHash, expiresAt);
+        logger.info("Saving refresh token for userId: {} with tokenHash: {}", userDetails.getUserId(), "******");
         refreshTokenRepository.save(refreshToken);
 
         final ResponseCookie refreshCookie = jwtUtils.generateRefreshTokenCookie(refreshTokenStr);
