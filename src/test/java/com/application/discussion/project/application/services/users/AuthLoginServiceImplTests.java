@@ -1,25 +1,23 @@
 package com.application.discussion.project.application.services.users;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.Matchers.anything;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
 import java.util.Set;
+import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -29,7 +27,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
 import com.application.discussion.project.application.dtos.users.LoginRequest;
@@ -39,12 +36,13 @@ import com.application.discussion.project.application.services.security.JWTUtils
 import com.application.discussion.project.domain.entities.users.Role;
 import com.application.discussion.project.domain.valueobjects.users.RoleNormalUser;
 import com.application.discussion.project.domain.valueobjects.users.RoleType;
-import com.application.discussion.project.infrastructure.models.users.Roles;
 import com.application.discussion.project.infrastructure.models.users.Users;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AuthLoginServiceのテスト")
 public class AuthLoginServiceImplTests {
+
+    private static final String TEST_ACCESS_TOKEN = "access_token_sample";
 
     @Mock
     private AuthenticationManager mockAuthenticationManager;
@@ -109,7 +107,8 @@ public class AuthLoginServiceImplTests {
                 .body(new LoginResponse(
                     TEST_USER_ID,
                     TEST_USERNAME,
-                    List.of(TEST_ROLE)
+                    List.of(TEST_ROLE),
+                    TEST_ACCESS_TOKEN
                 ));
         }
 
@@ -291,7 +290,8 @@ public class AuthLoginServiceImplTests {
                 .body(new LoginResponse(
                     TEST_USER_ID,
                     TEST_USERNAME,
-                    List.of(TEST_ROLE)
+                    List.of(TEST_ROLE),
+                    TEST_ACCESS_TOKEN
                 ));
         }
 
