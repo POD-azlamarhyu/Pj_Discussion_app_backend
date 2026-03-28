@@ -4,12 +4,16 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 /**
@@ -24,8 +28,9 @@ public class RefreshTokens {
     @Column(name = "id", updatable = false)
     private UUID id;
 
-    @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    private Users user;
 
     @Column(name = "token_hash", nullable = false, length = 64)
     private String tokenHash;
@@ -43,6 +48,10 @@ public class RefreshTokens {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at", nullable = true)
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
     public RefreshTokens() {
         this.isUsed = false;
         this.isRevoked = false;
@@ -50,7 +59,7 @@ public class RefreshTokens {
 
     public RefreshTokens(
         UUID id,
-        UUID userId,
+        Users users,
         String tokenHash,
         LocalDateTime expiresAt,
         Boolean isUsed,
@@ -58,7 +67,7 @@ public class RefreshTokens {
         LocalDateTime createdAt
     ) {
         this.id = id;
-        this.userId = userId;
+        this.user = users;
         this.tokenHash = tokenHash;
         this.expiresAt = expiresAt;
         this.isUsed = isUsed;
@@ -74,12 +83,12 @@ public class RefreshTokens {
         this.id = id;
     }
 
-    public UUID getUserId() {
-        return userId;
+    public Users getUser() {
+        return user;
     }
 
-    public void setUserId(UUID userId) {
-        this.userId = userId;
+    public void setUser(Users user) {
+        this.user = user;
     }
 
     public String getTokenHash() {
