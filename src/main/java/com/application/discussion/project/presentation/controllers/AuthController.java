@@ -3,6 +3,7 @@ package com.application.discussion.project.presentation.controllers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,13 +13,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.application.discussion.project.application.dtos.users.AuthCheckResponse;
+import com.application.discussion.project.application.dtos.users.AuthRefreshTokenServiceResult;
 import com.application.discussion.project.application.dtos.users.LoginRequest;
 import com.application.discussion.project.application.dtos.users.LoginResponse;
 import com.application.discussion.project.application.dtos.users.LogoutResponse;
 import com.application.discussion.project.application.dtos.users.LogoutResponseDTO;
+import com.application.discussion.project.application.dtos.users.RefreshTokenResponse;
 import com.application.discussion.project.application.services.users.AuthCheckService;
 import com.application.discussion.project.application.services.users.AuthLoginServiceInterface;
 import com.application.discussion.project.application.services.users.AuthLogoutService;
+import com.application.discussion.project.application.services.users.AuthRefreshTokenService;
 import com.application.discussion.project.presentation.validations.AuthLoginRequestValidation;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,6 +31,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 @Tag(name="authentication",description = "Authentication API")
@@ -42,6 +47,9 @@ public class AuthController {
 
     @Autowired
     private AuthCheckService authCheckService;
+
+    @Autowired
+    private AuthRefreshTokenService authRefreshTokenService;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -140,20 +148,38 @@ public class AuthController {
             .body(logoutResponseDTO.getLogoutResponse());
     }
     
-    @Operation(summary = "refresh access token jwt",tags = {"authentication"})
+    @Operation(
+        summary = "アクセストークンリフレッシュ",
+        description = "HttpOnly Cookieに格納されたリフレッシュトークンを使用してアクセストークンを再発行します。" +
+        "リフレッシュトークンが有効な場合、新しいアクセストークンとリフレッシュトークンが返却されます。",
+        tags = {"authentication"}
+    )
     @ApiResponses(
         value = {
             @ApiResponse(
                 responseCode = "200",
-                description = "access token refresh successful",
-                content = @Content(schema = @Schema(implementation = ResponseEntity.class))
+                description = "リフレッシュ成功 - 新しいアクセストークンをレスポンスBodyに、新しいリフレッシュトークンをCookieに返却",
+                content = @Content(
+                    schema = @Schema(implementation = RefreshTokenResponse.class),
+                    mediaType = "application/json"
+                )
             ),
-            @ApiResponse(responseCode = "400",description = "Bad request",content = @Content)
+            @ApiResponse(
+                responseCode = "401",
+                description = "リフレッシュ失敗 - リフレッシュトークンが無効、期限切れ、または再利用されました",
+                content = @Content
+            )
         }
     )
     @PostMapping("/refresh")
-    public void refresh(){
+    public ResponseEntity<RefreshTokenResponse> refresh(HttpServletRequest request) {
+        logger.info("リフレッシュトークンリクエストを受信しました");
 
+        AuthRefreshTokenServiceResult result = authRefreshTokenService.service(request);
+
+        return ResponseEntity.status(HttpStatus.OK)
+            .header(HttpHeaders.SET_COOKIE, result.getRefreshTokenCookie().toString())
+            .body(result.getRefreshTokenResponse());
     }
 
     @Operation(
