@@ -32,7 +32,7 @@ public interface JpaRefreshTokenRepository extends JpaRepository<RefreshTokens, 
      * @param userId ユーザーID
      * @return 未失効のリフレッシュトークンリスト
      */
-    List<RefreshTokens> findAllByUserIdAndIsRevokedFalse(UUID userId);
+    List<RefreshTokens> findAllByUserUserIdAndIsRevokedFalse(UUID userId);
 
     /**
      * 指定ユーザーの全リフレッシュトークンを失効させる
@@ -40,7 +40,7 @@ public interface JpaRefreshTokenRepository extends JpaRepository<RefreshTokens, 
      * @param userId ユーザーID
      */
     @Modifying
-    @Query("UPDATE RefreshTokens r SET r.isRevoked = true WHERE r.userId = :userId AND r.isRevoked = false")
+    @Query(value = "UPDATE refresh_tokens SET is_revoked = true WHERE user_id = :userId AND is_revoked = false", nativeQuery = true)
     void revokeAllByUserId(@Param("userId") UUID userId);
 
     /**
@@ -49,6 +49,6 @@ public interface JpaRefreshTokenRepository extends JpaRepository<RefreshTokens, 
      * @param tokenId リフレッシュトークンID
      */
     @Modifying
-    @Query("UPDATE RefreshTokens r SET r.isUsed = true WHERE r.id = :tokenId")
+    @Query(value = "UPDATE refresh_tokens SET is_used = true WHERE id = :tokenId", nativeQuery = true)
     void markAsUsed(@Param("tokenId") UUID tokenId);
 }
