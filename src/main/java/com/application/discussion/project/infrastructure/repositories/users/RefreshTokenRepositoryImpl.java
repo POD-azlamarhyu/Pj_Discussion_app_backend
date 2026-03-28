@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.application.discussion.project.domain.entities.users.RefreshToken;
 import com.application.discussion.project.domain.repositories.users.RefreshTokenRepository;
 import com.application.discussion.project.infrastructure.models.users.RefreshTokens;
+import com.application.discussion.project.infrastructure.models.users.Users;
 
 /**
  * リフレッシュトークンリポジトリの実装クラス
@@ -61,9 +62,10 @@ public class RefreshTokenRepositoryImpl implements RefreshTokenRepository {
      * JPAモデルをドメインエンティティにマッピングする
      */
     private RefreshToken mapToDomainEntity(final RefreshTokens model) {
+        logger.info("Mapping JPA model to domain entity for tokenId: {}", model.getId());
         return RefreshToken.reBuild(
             model.getId(),
-            model.getUserId(),
+            model.getUser().getUserId(),
             model.getTokenHash(),
             model.getExpiresAt(),
             model.getIsUsed(),
@@ -76,9 +78,12 @@ public class RefreshTokenRepositoryImpl implements RefreshTokenRepository {
      * ドメインエンティティをJPAモデルにマッピングする
      */
     private RefreshTokens mapToModelEntity(final RefreshToken domainEntity) {
+        logger.info("Mapping domain entity to JPA model for tokenId: {}", domainEntity.getId());
         RefreshTokens model = new RefreshTokens();
-        model.setId(domainEntity.getId());
-        model.setUserId(domainEntity.getUserId());
+        Users user = new Users();
+        user.setUserId(domainEntity.getUserId());
+
+        model.setUser(user);
         model.setTokenHash(domainEntity.getTokenHash());
         model.setExpiresAt(domainEntity.getExpiresAt());
         model.setIsUsed(domainEntity.getIsUsed());
