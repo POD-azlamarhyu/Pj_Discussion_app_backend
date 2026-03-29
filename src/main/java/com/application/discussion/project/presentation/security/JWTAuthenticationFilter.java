@@ -11,7 +11,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -27,8 +26,11 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
-    private final AntPathRequestMatcher requestMatcher = new AntPathRequestMatcher("/v1/auth/login","POST");
-    private final AntPathRequestMatcher signupMatcher = new AntPathRequestMatcher("/v1/users/signup","POST");
+    private static final List<String> SKIP_AUTH_POST_PATHS = List.of(
+        "/v1/auth/login",
+        "/v1/users/signup",
+        "/v1/auth/refresh"
+    );
 
     private static final List<String> PUBLIC_PATHS = Arrays.asList(
         "/v3/api-docs/**",
@@ -66,8 +68,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         String requestURI=httpServletRequest.getRequestURI();
         logger.debug("called for URI : {}",requestURI);
 
-        if (requestMatcher.matches(httpServletRequest) || signupMatcher.matches(httpServletRequest)) {
-            logger.debug("Skipping JWT authentication for login request: {}", requestURI);
+        if ("POST".equals(httpServletRequest.getMethod()) && SKIP_AUTH_POST_PATHS.contains(requestURI)) {
+            logger.debug("Skipping JWT authentication for public auth request: {}", requestURI);
             filterChain.doFilter(httpServletRequest, httpServletResponse);
             return;
         }
@@ -85,9 +87,21 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = jwtUtils.getJwtFromCookies(httpServletRequest);
-        if (!StringUtils.hasText(token) || !jwtUtils.validateJwtToken(token)){
-            logger.error("JWT token is invalid or missing");
+        String token = jwtUtils.getJwtFromHeader(httpServletRequest);
+        if (!StringUtils.hasText(token)) {
+            logger.warn("Authorization header is missing or empty");
+            filterChain.doFilter(httpServletRequest, httpServletResponse);
+            return;
+        }
+
+        try {
+            if (!jwtUtils.validateJwtToken(token)) {
+                logger.error("JWT token validation returned false");
+                filterChain.doFilter(httpServletRequest, httpServletResponse);
+                return;
+            }
+        } catch (Exception e) {
+            logger.warn("JWT token is invalid or expired: {}", e.getMessage());
             filterChain.doFilter(httpServletRequest, httpServletResponse);
             return;
         }
@@ -108,7 +122,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(httpServletRequest, httpServletResponse);
         logger.info("JWT authentication completed for user: {} with ID: {}", emailOrLoginId, userId);
-        return;
     }
 
     private Boolean isPublicPath(final String requestURI) {

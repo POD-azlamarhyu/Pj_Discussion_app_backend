@@ -1,37 +1,24 @@
 package com.application.discussion.project.presentation.controllers;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.UUID;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 
 import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
 import com.application.discussion.project.application.dtos.users.LoginRequest;
@@ -41,7 +28,6 @@ import com.application.discussion.project.application.dtos.users.LogoutResponseD
 import com.application.discussion.project.application.services.users.AuthLoginServiceInterface;
 import com.application.discussion.project.application.services.users.AuthLogoutService;
 import com.application.discussion.project.presentation.validations.AuthLoginRequestValidation;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestAPIControllerTest
 @DisplayName("AuthController - 認証機能のテスト")
@@ -68,6 +54,7 @@ public class AuthControllerTests {
     private static final String TEST_ERROR_MESSAGE = "ログアウト処理中にエラーが発生しました";
     private static final String LOGIN_ENDPOINT = "/v1/auth/login";
     private static final String LOGOUT_ENDPOINT = "/v1/auth/logout";
+    
 
     private LoginRequest mockLoginRequest;
     private LoginResponse mockLoginResponse;
@@ -84,7 +71,8 @@ public class AuthControllerTests {
         mockLoginResponse = new LoginResponse(
             TEST_USER_ID,
             TEST_USERNAME,
-            TEST_ROLES
+            TEST_ROLES,
+            TEST_ACCESS_TOKEN
         );
         
         mockLogoutResponse = LogoutResponse.of(TEST_LOGOUT_MESSAGE,TEST_LOGOUT_SUCCESS);

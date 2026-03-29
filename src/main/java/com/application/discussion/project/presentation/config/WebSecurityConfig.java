@@ -3,10 +3,10 @@ package com.application.discussion.project.presentation.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -74,6 +74,7 @@ public class WebSecurityConfig {
                 "/webjars/**",
                 "/api-docs/**",
                 "/v1/auth/login",
+                "/v1/auth/refresh",
                 "/v1/users/signup"
             ).permitAll()
             .anyRequest().authenticated()

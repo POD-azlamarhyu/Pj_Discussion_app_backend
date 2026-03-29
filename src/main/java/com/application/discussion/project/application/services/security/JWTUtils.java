@@ -1,10 +1,13 @@
 package com.application.discussion.project.application.services.security;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HexFormat;
 import java.util.Optional;
-import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -27,7 +30,6 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * JWTトークンの生成、検証、抽出を行うユーティリティクラス
@@ -52,6 +54,15 @@ public class JWTUtils {
     private Boolean isCookieHttpOnly;
     @Value("${springboot.app.cookies.secure}")
     private Boolean isCookieSecure;
+
+    @Value("${springboot.app.authentication.jwt.refreshtoken.secret}")
+    private String jwtRefreshTokenSecret;
+    @Value("${springboot.app.authentication.jwt.refreshtoken.expiration}")
+    private long jwtRefreshTokenExpirationMs;
+    @Value("${springboot.app.cookies.refresh.name:refreshToken}")
+    private String refreshCookieName;
+    @Value("${springboot.app.cookies.refresh.path:/v1/auth}")
+    private String refreshCookiePath;
 
     /**
      * HTTPリクエストのAuthorizationヘッダーからJWTトークンを抽出する
@@ -237,5 +248,193 @@ public class JWTUtils {
                 .build();
         logger.info("remove jwt token cookie: {}", jwtCookieName);
         return cookie;
+    }
+
+    /**
+     * リフレッシュトークン用のJWTを生成する
+     * アクセストークンとは異なる秘密鍵と有効期限を使用する
+     *
+     * @param userDetails JWT認証用のユーザー詳細情報
+     * @return 生成されたリフレッシュトークン文字列
+     */
+    public String generateRefreshToken(final JWTAuthUserDetails userDetails) {
+        logger.info("Generating refresh token for user: {}", userDetails.getUsername());
+
+        return Jwts.builder()
+                .subject(userDetails.getLoginId() != null ? userDetails.getLoginId() : userDetails.getEmail())
+                .id(userDetails.getUserId().toString())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + jwtRefreshTokenExpirationMs))
+                .signWith(getRefreshTokenKey())
+                .claim("type", "refresh")
+                .compact();
+    }
+
+    /**
+     * リフレッシュトークンをHttpOnly Cookieに設定するためのResponseCookieを生成する
+     *
+     * @param token リフレッシュトークン文字列
+     * @return 生成されたResponseCookieオブジェクト
+     */
+    public ResponseCookie generateRefreshTokenCookie(final String token) {
+        logger.info("Generating refresh token cookie");
+
+        return ResponseCookie.from(refreshCookieName, token)
+                .httpOnly(true)
+                .secure(isCookieSecure)
+                .sameSite(SameSiteCookies.STRICT.name())
+                .path(refreshCookiePath)
+                .maxAge(jwtRefreshTokenExpirationMs / 1000)
+                .build();
+    }
+
+    /**
+     * HTTPリクエストのCookieからリフレッシュトークンを抽出する
+     *
+     * @param httpServletRequest HTTPサーブレットリクエスト
+     * @return 抽出されたリフレッシュトークン。Cookieが存在しない場合はnull
+     */
+    public String getRefreshTokenFromCookies(final HttpServletRequest httpServletRequest) {
+        logger.info("Extracting refresh token from cookies");
+
+        Cookie[] cookies = httpServletRequest.getCookies();
+
+        return Optional.ofNullable(cookies)
+                .stream()
+                .flatMap(Arrays::stream)
+                .filter(cookie -> refreshCookieName.equals(cookie.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * リフレッシュトークンの妥当性を検証する
+     * アクセストークンとは異なる秘密鍵で検証を行う
+     *
+     * @param token 検証対象のリフレッシュトークン文字列
+     * @return トークンが有効な場合はtrue
+     * @throws ApplicationLayerException トークンが不正な形式、期限切れ、サポート外の形式、空の場合
+     */
+    public Boolean validateRefreshToken(final String token) {
+        logger.info("Try validating refresh token");
+
+        try {
+            Jwts.parser()
+                .verifyWith((SecretKey) getRefreshTokenKey())
+                .build()
+                .parseSignedClaims(token);
+            return true;
+        } catch (MalformedJwtException malformedJwtException) {
+            logger.error("Malformed refresh token: {}", malformedJwtException.getMessage());
+            throw new ApplicationLayerException("Invalid refresh token", HttpStatus.UNAUTHORIZED, HttpStatusCode.valueOf(401));
+        } catch (ExpiredJwtException expiredJwtException) {
+            logger.error("Refresh token is expired: {}", expiredJwtException.getMessage());
+            throw new ApplicationLayerException("Refresh token is expired", HttpStatus.UNAUTHORIZED, HttpStatusCode.valueOf(401));
+        } catch (UnsupportedJwtException unsupportedJwtException) {
+            logger.error("Unsupported refresh token: {}", unsupportedJwtException.getMessage());
+            throw new ApplicationLayerException("Unsupported refresh token", HttpStatus.UNAUTHORIZED, HttpStatusCode.valueOf(401));
+        } catch (IllegalArgumentException illegalArgumentException) {
+            logger.error("Refresh token claims string is empty: {}", illegalArgumentException.getMessage());
+            throw new ApplicationLayerException("Refresh token claims string is empty", HttpStatus.UNAUTHORIZED, HttpStatusCode.valueOf(401));
+        }
+    }
+
+    /**
+     * リフレッシュトークンからユーザーIDを取得する
+     *
+     * @param token リフレッシュトークン文字列
+     * @return トークンに含まれるユーザーID
+     */
+    public String getUserIdFromRefreshToken(final String token) {
+        logger.info("Extracting user ID from refresh token");
+
+        return Jwts.parser()
+                .verifyWith((SecretKey) getRefreshTokenKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getId();
+    }
+
+    /**
+     * リフレッシュトークンからメールアドレスまたはログインIDを取得する
+     *
+     * @param token リフレッシュトークン文字列
+     * @return トークンのsubjectに設定されているメールアドレスまたはログインID
+     */
+    public String getEmailOrLoginIdFromRefreshToken(final String token) {
+        logger.info("Extracting email or login ID from refresh token");
+
+        return Jwts.parser()
+                .verifyWith((SecretKey) getRefreshTokenKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
+    }
+
+    /**
+     * リフレッシュトークン用の署名鍵を取得する
+     *
+     * @return HMAC-SHA アルゴリズム用の署名鍵
+     */
+    public Key getRefreshTokenKey() {
+        logger.info("Retrieving signing key for refresh token");
+        byte[] keyBytes = Decoders.BASE64.decode(jwtRefreshTokenSecret);
+
+        if (keyBytes.length < TOKEN_SECRET_BYTE_LENGTH) {
+            logger.error("The refresh token secret must be at least {} bits long", TOKEN_SECRET_LENGTH);
+            return Jwts.SIG.HS512.key().build();
+        }
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    /**
+     * リフレッシュトークン用のCookieを削除する
+     *
+     * @return maxAge=0のリフレッシュトークン削除用Cookie
+     */
+    public ResponseCookie getClearRefreshTokenCookie() {
+        logger.info("Clearing refresh token cookie");
+
+        return ResponseCookie.from(refreshCookieName, "")
+                .path(refreshCookiePath)
+                .maxAge(0)
+                .httpOnly(true)
+                .secure(isCookieSecure)
+                .sameSite(SameSiteCookies.STRICT.name())
+                .build();
+    }
+
+    /**
+     * トークン文字列をSHA-256でハッシュ化する
+     * DB保存時にトークンの生値を保存しないためのセキュリティ対策
+     *
+     * @param token ハッシュ化対象のトークン文字列
+     * @return SHA-256ハッシュの16進数文字列
+     */
+    public String hashToken(final String token) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(hash);
+        } catch (NoSuchAlgorithmException e) {
+            logger.error("SHA-256 algorithm not available: {}", e.getMessage());
+            throw new ApplicationLayerException(
+                "Token hashing failed",
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                HttpStatusCode.valueOf(500)
+            );
+        }
+    }
+
+    /**
+     * リフレッシュトークンの有効期限をミリ秒で取得する
+     *
+     * @return リフレッシュトークンの有効期限（ミリ秒）
+     */
+    public long getRefreshTokenExpirationMs() {
+        return jwtRefreshTokenExpirationMs;
     }
 }

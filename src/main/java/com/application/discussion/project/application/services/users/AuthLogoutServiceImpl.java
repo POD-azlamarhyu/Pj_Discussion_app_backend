@@ -1,7 +1,6 @@
 package com.application.discussion.project.application.services.users;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,12 +11,14 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
 import com.application.discussion.project.application.dtos.users.LogoutResponse;
 import com.application.discussion.project.application.dtos.users.LogoutResponseDTO;
 import com.application.discussion.project.application.services.security.JWTAuthUserDetails;
 import com.application.discussion.project.application.services.security.JWTUtils;
+import com.application.discussion.project.domain.repositories.users.RefreshTokenRepository;
 
 /**
  * ログアウト処理を行うアプリケーションサービスの実装クラス
@@ -32,6 +33,9 @@ public class AuthLogoutServiceImpl implements AuthLogoutService {
     @Autowired
     private JWTUtils jwtUtils;
 
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+
     /**
      * ログアウト処理を実行する
      * 
@@ -40,6 +44,7 @@ public class AuthLogoutServiceImpl implements AuthLogoutService {
      * @return ログアウト結果を含むレスポンス
      */
     @Override
+    @Transactional
     public LogoutResponseDTO service() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
@@ -77,14 +82,17 @@ public class AuthLogoutServiceImpl implements AuthLogoutService {
         
         logger.info("ログアウト処理開始: ユーザー={}", username);
         
+        refreshTokenRepository.revokeAllByUserId(userDetails.getUserId());
+        logger.info("リフレッシュトークンを失効しました: ユーザー={}", username);
+
         SecurityContextHolder.clearContext();
         logger.info("セキュリティコンテキストをクリアしました: ユーザー={}", username);
         
-        ResponseCookie jwtCookie = jwtUtils.getClearJwtCookie();
+        ResponseCookie refreshCookie = jwtUtils.getClearRefreshTokenCookie();
         LogoutResponse logoutResponse = LogoutResponse.of(LOGOUT_SUCCESS_MESSAGE, true);
         
         logger.info("ログアウト処理完了: ユーザー={}", username);
         
-        return LogoutResponseDTO.of(logoutResponse, jwtCookie);
+        return LogoutResponseDTO.of(logoutResponse, refreshCookie);
     }
 }

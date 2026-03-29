@@ -7,6 +7,7 @@ public class LoginResponse {
     private UUID userId;
     private String username;
     private List<String> roles;
+    private String accessToken;
 
     /**
      * デフォルトコンストラクタ
@@ -19,11 +20,13 @@ public class LoginResponse {
      * @param userId ユーザーID
      * @param username ユーザー名
      * @param roles ユーザーロールのリスト
+     * @param accessToken アクセストークン
      */
-    public LoginResponse(UUID userId, String username, List<String> roles) {
+    public LoginResponse(UUID userId, String username, List<String> roles, String accessToken) {
         this.userId = userId;
         this.username = username;
         this.roles = roles;
+        this.accessToken = accessToken;
     }
 
     /**
@@ -75,6 +78,22 @@ public class LoginResponse {
     }
 
     /**
+     * アクセストークンを取得する
+     * @return アクセストークン
+     */
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    /**
+     * アクセストークンを設定する
+     * @param accessToken アクセストークン
+     */
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    /**
      * ビルダーパターンのためのビルダーメソッド
      * @return Builderインスタンス
      */
@@ -89,6 +108,7 @@ public class LoginResponse {
         private UUID userId;
         private String username;
         private List<String> roles;
+        private String accessToken;
 
         public Builder userId(UUID userId) {
             this.userId = userId;
@@ -105,8 +125,13 @@ public class LoginResponse {
             return this;
         }
 
+        public Builder accessToken(String accessToken) {
+            this.accessToken = accessToken;
+            return this;
+        }
+
         public LoginResponse build() {
-            return new LoginResponse(userId, username, roles);
+            return new LoginResponse(userId, username, roles, accessToken);
         }
     }
 }
