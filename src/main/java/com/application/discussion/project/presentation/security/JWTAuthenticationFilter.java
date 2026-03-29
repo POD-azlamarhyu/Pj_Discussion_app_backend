@@ -11,7 +11,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -27,9 +26,11 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
-    private final AntPathRequestMatcher requestMatcher = new AntPathRequestMatcher("/v1/auth/login","POST");
-    private final AntPathRequestMatcher signupMatcher = new AntPathRequestMatcher("/v1/users/signup","POST");
-    private final AntPathRequestMatcher refreshMatcher = new AntPathRequestMatcher("/v1/auth/refresh","POST");
+    private static final List<String> SKIP_AUTH_POST_PATHS = List.of(
+        "/v1/auth/login",
+        "/v1/users/signup",
+        "/v1/auth/refresh"
+    );
 
     private static final List<String> PUBLIC_PATHS = Arrays.asList(
         "/v3/api-docs/**",
@@ -67,7 +68,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         String requestURI=httpServletRequest.getRequestURI();
         logger.debug("called for URI : {}",requestURI);
 
-        if (requestMatcher.matches(httpServletRequest) || signupMatcher.matches(httpServletRequest) || refreshMatcher.matches(httpServletRequest)) {
+        if ("POST".equals(httpServletRequest.getMethod()) && SKIP_AUTH_POST_PATHS.contains(requestURI)) {
             logger.debug("Skipping JWT authentication for public auth request: {}", requestURI);
             filterChain.doFilter(httpServletRequest, httpServletResponse);
             return;
