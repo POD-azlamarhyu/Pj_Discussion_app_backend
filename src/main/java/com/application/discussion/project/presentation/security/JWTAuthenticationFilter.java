@@ -66,7 +66,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         logger.info("JWTAuthenticationFilter is processing the request...");
         String requestURI=httpServletRequest.getRequestURI();
-        logger.debug("called for URI : {}",requestURI);
+        logger.info("called for URI : {}",requestURI);
 
         if ("POST".equals(httpServletRequest.getMethod()) && SKIP_AUTH_POST_PATHS.contains(requestURI)) {
             logger.debug("Skipping JWT authentication for public auth request: {}", requestURI);
