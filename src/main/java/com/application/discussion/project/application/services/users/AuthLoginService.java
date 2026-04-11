@@ -1,6 +1,9 @@
 package com.application.discussion.project.application.services.users;
 
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -16,14 +19,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.application.discussion.project.application.dtos.exceptions.ApplicationLayerException;
 import com.application.discussion.project.application.dtos.users.LoginRequest;
 import com.application.discussion.project.application.dtos.users.LoginResponse;
 import com.application.discussion.project.application.services.security.JWTAuthUserDetails;
 import com.application.discussion.project.application.services.security.JWTUtils;
+import com.application.discussion.project.domain.entities.users.RefreshToken;
+import com.application.discussion.project.domain.repositories.users.RefreshTokenRepository;
 
 
 @Service
@@ -37,6 +42,9 @@ public class AuthLoginService implements AuthLoginServiceInterface {
     @Autowired
     private JWTUtils jwtUtils;
 
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+
     /**
      * ユーザーのログインを処理するサービスメソッド
      * 
@@ -45,6 +53,7 @@ public class AuthLoginService implements AuthLoginServiceInterface {
      * @throws ApplicationLayerException 認証失敗時にスローされる例外
      */
     @Override
+    @Transactional
     public ResponseEntity<LoginResponse> service(final LoginRequest loginRequest) {
         logger.debug("AuthLoginService called with request: {}", loginRequest.toString());
         
@@ -71,9 +80,22 @@ public class AuthLoginService implements AuthLoginServiceInterface {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         final JWTAuthUserDetails userDetails = (JWTAuthUserDetails) authentication.getPrincipal();
-        final ResponseCookie responseCookie = jwtUtils.generateJwtCookie(userDetails);
+        logger.info("Authenticated user {}",userDetails.getUserId());
+        final String accessToken = jwtUtils.generateToken(userDetails);
 
-        logger.info("Generated JWT token for user: {} with email: {}", userDetails.getUsername(), userDetails.getEmail());
+        final String refreshTokenStr = jwtUtils.generateRefreshToken(userDetails);
+        final String tokenHash = jwtUtils.hashToken(refreshTokenStr);
+        final LocalDateTime expiresAt = LocalDateTime.ofInstant(
+            Instant.ofEpochMilli(System.currentTimeMillis() + jwtUtils.getRefreshTokenExpirationMs()),
+            ZoneId.systemDefault()
+        );
+        final RefreshToken refreshToken = RefreshToken.create(userDetails.getUserId(), tokenHash, expiresAt);
+        logger.info("Saving refresh token for userId: {} with tokenHash: {}", userDetails.getUserId(), "******");
+        refreshTokenRepository.save(refreshToken);
+
+        final ResponseCookie refreshCookie = jwtUtils.generateRefreshTokenCookie(refreshTokenStr);
+
+        logger.info("Generated access token and refresh token for user: {} with email: {}", userDetails.getUsername(), userDetails.getEmail());
         
         final LoginResponse loginResponse = LoginResponse.builder()
             .userId(userDetails.getUserId())
@@ -81,10 +103,11 @@ public class AuthLoginService implements AuthLoginServiceInterface {
             .roles(userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList()))
+            .accessToken(accessToken)
             .build();
 
         return ResponseEntity.status(HttpStatus.OK)
-            .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+            .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
             .body(loginResponse);
     }
 

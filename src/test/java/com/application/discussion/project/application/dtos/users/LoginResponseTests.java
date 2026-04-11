@@ -1,16 +1,17 @@
 package com.application.discussion.project.application.dtos.users;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 class LoginResponseTest {
+
+    private static final String TEST_ACCESS_TOKEN = "access_token_sample";
 
     @Test
     @DisplayName("デフォルトコンストラクタ_全フィールドがnullで初期化される")
@@ -30,7 +31,7 @@ class LoginResponseTest {
         String expectedUsername = "testuser";
         List<String> expectedRoles = Arrays.asList("ROLE_USER", "ROLE_ADMIN");
 
-        LoginResponse actualResponse = new LoginResponse(expectedUserId, expectedUsername, expectedRoles);
+        LoginResponse actualResponse = new LoginResponse(expectedUserId, expectedUsername, expectedRoles,TEST_ACCESS_TOKEN);
 
         assertThat(actualResponse.getUserId()).isEqualTo(expectedUserId);
         assertThat(actualResponse.getUsername()).isEqualTo(expectedUsername);
@@ -139,7 +140,7 @@ class LoginResponseTest {
         String expectedUsername = "admin";
         List<String> expectedRoles = Arrays.asList("ROLE_USER", "ROLE_ADMIN", "ROLE_MODERATOR");
 
-        LoginResponse actualResponse = new LoginResponse(expectedUserId, expectedUsername, expectedRoles);
+        LoginResponse actualResponse = new LoginResponse(expectedUserId, expectedUsername, expectedRoles,TEST_ACCESS_TOKEN);
 
         assertThat(actualResponse.getRoles()).hasSize(3);
         assertThat(actualResponse.getRoles()).containsExactly("ROLE_USER", "ROLE_ADMIN", "ROLE_MODERATOR");

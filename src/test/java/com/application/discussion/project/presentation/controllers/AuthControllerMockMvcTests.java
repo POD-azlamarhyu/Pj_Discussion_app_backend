@@ -62,6 +62,7 @@ public class AuthControllerMockMvcTests {
     private static final Boolean TEST_LOGOUT_SUCCESS = true;
     private static final String LOGIN_ENDPOINT = "/v1/auth/login";
     private static final String LOGOUT_ENDPOINT = "/v1/auth/logout";
+    private static final String TEST_ACCESS_TOKEN = "mocked-access-token";
 
     private LoginRequest mockLoginRequest;
     private LoginResponse mockLoginResponse;
@@ -72,7 +73,7 @@ public class AuthControllerMockMvcTests {
     @BeforeEach
     void setUp() {
         mockLoginRequest = new LoginRequest(TEST_EMAIL, TEST_PASSWORD);
-        mockLoginResponse = new LoginResponse(TEST_USER_ID, TEST_USERNAME, TEST_ROLES);
+        mockLoginResponse = new LoginResponse(TEST_USER_ID, TEST_USERNAME, TEST_ROLES,TEST_ACCESS_TOKEN);
         mockLogoutResponse = LogoutResponse.of(TEST_LOGOUT_MESSAGE, TEST_LOGOUT_SUCCESS);
         
         mockJwtCookie = ResponseCookie.from("jwt", "")
